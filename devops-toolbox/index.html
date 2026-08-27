@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/style.css?v=2">
 </head>
 <body>
 
@@ -24,42 +24,59 @@
 
 <div class="layout">
 <nav class="tool-nav" id="tool-nav">
-  <div class="nav-group-label">Format &amp; Validate</div>
-  <button class="tab-btn active" data-tool="yaml">YAML Validator</button>
-  <button class="tab-btn" data-tool="jsonyaml">JSON ↔ YAML</button>
-  <button class="tab-btn" data-tool="jsonfmt">JSON Formatter</button>
-  <button class="tab-btn" data-tool="diff">Diff Viewer</button>
-  <button class="tab-btn" data-tool="md2word">Markdown → Word</button>
+  <details class="nav-group" open>
+    <summary class="nav-group-label">Format &amp; Validate</summary>
+    <button class="tab-btn active" data-tool="yaml">YAML Validator</button>
+    <button class="tab-btn" data-tool="jsonyaml">JSON ↔ YAML</button>
+    <button class="tab-btn" data-tool="jsonfmt">JSON Formatter</button>
+    <button class="tab-btn" data-tool="diff">Diff Viewer</button>
+    <button class="tab-btn" data-tool="md2word">Markdown → Word</button>
+  </details>
 
-  <div class="nav-group-label">Kubernetes &amp; Docker</div>
-  <button class="tab-btn" data-tool="k8slint">Kubernetes Manifest Analyzer</button>
-  <button class="tab-btn" data-tool="dockerlint">Dockerfile Checker</button>
+  <details class="nav-group" open>
+    <summary class="nav-group-label">Kubernetes &amp; Docker</summary>
+    <button class="tab-btn" data-tool="k8slint">K8s Manifest Analyzer</button>
+    <button class="tab-btn" data-tool="dockerlint">Dockerfile Checker</button>
+  </details>
 
-  <div class="nav-group-label">Terraform &amp; AWS</div>
-  <button class="tab-btn" data-tool="tf">Terraform Plan Formatter</button>
-  <button class="tab-btn" data-tool="tfcount">Terraform Resource Counter</button>
-  <button class="tab-btn" data-tool="arn">ARN Parser</button>
+  <details class="nav-group" open>
+    <summary class="nav-group-label">Terraform &amp; AWS</summary>
+    <button class="tab-btn" data-tool="tf">TF Plan Formatter</button>
+    <button class="tab-btn" data-tool="tfcount">TF Resource Counter</button>
+    <button class="tab-btn" data-tool="arn">ARN Parser</button>
+  </details>
 
-  <div class="nav-group-label">Security</div>
-  <button class="tab-btn" data-tool="jwt">JWT Decoder</button>
-  <button class="tab-btn" data-tool="hash">Hash Generator</button>
-  <button class="tab-btn" data-tool="base64">Base64 / URL Encode</button>
+  <details class="nav-group" open>
+    <summary class="nav-group-label">Security</summary>
+    <button class="tab-btn" data-tool="jwt">JWT Decoder</button>
+    <button class="tab-btn" data-tool="hash">Hash Generator</button>
+    <button class="tab-btn" data-tool="base64">Base64 / URL Encode</button>
+  </details>
 
-  <div class="nav-group-label">Text &amp; Code</div>
-  <button class="tab-btn" data-tool="regex">Regex Tester</button>
-  <button class="tab-btn" data-tool="curl">cURL → Code</button>
+  <details class="nav-group" open>
+    <summary class="nav-group-label">Text &amp; Code</summary>
+    <button class="tab-btn" data-tool="regex">Regex Tester</button>
+    <button class="tab-btn" data-tool="curl">cURL → Code</button>
+  </details>
 
-  <div class="nav-group-label">Time</div>
-  <button class="tab-btn" data-tool="cron">Cron Explainer</button>
-  <button class="tab-btn" data-tool="timestamp">Unix Timestamp</button>
-  <button class="tab-btn" data-tool="timezone">Timezone Converter</button>
+  <details class="nav-group" open>
+    <summary class="nav-group-label">Time</summary>
+    <button class="tab-btn" data-tool="cron">Cron Explainer</button>
+    <button class="tab-btn" data-tool="timestamp">Unix Timestamp</button>
+    <button class="tab-btn" data-tool="timezone">Timezone Converter</button>
+  </details>
+
+  <details class="nav-group" open>
+    <summary class="nav-group-label">Networking</summary>
+    <button class="tab-btn" data-tool="cidr">CIDR Calculator</button>
+  </details>
 </nav>
 
 <main>
 
   <!-- YAML VALIDATOR -->
   <section class="tool-panel active" id="panel-yaml">
-    <h1>YAML Validator</h1>
+    <div class="panel-header"><h1>YAML Validator</h1><button class="clear-btn" data-clear="yaml">Clear</button></div>
     <p class="tool-desc">Paste any YAML — Kubernetes manifests, Docker Compose, CI configs — and check it for syntax errors instantly. Runs fully client-side.</p>
     <div class="tool-grid">
       <div class="io-col">
@@ -81,7 +98,7 @@ spec:
 
   <!-- TERRAFORM PLAN FORMATTER -->
   <section class="tool-panel" id="panel-tf">
-    <h1>Terraform Plan Formatter</h1>
+    <div class="panel-header"><h1>Terraform Plan Formatter</h1><button class="clear-btn" data-clear="tf">Clear</button></div>
     <p class="tool-desc">Paste raw <code>terraform plan</code> output (color codes lost from a copy-paste) and get it re-highlighted — creates in green, destroys in red, updates in yellow — so it's actually readable again.</p>
     <div class="tool-grid">
       <div class="io-col">
@@ -113,7 +130,7 @@ spec:
 
   <!-- CRON EXPLAINER -->
   <section class="tool-panel" id="panel-cron">
-    <h1>Cron Expression Explainer</h1>
+    <div class="panel-header"><h1>Cron Expression Explainer</h1><button class="clear-btn" data-clear="cron">Clear</button></div>
     <p class="tool-desc">Paste a 5-field cron expression and get a plain-English explanation of when it actually runs.</p>
     <div class="tool-grid tool-grid-single">
       <div class="io-col">
@@ -133,7 +150,7 @@ spec:
 
   <!-- MARKDOWN TO WORD -->
   <section class="tool-panel" id="panel-md2word">
-    <h1>Markdown → Word Converter</h1>
+    <div class="panel-header"><h1>Markdown → Word Converter</h1><button class="clear-btn" data-clear="md2word">Clear</button></div>
     <p class="tool-desc">Paste Markdown and download it as a real <code>.docx</code> file — headings, bold/italic, lists, code blocks, and tables all carry over. Conversion happens entirely in your browser; nothing is uploaded.</p>
     <div class="tool-grid">
       <div class="io-col">
@@ -159,7 +176,7 @@ a code block
 
   <!-- JSON <-> YAML -->
   <section class="tool-panel" id="panel-jsonyaml">
-    <h1>JSON ↔ YAML Converter</h1>
+    <div class="panel-header"><h1>JSON ↔ YAML Converter</h1><button class="clear-btn" data-clear="jsonyaml">Clear</button></div>
     <p class="tool-desc">Paste JSON or YAML and convert to the other format. Auto-detects which one you pasted.</p>
     <div class="tool-grid">
       <div class="io-col">
@@ -179,7 +196,7 @@ a code block
 
   <!-- JSON FORMATTER -->
   <section class="tool-panel" id="panel-jsonfmt">
-    <h1>JSON Formatter &amp; Validator</h1>
+    <div class="panel-header"><h1>JSON Formatter &amp; Validator</h1><button class="clear-btn" data-clear="jsonfmt">Clear</button></div>
     <p class="tool-desc">Validate, pretty-print, minify, or sort the keys of any JSON.</p>
     <div class="tool-grid">
       <div class="io-col">
@@ -200,7 +217,7 @@ a code block
 
   <!-- TERRAFORM RESOURCE COUNTER -->
   <section class="tool-panel" id="panel-tfcount">
-    <h1>Terraform Resource Counter</h1>
+    <div class="panel-header"><h1>Terraform Resource Counter</h1><button class="clear-btn" data-clear="tfcount">Clear</button></div>
     <p class="tool-desc">Paste Terraform code and get a tally of every resource type — useful for PR reviews and change-scope estimates.</p>
     <div class="tool-grid">
       <div class="io-col">
@@ -224,7 +241,7 @@ resource "aws_instance" "app" {
 
   <!-- KUBERNETES MANIFEST ANALYZER -->
   <section class="tool-panel" id="panel-k8slint">
-    <h1>Kubernetes Manifest Analyzer</h1>
+    <div class="panel-header"><h1>Kubernetes Manifest Analyzer</h1><button class="clear-btn" data-clear="k8slint">Clear</button></div>
     <p class="tool-desc">Paste a Deployment, Pod, or similar manifest and get a lightweight lint check — missing resource limits, missing probes, privileged containers, <code>:latest</code> tags, and more.</p>
     <div class="tool-grid">
       <div class="io-col">
@@ -250,7 +267,7 @@ spec:
 
   <!-- DOCKERFILE CHECKER -->
   <section class="tool-panel" id="panel-dockerlint">
-    <h1>Dockerfile Best-Practices Checker</h1>
+    <div class="panel-header"><h1>Dockerfile Best-Practices Checker</h1><button class="clear-btn" data-clear="dockerlint">Clear</button></div>
     <p class="tool-desc">Paste a Dockerfile and catch common issues: <code>latest</code> tags, running as root, unpinned installs, missing HEALTHCHECK, and more.</p>
     <div class="tool-grid">
       <div class="io-col">
@@ -270,7 +287,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
 
   <!-- ARN PARSER -->
   <section class="tool-panel" id="panel-arn">
-    <h1>AWS ARN Parser</h1>
+    <div class="panel-header"><h1>AWS ARN Parser</h1><button class="clear-btn" data-clear="arn">Clear</button></div>
     <p class="tool-desc">Paste an AWS ARN and break it down into its parts.</p>
     <div class="tool-grid tool-grid-single">
       <div class="io-col">
@@ -287,7 +304,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
 
   <!-- JWT DECODER -->
   <section class="tool-panel" id="panel-jwt">
-    <h1>JWT Decoder</h1>
+    <div class="panel-header"><h1>JWT Decoder</h1><button class="clear-btn" data-clear="jwt">Clear</button></div>
     <p class="tool-desc">Paste a JWT and see its header and payload decoded, with expiry shown as a real date. Signature is not verified — this is a read-only decoder.</p>
     <div class="tool-grid">
       <div class="io-col">
@@ -304,7 +321,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
 
   <!-- REGEX TESTER -->
   <section class="tool-panel" id="panel-regex">
-    <h1>Regex Tester</h1>
+    <div class="panel-header"><h1>Regex Tester</h1><button class="clear-btn" data-clear="regex">Clear</button></div>
     <p class="tool-desc">Test a regular expression against sample text and see matches highlighted.</p>
     <div class="tool-grid">
       <div class="io-col">
@@ -325,7 +342,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
 
   <!-- BASE64 / URL ENCODE -->
   <section class="tool-panel" id="panel-base64">
-    <h1>Base64 / URL Encode &amp; Decode</h1>
+    <div class="panel-header"><h1>Base64 / URL Encode &amp; Decode</h1><button class="clear-btn" data-clear="base64">Clear</button></div>
     <p class="tool-desc">Encode or decode text using Base64 or URL encoding.</p>
     <div class="tool-grid">
       <div class="io-col">
@@ -349,7 +366,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
 
   <!-- HASH GENERATOR -->
   <section class="tool-panel" id="panel-hash">
-    <h1>Hash Generator</h1>
+    <div class="panel-header"><h1>Hash Generator</h1><button class="clear-btn" data-clear="hash">Clear</button></div>
     <p class="tool-desc">Generate MD5, SHA-1, SHA-256, and SHA-512 hashes of any text.</p>
     <div class="tool-grid tool-grid-single">
       <div class="io-col">
@@ -366,7 +383,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
 
   <!-- DIFF VIEWER -->
   <section class="tool-panel" id="panel-diff">
-    <h1>Diff Viewer</h1>
+    <div class="panel-header"><h1>Diff Viewer</h1><button class="clear-btn" data-clear="diff">Clear</button></div>
     <p class="tool-desc">Paste two blocks of text and see what changed, line by line.</p>
     <div class="tool-grid">
       <div class="io-col">
@@ -385,7 +402,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
 
   <!-- UNIX TIMESTAMP -->
   <section class="tool-panel" id="panel-timestamp">
-    <h1>Unix Timestamp Converter</h1>
+    <div class="panel-header"><h1>Unix Timestamp Converter</h1><button class="clear-btn" data-clear="timestamp">Clear</button></div>
     <p class="tool-desc">Convert between a Unix timestamp and a human-readable date, in both directions.</p>
     <div class="tool-grid">
       <div class="io-col">
@@ -405,7 +422,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
 
   <!-- TIMEZONE CONVERTER -->
   <section class="tool-panel" id="panel-timezone">
-    <h1>Timezone Converter</h1>
+    <div class="panel-header"><h1>Timezone Converter</h1><button class="clear-btn" data-clear="timezone">Clear</button></div>
     <p class="tool-desc">Enter a date/time and see it converted across common timezones for distributed teams.</p>
     <div class="tool-grid tool-grid-single">
       <div class="io-col">
@@ -422,7 +439,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
 
   <!-- CURL TO CODE -->
   <section class="tool-panel" id="panel-curl">
-    <h1>cURL → Code Generator</h1>
+    <div class="panel-header"><h1>cURL → Code Generator</h1><button class="clear-btn" data-clear="curl">Clear</button></div>
     <p class="tool-desc">Paste a <code>curl</code> command and get equivalent code in JavaScript, Python, and PowerShell.</p>
     <div class="tool-grid">
       <div class="io-col">
@@ -437,6 +454,23 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
     </div>
   </section>
 
+  <!-- CIDR CALCULATOR -->
+  <section class="tool-panel" id="panel-cidr">
+    <div class="panel-header"><h1>CIDR Calculator</h1><button class="clear-btn" data-clear="cidr">Clear</button></div>
+    <p class="tool-desc">Enter an IPv4 address with a CIDR prefix and get the network range, broadcast address, and usable host count.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="cidr-input">CIDR (e.g. 10.0.0.0/24)</label>
+        <input type="text" id="cidr-input" spellcheck="false" placeholder="10.0.0.0/24" value="10.0.0.0/24">
+        <button id="cidr-calc-btn" class="primary-btn">Calculate</button>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <div id="cidr-result" class="result-box result-idle">Enter a CIDR block and click "Calculate".</div>
+      </div>
+    </div>
+  </section>
+
 </main>
 </div>
 
@@ -447,6 +481,6 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@18.0.11/lib/marked.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js"></script>
-<script src="assets/app.js"></script>
+<script src="assets/app.js?v=2"></script>
 </body>
 </html>

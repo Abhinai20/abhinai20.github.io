@@ -7,6 +7,29 @@ document.querySelectorAll('.tab-btn').forEach((btn) => {
     document.getElementById('panel-' + btn.dataset.tool).classList.add('active');
   });
 });
+// (Categories default to open so every tool is always reachable in one
+// click; each can still be individually collapsed via its <summary> to
+// tidy up, but opening one never hides another.)
+
+// ---------- Universal Clear buttons ----------
+document.querySelectorAll('.clear-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const panel = document.getElementById('panel-' + btn.dataset.clear);
+    if (!panel) return;
+    panel.querySelectorAll('textarea, input[type="text"], input[type="datetime-local"]').forEach((el) => {
+      el.value = '';
+    });
+    panel.querySelectorAll('.result-box').forEach((box) => {
+      box.className = box.className
+        .split(' ')
+        .filter((c) => c !== 'result-success' && c !== 'result-error')
+        .concat('result-idle')
+        .filter((c, i, arr) => arr.indexOf(c) === i)
+        .join(' ');
+      box.textContent = 'Cleared.';
+    });
+  });
+});
 
 // ---------- YAML Validator ----------
 document.getElementById('yaml-check-btn').addEventListener('click', () => {
@@ -829,5 +852,58 @@ document.getElementById('curl-convert-btn').addEventListener('click', () => {
   } catch (e) {
     resultEl.className = 'result-box result-error tf-output';
     resultEl.textContent = 'Could not parse: ' + e.message;
+  }
+});
+
+// ---------- CIDR Calculator ----------
+function ipToInt(ip) {
+  const parts = ip.split('.').map(Number);
+  if (parts.length !== 4 || parts.some((p) => Number.isNaN(p) || p < 0 || p > 255)) {
+    throw new Error('Invalid IPv4 address: ' + ip);
+  }
+  return ((parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3]) >>> 0;
+}
+function intToIp(n) {
+  return [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].join('.');
+}
+function cidrInfo(cidr) {
+  const [ip, prefixStr] = cidr.trim().split('/');
+  const prefix = Number(prefixStr);
+  if (!ip || Number.isNaN(prefix) || prefix < 0 || prefix > 32) {
+    throw new Error('Expected format: IP/prefix, e.g. 10.0.0.0/24');
+  }
+  const ipInt = ipToInt(ip);
+  const mask = prefix === 0 ? 0 : (0xFFFFFFFF << (32 - prefix)) >>> 0;
+  const network = (ipInt & mask) >>> 0;
+  const broadcast = (network | (~mask >>> 0)) >>> 0;
+  const total = Math.pow(2, 32 - prefix);
+  let firstUsable, lastUsable, usableCount;
+  if (prefix === 32) { firstUsable = network; lastUsable = network; usableCount = 1; }
+  else if (prefix === 31) { firstUsable = network; lastUsable = broadcast; usableCount = 2; }
+  else { firstUsable = (network + 1) >>> 0; lastUsable = (broadcast - 1) >>> 0; usableCount = total - 2; }
+  return {
+    network: intToIp(network), broadcast: intToIp(broadcast), mask: intToIp(mask),
+    total, usableCount, firstUsable: intToIp(firstUsable), lastUsable: intToIp(lastUsable), prefix,
+  };
+}
+document.getElementById('cidr-calc-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('cidr-result');
+  try {
+    const r = cidrInfo(document.getElementById('cidr-input').value);
+    const lines = [
+      `Network address:    ${r.network}/${r.prefix}`,
+      `Subnet mask:        ${r.mask}`,
+      `Broadcast address:  ${r.broadcast}`,
+      `Total addresses:    ${r.total.toLocaleString()}`,
+      `Usable hosts:       ${r.usableCount.toLocaleString()}`,
+      `First usable IP:    ${r.firstUsable}`,
+      `Last usable IP:     ${r.lastUsable}`,
+    ];
+    if (r.prefix >= 31) lines.push('', '(Note: /31 and /32 have no distinct network/broadcast address by the usual convention — RFC 3021 point-to-point and host routes.)');
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = lines.join('\n');
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
   }
 });
