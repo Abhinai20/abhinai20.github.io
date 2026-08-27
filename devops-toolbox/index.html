@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8946983522733896"
+     crossorigin="anonymous"></script>
+<title>DevOps Toolbox — Free Online YAML, Terraform, and Cron Tools</title>
+<meta name="description" content="Free browser-based DevOps tools: validate Kubernetes YAML, format Terraform plan output, and explain cron expressions in plain English. No signup, nothing leaves your browser.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230f172a'/><text y='.9em' x='50%25' text-anchor='middle' font-size='68' font-family='monospace' fill='%2338bdf8'>&gt;_</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="/" class="logo">DevOps<span>Toolbox</span></a>
+    <p class="tagline">Free tools that run entirely in your browser — nothing you paste is ever sent anywhere.</p>
+  </div>
+</header>
+
+<nav class="tool-nav" id="tool-nav">
+  <button class="tab-btn active" data-tool="yaml">YAML Validator</button>
+  <button class="tab-btn" data-tool="tf">Terraform Plan Formatter</button>
+  <button class="tab-btn" data-tool="cron">Cron Explainer</button>
+  <button class="tab-btn" data-tool="md2word">Markdown → Word</button>
+</nav>
+
+<main>
+
+  <!-- YAML VALIDATOR -->
+  <section class="tool-panel active" id="panel-yaml">
+    <h1>YAML Validator</h1>
+    <p class="tool-desc">Paste any YAML — Kubernetes manifests, Docker Compose, CI configs — and check it for syntax errors instantly. Runs fully client-side.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="yaml-input">Your YAML</label>
+        <textarea id="yaml-input" spellcheck="false" placeholder="apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  replicas: 3"></textarea>
+        <button id="yaml-check-btn" class="primary-btn">Check YAML</button>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <div id="yaml-result" class="result-box result-idle">Paste YAML and click "Check YAML" to see the result here.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TERRAFORM PLAN FORMATTER -->
+  <section class="tool-panel" id="panel-tf">
+    <h1>Terraform Plan Formatter</h1>
+    <p class="tool-desc">Paste raw <code>terraform plan</code> output (color codes lost from a copy-paste) and get it re-highlighted — creates in green, destroys in red, updates in yellow — so it's actually readable again.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="tf-input">Raw plan output</label>
+        <textarea id="tf-input" spellcheck="false" placeholder="  # aws_instance.web will be created
+  + resource &quot;aws_instance&quot; &quot;web&quot; {
+      + ami           = &quot;ami-0123456789&quot;
+      + instance_type = &quot;t3.micro&quot;
+    }
+
+  # aws_s3_bucket.old will be destroyed
+  - resource &quot;aws_s3_bucket&quot; &quot;old&quot; {
+      - bucket = &quot;my-old-bucket&quot; -> null
+    }"></textarea>
+        <button id="tf-format-btn" class="primary-btn">Format Plan</button>
+      </div>
+      <div class="io-col">
+        <label>Formatted output</label>
+        <pre id="tf-result" class="result-box result-idle tf-output">Paste a plan and click "Format Plan" to see it highlighted here.</pre>
+      </div>
+    </div>
+    <div class="legend">
+      <span class="legend-item"><span class="swatch swatch-add"></span> create</span>
+      <span class="legend-item"><span class="swatch swatch-remove"></span> destroy</span>
+      <span class="legend-item"><span class="swatch swatch-change"></span> update in-place</span>
+      <span class="legend-item"><span class="swatch swatch-replace"></span> replace (destroy + create)</span>
+    </div>
+  </section>
+
+  <!-- CRON EXPLAINER -->
+  <section class="tool-panel" id="panel-cron">
+    <h1>Cron Expression Explainer</h1>
+    <p class="tool-desc">Paste a 5-field cron expression and get a plain-English explanation of when it actually runs.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="cron-input">Cron expression</label>
+        <input type="text" id="cron-input" spellcheck="false" placeholder="30 6 * * 1,4" value="30 6 * * 1,4">
+        <button id="cron-explain-btn" class="primary-btn">Explain</button>
+      </div>
+      <div class="io-col">
+        <label>Plain English</label>
+        <div id="cron-result" class="result-box result-idle">Enter a cron expression and click "Explain".</div>
+      </div>
+    </div>
+    <div class="cron-ref">
+      <strong>Field order:</strong> <code>minute hour day-of-month month day-of-week</code>
+    </div>
+  </section>
+
+  <!-- MARKDOWN TO WORD -->
+  <section class="tool-panel" id="panel-md2word">
+    <h1>Markdown → Word Converter</h1>
+    <p class="tool-desc">Paste Markdown and download it as a real <code>.docx</code> file — headings, bold/italic, lists, code blocks, and tables all carry over. Conversion happens entirely in your browser; nothing is uploaded.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="md-input">Markdown</label>
+        <textarea id="md-input" spellcheck="false" placeholder="# My Document
+
+Some **bold** text and a list:
+
+- First item
+- Second item
+
+```
+a code block
+```"></textarea>
+        <button id="md-convert-btn" class="primary-btn">Convert &amp; Download .docx</button>
+      </div>
+      <div class="io-col">
+        <label>Preview</label>
+        <div id="md-preview" class="result-box result-idle md-preview">Paste Markdown and click convert — a preview of the formatted result will appear here, and a .docx file will download automatically.</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p>Built for engineers who are tired of guessing whether their YAML is actually valid. No data leaves your browser — every tool here runs entirely client-side.</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@18.0.11/lib/marked.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
