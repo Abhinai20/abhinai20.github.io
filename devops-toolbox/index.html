@@ -22,25 +22,37 @@
   </div>
 </header>
 
+<div class="layout">
 <nav class="tool-nav" id="tool-nav">
+  <div class="nav-group-label">Format &amp; Validate</div>
   <button class="tab-btn active" data-tool="yaml">YAML Validator</button>
   <button class="tab-btn" data-tool="jsonyaml">JSON ↔ YAML</button>
   <button class="tab-btn" data-tool="jsonfmt">JSON Formatter</button>
-  <button class="tab-btn" data-tool="tf">Terraform Plan Formatter</button>
-  <button class="tab-btn" data-tool="tfcount">Terraform Resource Counter</button>
+  <button class="tab-btn" data-tool="diff">Diff Viewer</button>
+  <button class="tab-btn" data-tool="md2word">Markdown → Word</button>
+
+  <div class="nav-group-label">Kubernetes &amp; Docker</div>
   <button class="tab-btn" data-tool="k8slint">Kubernetes Manifest Analyzer</button>
   <button class="tab-btn" data-tool="dockerlint">Dockerfile Checker</button>
+
+  <div class="nav-group-label">Terraform &amp; AWS</div>
+  <button class="tab-btn" data-tool="tf">Terraform Plan Formatter</button>
+  <button class="tab-btn" data-tool="tfcount">Terraform Resource Counter</button>
   <button class="tab-btn" data-tool="arn">ARN Parser</button>
+
+  <div class="nav-group-label">Security</div>
   <button class="tab-btn" data-tool="jwt">JWT Decoder</button>
-  <button class="tab-btn" data-tool="regex">Regex Tester</button>
-  <button class="tab-btn" data-tool="base64">Base64 / URL Encode</button>
   <button class="tab-btn" data-tool="hash">Hash Generator</button>
-  <button class="tab-btn" data-tool="diff">Diff Viewer</button>
+  <button class="tab-btn" data-tool="base64">Base64 / URL Encode</button>
+
+  <div class="nav-group-label">Text &amp; Code</div>
+  <button class="tab-btn" data-tool="regex">Regex Tester</button>
+  <button class="tab-btn" data-tool="curl">cURL → Code</button>
+
+  <div class="nav-group-label">Time</div>
   <button class="tab-btn" data-tool="cron">Cron Explainer</button>
   <button class="tab-btn" data-tool="timestamp">Unix Timestamp</button>
   <button class="tab-btn" data-tool="timezone">Timezone Converter</button>
-  <button class="tab-btn" data-tool="curl">cURL → Code</button>
-  <button class="tab-btn" data-tool="md2word">Markdown → Word</button>
 </nav>
 
 <main>
@@ -426,9 +438,10 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
   </section>
 
 </main>
+</div>
 
 <footer class="site-footer">
-  <p>Built for engineers who are tired of guessing whether their YAML is actually valid. No data leaves your browser — every tool here runs entirely client-side. More tools added regularly.</p>
+  <p>Built for engineers who are tired of copy-pasting things into sketchy third-party sites. No data leaves your browser — every tool here runs entirely client-side. More tools added regularly.</p>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
