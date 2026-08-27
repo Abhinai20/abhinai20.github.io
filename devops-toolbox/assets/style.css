@@ -157,6 +157,39 @@ textarea:focus, input[type="text"]:focus {
 }
 .primary-btn:hover { background: var(--accent-hover); }
 
+.secondary-btn {
+  margin-top: 12px;
+  margin-left: 8px;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.secondary-btn:hover { border-color: var(--accent); }
+
+.btn-row { display: flex; flex-wrap: wrap; }
+.btn-row .primary-btn, .btn-row .secondary-btn { margin-right: 0; }
+
+.second-label {
+  margin-top: 12px;
+}
+
+.regex-match {
+  background: rgba(56, 189, 248, 0.25);
+  color: var(--accent-hover);
+  border-radius: 2px;
+}
+
+.diff-added { background: rgba(74, 222, 128, 0.15); color: var(--add); display: block; }
+.diff-removed { background: rgba(248, 113, 113, 0.15); color: var(--remove); display: block; }
+.diff-same { color: var(--text-muted); display: block; }
+
 .result-box {
   background: var(--code-bg);
   border: 1px solid var(--border);
