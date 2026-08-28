@@ -22,6 +22,11 @@
     <p class="tagline">Free tools that run entirely in your browser — nothing you paste is ever sent anywhere.</p>
   </div>
   <details class="nav-group" open>
+    <summary class="nav-group-label">AI Writing</summary>
+    <button class="tab-btn" data-tool="paraphraser">AI Paraphraser</button>
+  </details>
+
+  <details class="nav-group" open>
     <summary class="nav-group-label">Format &amp; Validate</summary>
     <button class="tab-btn active" data-tool="yaml">YAML Validator</button>
     <button class="tab-btn" data-tool="jsonyaml">JSON ↔ YAML</button>
@@ -122,6 +127,32 @@
 </nav>
 
 <main>
+
+  <!-- AI PARAPHRASER -->
+  <section class="tool-panel" id="panel-paraphraser">
+    <div class="panel-header"><h1>AI Paraphraser</h1><button class="clear-btn" data-clear="paraphraser">Clear</button></div>
+    <p class="tool-desc">Rewrite text in a different style — like QuillBot, but the model runs entirely on your device via WebAssembly. Nothing is uploaded anywhere. The first run downloads a small AI model (~90MB, cached in your browser after that — later uses are instant).</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="paraphraser-input">Your text</label>
+        <textarea id="paraphraser-input" spellcheck="false" placeholder="Paste a sentence or short paragraph to rewrite.">Our team is currently investigating the root cause of the outage and will provide updates as soon as we have more information.</textarea>
+        <label class="second-label">Mode</label>
+        <select id="paraphraser-mode">
+          <option value="standard">Standard</option>
+          <option value="formal">Formal</option>
+          <option value="fluency">Fluency (fix grammar, keep meaning)</option>
+          <option value="simple">Simple (plain English)</option>
+          <option value="creative">Creative</option>
+        </select>
+        <button id="paraphraser-run-btn" class="primary-btn">Paraphrase</button>
+        <div id="paraphraser-status" style="margin-top:10px;font-size:0.82rem;color:var(--text-muted);"></div>
+      </div>
+      <div class="io-col">
+        <label>Rewritten text</label>
+        <div id="paraphraser-result" class="result-box result-idle">Click "Paraphrase" — the AI model loads on first use (~90MB, one time).</div>
+      </div>
+    </div>
+  </section>
 
   <!-- YAML VALIDATOR -->
   <section class="tool-panel active" id="panel-yaml">

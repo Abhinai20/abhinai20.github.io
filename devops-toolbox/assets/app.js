@@ -2552,3 +2552,61 @@ document.getElementById('cronnext-calc-btn').addEventListener('click', () => {
     resultEl.textContent = e.message;
   }
 });
+
+// ---------- AI Paraphraser ----------
+let paraphraserPipelinePromise = null;
+const PARAPHRASER_MODEL = 'Xenova/LaMini-Flan-T5-77M';
+function getParaphraserPipeline(onProgress) {
+  if (!paraphraserPipelinePromise) {
+    paraphraserPipelinePromise = import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/transformers.min.js')
+      .then(({ pipeline, env }) => {
+        env.allowLocalModels = false;
+        return pipeline('text2text-generation', PARAPHRASER_MODEL, { progress_callback: onProgress });
+      });
+  }
+  return paraphraserPipelinePromise;
+}
+const PARAPHRASE_PROMPTS = {
+  standard: (t) => `Paraphrase the following text:\n${t}`,
+  formal: (t) => `Rewrite the following text in a more formal tone:\n${t}`,
+  fluency: (t) => `Fix the grammar and improve the fluency of the following text, keeping the same meaning:\n${t}`,
+  simple: (t) => `Rewrite the following text in simple, plain English:\n${t}`,
+  creative: (t) => `Rewrite the following text creatively, using different words and sentence structure:\n${t}`,
+};
+document.getElementById('paraphraser-run-btn').addEventListener('click', async () => {
+  const resultEl = document.getElementById('paraphraser-result');
+  const statusEl = document.getElementById('paraphraser-status');
+  const btn = document.getElementById('paraphraser-run-btn');
+  try {
+    const input = document.getElementById('paraphraser-input').value.trim();
+    if (!input) throw new Error('Paste some text first.');
+    const mode = document.getElementById('paraphraser-mode').value;
+    btn.disabled = true;
+    resultEl.className = 'result-box result-idle';
+    resultEl.textContent = 'Loading AI model…';
+    const seenFiles = {};
+    const paraphraser = await getParaphraserPipeline((progress) => {
+      if (progress.status === 'progress' && progress.file) {
+        seenFiles[progress.file] = progress.progress || 0;
+        const pct = Math.round(Object.values(seenFiles).reduce((a, b) => a + b, 0) / Object.keys(seenFiles).length);
+        statusEl.textContent = `Downloading AI model… ${pct}% (one-time, then cached in your browser)`;
+      } else if (progress.status === 'ready') {
+        statusEl.textContent = 'Model ready.';
+      }
+    });
+    statusEl.textContent = 'Generating…';
+    resultEl.textContent = 'Generating…';
+    const prompt = PARAPHRASE_PROMPTS[mode](input);
+    const output = await paraphraser(prompt, { max_new_tokens: 200, temperature: mode === 'creative' ? 1.0 : 0.7, do_sample: mode === 'creative' });
+    const text = output[0].generated_text.trim();
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = text || '(The model returned an empty result — try rephrasing or shortening the input.)';
+    statusEl.textContent = '';
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = 'Could not paraphrase: ' + (e.message || String(e));
+    statusEl.textContent = '';
+  } finally {
+    btn.disabled = false;
+  }
+});

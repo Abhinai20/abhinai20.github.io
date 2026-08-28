@@ -96,6 +96,18 @@ Committed and pushed to `Abhinai20/abhinai20.github.io`.
 
 **Backlog remaining** toward "70+" (~3 tools to round out): a few more ideas not yet scoped (e.g. GitHub Actions workflow linter, Docker Compose validator, S3 bucket policy generator). Continue in verified batches — Node-test the tricky logic first (cross-check against a real ground truth tool when possible, as done for the TLS decoder), descope anything that turns out to need modeling real dynamic system behavior rather than a fixed formula, then a full Playwright pass, then screenshot review, then commit.
 
+## AI Paraphraser added 2026-08-28 (68 tools total)
+
+User asked to add a QuillBot-style paraphraser and put it at the top of the sidebar. This was previously researched-but-deferred (see the old note about `Xenova/flan-t5-small` via transformers.js) — picked back up and actually shipped this time.
+
+- **This tool is categorically different from the other 67**: it runs a real small ML model client-side (`Xenova/LaMini-Flan-T5-77M`, 77M params, quantized ONNX, ~90MB total download) via `@xenova/transformers` (loaded from jsdelivr CDN with a dynamic `import()` in app.js, so the ~90MB library+model only loads when someone actually opens this specific tool — everyone else's page load is unaffected). Still zero backend, zero API key, zero signup — the model runs in-browser via WebAssembly and is cached after first use (transformers.js uses the browser Cache API automatically).
+- Added a new "AI Writing" sidebar category, placed first (above "Format & Validate"), containing just this one tool, per the user's "top of the list" request.
+- Five modes (Standard/Formal/Fluency/Simple/Creative) implemented via different instruction prompts to the same model — mirrors QuillBot's mode selector, though it's one general-purpose small model, not mode-specific fine-tunes.
+- **Verified with a real end-to-end Playwright test that actually downloads the model and runs inference** (not mocked) — confirmed a genuine, sensibly-reworded output, zero console errors, sidebar ordering correct, Clear button and empty-input validation both correct.
+- **Quality caveat, set the right expectation with the user**: a 77M-parameter model is nowhere near QuillBot's actual paraphrasing quality — in testing, "Formal" and "Simple" modes sometimes returned output nearly identical to the input (the model under-edits on short/already-clean sentences). It's a genuine on-device paraphraser, not a QuillBot-equivalent. If quality turns out to matter more than the "no backend" constraint, the honest alternatives are: a larger model (slower first load, e.g. LaMini-Flan-T5-248M or -783M), or breaking the "no backend" rule with a real API (OpenAI/Claude/etc., which would need a paid API key and defeats the "always free, no signup" pitch of the rest of the site).
+
+Not yet committed as of this note if resuming mid-session — check `git status` in the devops-toolbox repo.
+
 ## How to resume
 
 Open a Claude Code session with working directory `C:\Users\Minfy\Documents\GitHubRootSite` and say "resume the DevOps Toolbox work" — this file has the context needed.
