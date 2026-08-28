@@ -19,6 +19,8 @@ document.querySelectorAll('.clear-btn').forEach((btn) => {
     panel.querySelectorAll('textarea, input[type="text"], input[type="datetime-local"]').forEach((el) => {
       el.value = '';
     });
+    panel.querySelectorAll('select').forEach((el) => { el.selectedIndex = 0; });
+    panel.querySelectorAll('input[type="checkbox"]').forEach((el) => { el.checked = false; });
     panel.querySelectorAll('.result-box').forEach((box) => {
       box.className = box.className
         .split(' ')
@@ -902,6 +904,442 @@ document.getElementById('cidr-calc-btn').addEventListener('click', () => {
     if (r.prefix >= 31) lines.push('', '(Note: /31 and /32 have no distinct network/broadcast address by the usual convention — RFC 3021 point-to-point and host routes.)');
     resultEl.className = 'result-box result-success';
     resultEl.textContent = lines.join('\n');
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- Kubernetes Quantity Converter ----------
+function parseK8sQuantity(q) {
+  q = q.trim();
+  const m = q.match(/^(-?\d+(?:\.\d+)?)([EPTGMK]i|[munkKMGTPE]?)$/);
+  if (!m) throw new Error('Invalid quantity. Expected formats like 500m, 1Gi, 250Mi, or a plain number.');
+  const num = parseFloat(m[1]);
+  const suf = m[2];
+  const binary = { Ki: 2 ** 10, Mi: 2 ** 20, Gi: 2 ** 30, Ti: 2 ** 40, Pi: 2 ** 50, Ei: 2 ** 60 };
+  const decimal = { n: 1e-9, u: 1e-6, m: 1e-3, '': 1, k: 1e3, K: 1e3, M: 1e6, G: 1e9, T: 1e12, P: 1e15, E: 1e18 };
+  const value = binary[suf] !== undefined ? num * binary[suf] : num * decimal[suf];
+  return { value };
+}
+function formatBytes(bytes) {
+  const units = [['Ei', 2 ** 60], ['Pi', 2 ** 50], ['Ti', 2 ** 40], ['Gi', 2 ** 30], ['Mi', 2 ** 20], ['Ki', 2 ** 10]];
+  for (const [label, size] of units) {
+    if (Math.abs(bytes) >= size) return `${(bytes / size).toFixed(3).replace(/\.?0+$/, '')} ${label}B`;
+  }
+  return `${bytes} B`;
+}
+document.getElementById('k8sq-convert-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('k8sq-result');
+  try {
+    const raw = document.getElementById('k8sq-input').value.trim();
+    if (!raw) throw new Error('Enter a quantity.');
+    const { value } = parseK8sQuantity(raw);
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = [
+      `Raw value:       ${value.toLocaleString('en-US')}`,
+      `As bytes/units:  ${formatBytes(value)}`,
+      `As CPU cores:    ${value}`,
+    ].join('\n');
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- chmod Calculator ----------
+function symbolicToOctal(sym) {
+  sym = sym.trim();
+  if (sym.length !== 9 || !/^[rwxst-]{9}$/i.test(sym)) throw new Error('Expected 9 characters like rwxr-xr--.');
+  let octal = '';
+  for (let i = 0; i < 3; i++) {
+    const chunk = sym.slice(i * 3, i * 3 + 3);
+    let v = 0;
+    if (chunk[0].toLowerCase() === 'r') v += 4;
+    if (chunk[1].toLowerCase() === 'w') v += 2;
+    if (chunk[2] !== '-') v += 1;
+    octal += v;
+  }
+  return octal;
+}
+function octalToSymbolic(oct) {
+  oct = oct.trim();
+  if (!/^[0-7]{3,4}$/.test(oct)) throw new Error('Expected 3 or 4 octal digits, e.g. 754.');
+  const digits = oct.length === 4 ? oct.slice(1) : oct;
+  const map = { 0: '---', 1: '--x', 2: '-w-', 3: '-wx', 4: 'r--', 5: 'r-x', 6: 'rw-', 7: 'rwx' };
+  return digits.split('').map((d) => map[d]).join('');
+}
+document.getElementById('chmod-to-octal-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('chmod-result');
+  try {
+    const sym = document.getElementById('chmod-symbolic').value;
+    if (!sym.trim()) throw new Error('Enter a symbolic permission string.');
+    const octal = symbolicToOctal(sym);
+    document.getElementById('chmod-octal').value = octal;
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = `${sym.trim()} = ${octal}\nchmod ${octal} file`;
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+document.getElementById('chmod-to-symbolic-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('chmod-result');
+  try {
+    const oct = document.getElementById('chmod-octal').value;
+    if (!oct.trim()) throw new Error('Enter an octal permission value.');
+    const sym = octalToSymbolic(oct);
+    document.getElementById('chmod-symbolic').value = sym;
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = `${oct.trim()} = ${sym}\nchmod ${oct.trim()} file`;
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- XML Formatter & Validator ----------
+function formatXml(xml) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(xml, 'application/xml');
+  const errorNode = doc.querySelector('parsererror');
+  if (errorNode) throw new Error('Invalid XML: ' + errorNode.textContent.trim().split('\n')[0]);
+  const serialized = new XMLSerializer().serializeToString(doc);
+  const withBreaks = serialized.replace(/></g, '>\n<');
+  const lines = withBreaks.split('\n');
+  let depth = 0;
+  const indented = [];
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (/^<\/[^>]+>$/.test(trimmed)) depth = Math.max(0, depth - 1);
+    indented.push('  '.repeat(depth) + trimmed);
+    if (/^<[^/!?][^>]*[^/]>$/.test(trimmed) && !/^<[^>]+\/>$/.test(trimmed)) depth += 1;
+  }
+  return indented.join('\n');
+}
+document.getElementById('xml-format-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('xml-result');
+  try {
+    const input = document.getElementById('xml-input').value;
+    if (!input.trim()) throw new Error('Paste some XML first.');
+    resultEl.className = 'result-box result-success tf-output';
+    resultEl.textContent = formatXml(input);
+  } catch (e) {
+    resultEl.className = 'result-box result-error tf-output';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- Color Converter ----------
+function parseColorToRgb(input) {
+  input = input.trim();
+  let m = input.match(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i);
+  if (m) {
+    let hex = m[1];
+    if (hex.length === 3) hex = hex.split('').map((c) => c + c).join('');
+    const num = parseInt(hex, 16);
+    return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+  }
+  m = input.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*[\d.]+\s*)?\)$/i);
+  if (m) return { r: +m[1], g: +m[2], b: +m[3] };
+  m = input.match(/^hsla?\(\s*(\d+)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*(?:,\s*[\d.]+\s*)?\)$/i);
+  if (m) return hslToRgb(+m[1], +m[2], +m[3]);
+  throw new Error('Unrecognized color format. Use hex (#3498db), rgb(52,152,219), or hsl(204,70%,53%).');
+}
+function rgbToHex(r, g, b) {
+  return '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('');
+}
+function rgbToHsl(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h, s, l = (max + min) / 2;
+  if (max === min) { h = s = 0; }
+  else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h /= 6;
+  }
+  return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+}
+function hslToRgb(h, s, l) {
+  h /= 360; s /= 100; l /= 100;
+  let r, g, b;
+  if (s === 0) { r = g = b = l; }
+  else {
+    const hue2rgb = (p, q, t) => {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1 / 6) return p + (q - p) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+      return p;
+    };
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1 / 3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1 / 3);
+  }
+  return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) };
+}
+document.getElementById('color-convert-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('color-result');
+  try {
+    const input = document.getElementById('color-input').value;
+    if (!input.trim()) throw new Error('Enter a color.');
+    const { r, g, b } = parseColorToRgb(input);
+    const hsl = rgbToHsl(r, g, b);
+    resultEl.className = 'result-box result-success';
+    resultEl.innerHTML =
+      `<div style="width:100%;height:40px;border-radius:6px;margin-bottom:10px;background:${rgbToHex(r, g, b)};border:1px solid var(--border);"></div>` +
+      `Hex:  ${rgbToHex(r, g, b)}\n` +
+      `RGB:  rgb(${r}, ${g}, ${b})\n` +
+      `HSL:  hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- CIDR Overlap Checker ----------
+function cidrRange(cidr) {
+  const [ip, prefixStr] = cidr.trim().split('/');
+  const prefix = Number(prefixStr);
+  if (!ip || Number.isNaN(prefix) || prefix < 0 || prefix > 32) throw new Error('Invalid CIDR: ' + cidr);
+  const ipInt = ipToInt(ip);
+  const mask = prefix === 0 ? 0 : (0xFFFFFFFF << (32 - prefix)) >>> 0;
+  const network = (ipInt & mask) >>> 0;
+  const broadcast = (network | (~mask >>> 0)) >>> 0;
+  return { network, broadcast, cidr: cidr.trim() };
+}
+function rangesOverlap(a, b) {
+  return a.network <= b.broadcast && b.network <= a.broadcast;
+}
+document.getElementById('cidroverlap-check-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('cidroverlap-result');
+  try {
+    const lines = document.getElementById('cidroverlap-input').value.split('\n').map((l) => l.trim()).filter(Boolean);
+    if (lines.length < 2) throw new Error('Enter at least two CIDR blocks, one per line.');
+    const ranges = lines.map(cidrRange);
+    const overlaps = [];
+    for (let i = 0; i < ranges.length; i++) {
+      for (let j = i + 1; j < ranges.length; j++) {
+        if (rangesOverlap(ranges[i], ranges[j])) overlaps.push(`${ranges[i].cidr}  <->  ${ranges[j].cidr}`);
+      }
+    }
+    resultEl.className = overlaps.length ? 'result-box result-error' : 'result-box result-success';
+    resultEl.textContent = overlaps.length
+      ? `Found ${overlaps.length} overlap(s):\n\n` + overlaps.join('\n')
+      : `No overlaps found among ${ranges.length} CIDR blocks.`;
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- URL Analyzer ----------
+document.getElementById('urlanalyzer-analyze-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('urlanalyzer-result');
+  try {
+    const raw = document.getElementById('urlanalyzer-input').value.trim();
+    if (!raw) throw new Error('Enter a URL.');
+    const url = new URL(raw);
+    const lines = [
+      `Protocol:   ${url.protocol}`,
+      `Hostname:   ${url.hostname}`,
+      `Port:       ${url.port || '(default)'}`,
+      `Pathname:   ${url.pathname || '/'}`,
+      `Search:     ${url.search || '(none)'}`,
+      `Hash:       ${url.hash || '(none)'}`,
+      `Username:   ${url.username || '(none)'}`,
+      `Password:   ${url.password ? '(present)' : '(none)'}`,
+      `Origin:     ${url.origin}`,
+    ];
+    if (url.search) {
+      lines.push('', 'Query parameters:');
+      for (const [k, v] of url.searchParams.entries()) lines.push(`  ${k} = ${v}`);
+    }
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = lines.join('\n');
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = 'Invalid URL: ' + e.message;
+  }
+});
+
+// ---------- HTTP Status Explorer ----------
+const HTTP_STATUSES = {
+  200: ['OK', 'The request succeeded.'],
+  201: ['Created', 'The request succeeded and a new resource was created.'],
+  204: ['No Content', 'The request succeeded but there is no content to return.'],
+  301: ['Moved Permanently', 'The resource has permanently moved to a new URL.'],
+  302: ['Found', 'The resource temporarily resides at a different URL.'],
+  304: ['Not Modified', 'The cached version is still valid; no need to re-download.'],
+  400: ['Bad Request', 'The server could not understand the request due to invalid syntax.'],
+  401: ['Unauthorized', 'Authentication is required and has failed or not been provided.'],
+  403: ['Forbidden', 'The server understood the request but refuses to authorize it.'],
+  404: ['Not Found', "The server can't find the requested resource."],
+  405: ['Method Not Allowed', 'The request method is not supported for this resource.'],
+  408: ['Request Timeout', 'The server timed out waiting for the request.'],
+  409: ['Conflict', 'The request conflicts with the current state of the resource.'],
+  413: ['Payload Too Large', 'The request body is larger than the server is willing to process.'],
+  418: ["I'm a teapot", 'A joke status from RFC 2324 — the server refuses to brew coffee in a teapot.'],
+  429: ['Too Many Requests', 'The user has sent too many requests in a given time ("rate limited").'],
+  500: ['Internal Server Error', 'The server encountered an unexpected condition. Common causes: unhandled exceptions, misconfiguration.'],
+  502: ['Bad Gateway', 'A gateway/proxy server got an invalid response from an upstream server. Common causes: upstream crashed, wrong upstream address, upstream still starting up.'],
+  503: ['Service Unavailable', 'The server is not ready to handle the request. Common causes: overloaded, in maintenance, health check failing.'],
+  504: ['Gateway Timeout', "A gateway/proxy server didn't get a response from the upstream server in time. Common causes: slow backend, network partition, deadlock."],
+};
+document.getElementById('httpstatus-lookup-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('httpstatus-result');
+  try {
+    const raw = document.getElementById('httpstatus-input').value.trim();
+    const code = Number(raw);
+    if (!raw || Number.isNaN(code) || code < 100 || code > 599) throw new Error('Enter a valid HTTP status code (100-599).');
+    const known = HTTP_STATUSES[code];
+    const category = code < 200 ? 'Informational' : code < 300 ? 'Success' : code < 400 ? 'Redirection' : code < 500 ? 'Client Error' : 'Server Error';
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = known
+      ? `${code} ${known[0]}\nCategory: ${category}\n\n${known[1]}`
+      : `${code}\nCategory: ${category}\n\nNo detailed description on file for this specific code, but it falls in the ${category} range.`;
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- UUID Inspector ----------
+document.getElementById('uuid-inspect-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('uuid-result');
+  try {
+    const raw = document.getElementById('uuid-input').value.trim().toLowerCase();
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(raw)) {
+      throw new Error('Not a valid UUID. Expected format: 8-4-4-4-12 hex digits.');
+    }
+    const hex = raw.replace(/-/g, '');
+    const version = parseInt(hex[12], 16);
+    const variantNibble = parseInt(hex[16], 16);
+    let variant = 'Unknown / reserved';
+    if ((variantNibble & 0b1000) === 0) variant = 'NCS backward compatibility';
+    else if ((variantNibble & 0b1100) === 0b1000) variant = 'RFC 4122 (standard)';
+    else if ((variantNibble & 0b1110) === 0b1100) variant = 'Microsoft (legacy GUID)';
+    const lines = [`Version:  ${version}`, `Variant:  ${variant}`];
+    if (version === 1) {
+      const timeLow = hex.slice(0, 8);
+      const timeMid = hex.slice(8, 12);
+      const timeHi = hex.slice(13, 16);
+      const ts100ns = BigInt('0x' + timeHi + timeMid + timeLow);
+      const GREGORIAN_OFFSET = 122192928000000000n;
+      const unixMs = (ts100ns - GREGORIAN_OFFSET) / 10000n;
+      lines.push(`Timestamp: ${new Date(Number(unixMs)).toISOString()} (embedded in v1 UUID)`);
+    } else if (version === 7) {
+      const ms = BigInt('0x' + hex.slice(0, 12));
+      lines.push(`Timestamp: ${new Date(Number(ms)).toISOString()} (embedded in v7 UUID)`);
+    } else {
+      lines.push('Timestamp: (not embedded — only UUIDv1 and UUIDv7 carry a timestamp)');
+    }
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = lines.join('\n');
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- Snowflake ID Decoder ----------
+document.getElementById('snowflake-decode-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('snowflake-result');
+  try {
+    const raw = document.getElementById('snowflake-input').value.trim();
+    if (!/^\d+$/.test(raw)) throw new Error('Enter a numeric snowflake ID.');
+    const platform = document.getElementById('snowflake-platform').value;
+    const epoch = platform === 'discord' ? 1420070400000n : 1288834974657n;
+    const idBig = BigInt(raw);
+    const ms = (idBig >> 22n) + epoch;
+    const workerOrShard = (idBig >> 17n) & 0x1Fn;
+    const sequence = idBig & 0xFFFn;
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = [
+      `Platform:   ${platform === 'discord' ? 'Discord' : 'Twitter/X'}`,
+      `Timestamp:  ${new Date(Number(ms)).toISOString()}`,
+      `Worker/machine bits: ${workerOrShard}`,
+      `Sequence bits:       ${sequence}`,
+    ].join('\n');
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- Git Diff Statistics ----------
+document.getElementById('gitdiff-stats-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('gitdiff-result');
+  try {
+    const input = document.getElementById('gitdiff-input').value;
+    if (!input.trim()) throw new Error('Paste a unified diff first.');
+    const lines = input.split('\n');
+    const files = new Set();
+    let added = 0, removed = 0;
+    for (const line of lines) {
+      const fileMatch = line.match(/^diff --git a\/(.+?) b\//) || line.match(/^\+\+\+ b\/(.+)/);
+      if (fileMatch) files.add(fileMatch[1]);
+      if (line.startsWith('+++') || line.startsWith('---')) continue;
+      if (line.startsWith('+')) added++;
+      else if (line.startsWith('-')) removed++;
+    }
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = [
+      `Files changed:  ${files.size || '(unknown — no "diff --git" headers found)'}`,
+      `Lines added:    +${added}`,
+      `Lines removed:  -${removed}`,
+      `Net change:     ${added - removed >= 0 ? '+' : ''}${added - removed}`,
+    ].join('\n');
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- Conventional Commit Generator ----------
+document.getElementById('cc-generate-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('cc-result');
+  try {
+    const type = document.getElementById('cc-type').value;
+    const scope = document.getElementById('cc-scope').value.trim();
+    const description = document.getElementById('cc-description').value.trim();
+    const breaking = document.getElementById('cc-breaking').checked;
+    if (!description) throw new Error('Enter a description.');
+    const message = `${type}${scope ? `(${scope})` : ''}${breaking ? '!' : ''}: ${description}`;
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = breaking ? `${message}\n\nBREAKING CHANGE: describe the breaking change here.` : message;
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- Branch Name Generator ----------
+document.getElementById('branchname-generate-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('branchname-result');
+  try {
+    const type = document.getElementById('branchname-type').value;
+    const desc = document.getElementById('branchname-input').value.trim();
+    if (!desc) throw new Error('Enter a description.');
+    const slug = desc
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .slice(0, 50)
+      .replace(/-+$/, '');
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = `${type}/${slug}`;
   } catch (e) {
     resultEl.className = 'result-box result-error';
     resultEl.textContent = e.message;

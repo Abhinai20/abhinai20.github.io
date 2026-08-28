@@ -37,6 +37,7 @@
     <summary class="nav-group-label">Kubernetes &amp; Docker</summary>
     <button class="tab-btn" data-tool="k8slint">K8s Manifest Analyzer</button>
     <button class="tab-btn" data-tool="dockerlint">Dockerfile Checker</button>
+    <button class="tab-btn" data-tool="k8squantity">K8s Quantity Converter</button>
   </details>
 
   <details class="nav-group" open>
@@ -51,12 +52,15 @@
     <button class="tab-btn" data-tool="jwt">JWT Decoder</button>
     <button class="tab-btn" data-tool="hash">Hash Generator</button>
     <button class="tab-btn" data-tool="base64">Base64 / URL Encode</button>
+    <button class="tab-btn" data-tool="chmod">chmod Calculator</button>
   </details>
 
   <details class="nav-group" open>
     <summary class="nav-group-label">Text &amp; Code</summary>
     <button class="tab-btn" data-tool="regex">Regex Tester</button>
     <button class="tab-btn" data-tool="curl">cURL → Code</button>
+    <button class="tab-btn" data-tool="xml">XML Formatter</button>
+    <button class="tab-btn" data-tool="color">Color Converter</button>
   </details>
 
   <details class="nav-group" open>
@@ -69,6 +73,18 @@
   <details class="nav-group" open>
     <summary class="nav-group-label">Networking</summary>
     <button class="tab-btn" data-tool="cidr">CIDR Calculator</button>
+    <button class="tab-btn" data-tool="cidroverlap">CIDR Overlap Checker</button>
+    <button class="tab-btn" data-tool="urlanalyzer">URL Analyzer</button>
+    <button class="tab-btn" data-tool="httpstatus">HTTP Status Explorer</button>
+  </details>
+
+  <details class="nav-group" open>
+    <summary class="nav-group-label">Git &amp; IDs</summary>
+    <button class="tab-btn" data-tool="uuid">UUID Inspector</button>
+    <button class="tab-btn" data-tool="snowflake">Snowflake ID Decoder</button>
+    <button class="tab-btn" data-tool="gitdiff">Git Diff Statistics</button>
+    <button class="tab-btn" data-tool="conventionalcommit">Conventional Commit</button>
+    <button class="tab-btn" data-tool="branchname">Branch Name Generator</button>
   </details>
 </nav>
 
@@ -467,6 +483,237 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
       <div class="io-col">
         <label>Result</label>
         <div id="cidr-result" class="result-box result-idle">Enter a CIDR block and click "Calculate".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- K8S QUANTITY CONVERTER -->
+  <section class="tool-panel" id="panel-k8squantity">
+    <div class="panel-header"><h1>Kubernetes Quantity Converter</h1><button class="clear-btn" data-clear="k8squantity">Clear</button></div>
+    <p class="tool-desc">Convert Kubernetes resource quantities (like <code>500m</code>, <code>1Gi</code>, <code>250Mi</code>) into human-readable values.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="k8sq-input">Quantity (e.g. 500m, 1Gi, 250Mi, 2)</label>
+        <input type="text" id="k8sq-input" spellcheck="false" placeholder="1Gi" value="1Gi">
+        <button id="k8sq-convert-btn" class="primary-btn">Convert</button>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <div id="k8sq-result" class="result-box result-idle">Enter a quantity and click "Convert".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHMOD CALCULATOR -->
+  <section class="tool-panel" id="panel-chmod">
+    <div class="panel-header"><h1>chmod Calculator</h1><button class="clear-btn" data-clear="chmod">Clear</button></div>
+    <p class="tool-desc">Convert between symbolic (<code>rwxr-xr--</code>) and octal (<code>754</code>) permission notation, in both directions.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="chmod-symbolic">Symbolic (e.g. rwxr-xr--)</label>
+        <input type="text" id="chmod-symbolic" spellcheck="false" placeholder="rwxr-xr--" value="rwxr-xr--">
+        <button id="chmod-to-octal-btn" class="primary-btn">Convert to Octal</button>
+      </div>
+      <div class="io-col">
+        <label for="chmod-octal">Octal (e.g. 754)</label>
+        <input type="text" id="chmod-octal" spellcheck="false" placeholder="754">
+        <button id="chmod-to-symbolic-btn" class="primary-btn">Convert to Symbolic</button>
+      </div>
+    </div>
+    <label style="margin-top:16px;">Result</label>
+    <div id="chmod-result" class="result-box result-idle">Use either field above.</div>
+  </section>
+
+  <!-- XML FORMATTER -->
+  <section class="tool-panel" id="panel-xml">
+    <div class="panel-header"><h1>XML Formatter &amp; Validator</h1><button class="clear-btn" data-clear="xml">Clear</button></div>
+    <p class="tool-desc">Paste XML and validate/pretty-print it.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="xml-input">XML</label>
+        <textarea id="xml-input" spellcheck="false" placeholder="<root><item>1</item></root>"></textarea>
+        <button id="xml-format-btn" class="primary-btn">Format &amp; Validate</button>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <pre id="xml-result" class="result-box result-idle tf-output">Paste XML and click "Format &amp; Validate".</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- COLOR CONVERTER -->
+  <section class="tool-panel" id="panel-color">
+    <div class="panel-header"><h1>Color Converter</h1><button class="clear-btn" data-clear="color">Clear</button></div>
+    <p class="tool-desc">Paste a color in hex, rgb(), or hsl() format and get all three representations.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="color-input">Color (hex, rgb, or hsl)</label>
+        <input type="text" id="color-input" spellcheck="false" placeholder="#3498db" value="#3498db">
+        <button id="color-convert-btn" class="primary-btn">Convert</button>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <div id="color-result" class="result-box result-idle">Enter a color and click "Convert".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CIDR OVERLAP CHECKER -->
+  <section class="tool-panel" id="panel-cidroverlap">
+    <div class="panel-header"><h1>CIDR Overlap Checker</h1><button class="clear-btn" data-clear="cidroverlap">Clear</button></div>
+    <p class="tool-desc">Paste two CIDR blocks (one per line, or more) and check whether any of them overlap — useful for VPC/subnet planning.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="cidroverlap-input">CIDR blocks (one per line)</label>
+        <textarea id="cidroverlap-input" spellcheck="false" placeholder="10.0.0.0/24
+10.0.0.128/25
+10.0.1.0/24">10.0.0.0/24
+10.0.0.128/25
+10.0.1.0/24</textarea>
+        <button id="cidroverlap-check-btn" class="primary-btn">Check Overlaps</button>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <div id="cidroverlap-result" class="result-box result-idle">Paste CIDR blocks and click "Check Overlaps".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- URL ANALYZER -->
+  <section class="tool-panel" id="panel-urlanalyzer">
+    <div class="panel-header"><h1>URL Analyzer</h1><button class="clear-btn" data-clear="urlanalyzer">Clear</button></div>
+    <p class="tool-desc">Paste a URL and see every component broken down.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="urlanalyzer-input">URL</label>
+        <input type="text" id="urlanalyzer-input" spellcheck="false" placeholder="https://user:pass@example.com:8443/api?x=1" value="https://user:pass@example.com:8443/api?x=1">
+        <button id="urlanalyzer-analyze-btn" class="primary-btn">Analyze</button>
+      </div>
+      <div class="io-col">
+        <label>Breakdown</label>
+        <div id="urlanalyzer-result" class="result-box result-idle">Enter a URL and click "Analyze".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HTTP STATUS EXPLORER -->
+  <section class="tool-panel" id="panel-httpstatus">
+    <div class="panel-header"><h1>HTTP Status Explorer</h1><button class="clear-btn" data-clear="httpstatus">Clear</button></div>
+    <p class="tool-desc">Enter an HTTP status code and see what it means, and common causes.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="httpstatus-input">Status code</label>
+        <input type="text" id="httpstatus-input" spellcheck="false" placeholder="502" value="502">
+        <button id="httpstatus-lookup-btn" class="primary-btn">Look Up</button>
+      </div>
+      <div class="io-col">
+        <label>Explanation</label>
+        <div id="httpstatus-result" class="result-box result-idle">Enter a status code and click "Look Up".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- UUID INSPECTOR -->
+  <section class="tool-panel" id="panel-uuid">
+    <div class="panel-header"><h1>UUID Inspector</h1><button class="clear-btn" data-clear="uuid">Clear</button></div>
+    <p class="tool-desc">Paste a UUID and see its version, variant, and (for v1/v7) the embedded timestamp.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="uuid-input">UUID</label>
+        <input type="text" id="uuid-input" spellcheck="false" placeholder="017f22e2-79b0-7cc3-98c4-dc0c0c07398f" value="017f22e2-79b0-7cc3-98c4-dc0c0c07398f">
+        <button id="uuid-inspect-btn" class="primary-btn">Inspect</button>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <div id="uuid-result" class="result-box result-idle">Enter a UUID and click "Inspect".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SNOWFLAKE ID DECODER -->
+  <section class="tool-panel" id="panel-snowflake">
+    <div class="panel-header"><h1>Snowflake ID Decoder</h1><button class="clear-btn" data-clear="snowflake">Clear</button></div>
+    <p class="tool-desc">Decode a Discord or Twitter/X snowflake ID to extract its embedded timestamp.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="snowflake-input">Snowflake ID</label>
+        <input type="text" id="snowflake-input" spellcheck="false" placeholder="175928847299117063" value="175928847299117063">
+        <label class="second-label">Platform</label>
+        <select id="snowflake-platform">
+          <option value="discord">Discord (epoch 2015-01-01)</option>
+          <option value="twitter">Twitter/X (epoch 2010-11-04)</option>
+        </select>
+        <button id="snowflake-decode-btn" class="primary-btn">Decode</button>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <div id="snowflake-result" class="result-box result-idle">Enter a snowflake ID and click "Decode".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GIT DIFF STATISTICS -->
+  <section class="tool-panel" id="panel-gitdiff">
+    <div class="panel-header"><h1>Git Diff Statistics</h1><button class="clear-btn" data-clear="gitdiff">Clear</button></div>
+    <p class="tool-desc">Paste a unified diff and get a summary: files changed, lines added, lines removed.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="gitdiff-input">Diff output</label>
+        <textarea id="gitdiff-input" spellcheck="false" placeholder="diff --git a/file.js b/file.js
++added line
+-removed line"></textarea>
+        <button id="gitdiff-stats-btn" class="primary-btn">Get Statistics</button>
+      </div>
+      <div class="io-col">
+        <label>Statistics</label>
+        <div id="gitdiff-result" class="result-box result-idle">Paste a diff and click "Get Statistics".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONVENTIONAL COMMIT GENERATOR -->
+  <section class="tool-panel" id="panel-conventionalcommit">
+    <div class="panel-header"><h1>Conventional Commit Generator</h1><button class="clear-btn" data-clear="conventionalcommit">Clear</button></div>
+    <p class="tool-desc">Fill in the parts and get a properly formatted <a href="https://www.conventionalcommits.org/" target="_blank" rel="nofollow">Conventional Commit</a> message.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="cc-type">Type</label>
+        <select id="cc-type">
+          <option>feat</option><option>fix</option><option>docs</option><option>style</option>
+          <option>refactor</option><option>perf</option><option>test</option><option>chore</option>
+        </select>
+        <label class="second-label">Scope (optional)</label>
+        <input type="text" id="cc-scope" spellcheck="false" placeholder="auth">
+        <label class="second-label">Description</label>
+        <input type="text" id="cc-description" spellcheck="false" placeholder="add login API">
+        <label class="second-label"><input type="checkbox" id="cc-breaking"> Breaking change</label>
+        <button id="cc-generate-btn" class="primary-btn">Generate</button>
+      </div>
+      <div class="io-col">
+        <label>Commit message</label>
+        <div id="cc-result" class="result-box result-idle">Fill in the fields and click "Generate".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BRANCH NAME GENERATOR -->
+  <section class="tool-panel" id="panel-branchname">
+    <div class="panel-header"><h1>Branch Name Generator</h1><button class="clear-btn" data-clear="branchname">Clear</button></div>
+    <p class="tool-desc">Turn a description into a clean git branch name.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="branchname-type">Type</label>
+        <select id="branchname-type">
+          <option value="feature">feature</option><option value="bugfix">bugfix</option>
+          <option value="hotfix">hotfix</option><option value="chore">chore</option>
+        </select>
+        <label class="second-label">Description</label>
+        <input type="text" id="branchname-input" spellcheck="false" placeholder="Fix JWT expiration issue" value="Fix JWT expiration issue">
+        <button id="branchname-generate-btn" class="primary-btn">Generate</button>
+      </div>
+      <div class="io-col">
+        <label>Branch name</label>
+        <div id="branchname-result" class="result-box result-idle">Enter a description and click "Generate".</div>
       </div>
     </div>
   </section>
