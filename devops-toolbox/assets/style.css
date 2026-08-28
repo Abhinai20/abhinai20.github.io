@@ -197,6 +197,27 @@ main {
   font-size: 0.85em;
 }
 
+.mode-btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.mode-btn {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.mode-btn:hover { color: var(--text); border-color: var(--accent); }
+.mode-btn.active { background: var(--accent); border-color: var(--accent); color: #0f172a; }
+
 .tool-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

@@ -108,6 +108,8 @@ User asked to add a QuillBot-style paraphraser and put it at the top of the side
 
 Not yet committed as of this note if resuming mid-session — check `git status` in the devops-toolbox repo.
 
+**Follow-up same day**: expanded from 5 modes to 15, matching QuillBot's real mode list — Standard, Fluency, Formal, Academic, Simple, Creative, Expand, Shorten, Diplomatic, Casual, Confident, Friendly, Persuasive, News, Anonymize (each just a different instruction prompt to the same small model). Then, per user request, replaced the `<select>` dropdown with a row of pill buttons above the text boxes (matching QuillBot's actual UI pattern) — `.mode-btn-row` / `.mode-btn` in style.css, click handler in app.js reads `.mode-btn.active` instead of a select value. Also had to teach the universal Clear-button handler to reset the pill row back to "Standard" (it only knew about `<select>`/checkbox before). Verified with a real (non-mocked) Playwright run: 15 pills render, clicking one exclusively activates it, an actual paraphrase runs successfully through the pill-selected mode, and Clear resets back to Standard.
+
 ## How to resume
 
 Open a Claude Code session with working directory `C:\Users\Minfy\Documents\GitHubRootSite` and say "resume the DevOps Toolbox work" — this file has the context needed.

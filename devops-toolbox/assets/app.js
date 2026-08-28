@@ -21,6 +21,11 @@ document.querySelectorAll('.clear-btn').forEach((btn) => {
     });
     panel.querySelectorAll('select').forEach((el) => { el.selectedIndex = 0; });
     panel.querySelectorAll('input[type="checkbox"]').forEach((el) => { el.checked = false; });
+    panel.querySelectorAll('.mode-btn-row').forEach((group) => {
+      const buttons = group.querySelectorAll('.mode-btn');
+      buttons.forEach((b) => b.classList.remove('active'));
+      if (buttons[0]) buttons[0].classList.add('active');
+    });
     panel.querySelectorAll('.result-box').forEach((box) => {
       box.className = box.className
         .split(' ')
@@ -2568,11 +2573,28 @@ function getParaphraserPipeline(onProgress) {
 }
 const PARAPHRASE_PROMPTS = {
   standard: (t) => `Paraphrase the following text:\n${t}`,
-  formal: (t) => `Rewrite the following text in a more formal tone:\n${t}`,
   fluency: (t) => `Fix the grammar and improve the fluency of the following text, keeping the same meaning:\n${t}`,
+  formal: (t) => `Rewrite the following text in a more formal tone:\n${t}`,
+  academic: (t) => `Rewrite the following text in a formal, academic, scholarly tone:\n${t}`,
   simple: (t) => `Rewrite the following text in simple, plain English:\n${t}`,
   creative: (t) => `Rewrite the following text creatively, using different words and sentence structure:\n${t}`,
+  expand: (t) => `Expand the following text with more detail and elaboration:\n${t}`,
+  shorten: (t) => `Shorten and condense the following text while keeping the key meaning:\n${t}`,
+  diplomatic: (t) => `Rewrite the following text in a diplomatic, tactful, and polite tone:\n${t}`,
+  casual: (t) => `Rewrite the following text in a casual, relaxed, conversational tone:\n${t}`,
+  confident: (t) => `Rewrite the following text in a confident, assertive tone:\n${t}`,
+  friendly: (t) => `Rewrite the following text in a warm, friendly tone:\n${t}`,
+  persuasive: (t) => `Rewrite the following text in a persuasive, compelling tone:\n${t}`,
+  news: (t) => `Rewrite the following text in the objective, neutral tone of a news report:\n${t}`,
+  anonymize: (t) => `Rewrite the following text to remove any distinctive personal writing style, making it sound generic and anonymous:\n${t}`,
 };
+const PARAPHRASE_SAMPLED_MODES = new Set(['creative', 'casual', 'friendly', 'persuasive']);
+document.querySelectorAll('#paraphraser-modes .mode-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#paraphraser-modes .mode-btn').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
 document.getElementById('paraphraser-run-btn').addEventListener('click', async () => {
   const resultEl = document.getElementById('paraphraser-result');
   const statusEl = document.getElementById('paraphraser-status');
@@ -2580,7 +2602,8 @@ document.getElementById('paraphraser-run-btn').addEventListener('click', async (
   try {
     const input = document.getElementById('paraphraser-input').value.trim();
     if (!input) throw new Error('Paste some text first.');
-    const mode = document.getElementById('paraphraser-mode').value;
+    const activeModeBtn = document.querySelector('#paraphraser-modes .mode-btn.active');
+    const mode = activeModeBtn ? activeModeBtn.dataset.mode : 'standard';
     btn.disabled = true;
     resultEl.className = 'result-box result-idle';
     resultEl.textContent = 'Loading AI model…';
@@ -2597,7 +2620,8 @@ document.getElementById('paraphraser-run-btn').addEventListener('click', async (
     statusEl.textContent = 'Generating…';
     resultEl.textContent = 'Generating…';
     const prompt = PARAPHRASE_PROMPTS[mode](input);
-    const output = await paraphraser(prompt, { max_new_tokens: 200, temperature: mode === 'creative' ? 1.0 : 0.7, do_sample: mode === 'creative' });
+    const sampled = PARAPHRASE_SAMPLED_MODES.has(mode);
+    const output = await paraphraser(prompt, { max_new_tokens: 200, temperature: sampled ? 1.0 : 0.7, do_sample: sampled });
     const text = output[0].generated_text.trim();
     resultEl.className = 'result-box result-success';
     resultEl.textContent = text || '(The model returned an empty result — try rephrasing or shortening the input.)';

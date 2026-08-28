@@ -131,19 +131,28 @@
   <!-- AI PARAPHRASER -->
   <section class="tool-panel" id="panel-paraphraser">
     <div class="panel-header"><h1>AI Paraphraser</h1><button class="clear-btn" data-clear="paraphraser">Clear</button></div>
-    <p class="tool-desc">Rewrite text in a different style — like QuillBot, but the model runs entirely on your device via WebAssembly. Nothing is uploaded anywhere. The first run downloads a small AI model (~90MB, cached in your browser after that — later uses are instant).</p>
+    <p class="tool-desc">Rewrite text in a different tone or style — like QuillBot, but the model runs entirely on your device via WebAssembly. Nothing is uploaded anywhere. The first run downloads a small AI model (~90MB, cached in your browser after that — later uses are instant).</p>
+    <div class="mode-btn-row" id="paraphraser-modes" role="tablist">
+      <button class="mode-btn active" data-mode="standard">Standard</button>
+      <button class="mode-btn" data-mode="fluency">Fluency</button>
+      <button class="mode-btn" data-mode="formal">Formal</button>
+      <button class="mode-btn" data-mode="academic">Academic</button>
+      <button class="mode-btn" data-mode="simple">Simple</button>
+      <button class="mode-btn" data-mode="creative">Creative</button>
+      <button class="mode-btn" data-mode="expand">Expand</button>
+      <button class="mode-btn" data-mode="shorten">Shorten</button>
+      <button class="mode-btn" data-mode="diplomatic">Diplomatic</button>
+      <button class="mode-btn" data-mode="casual">Casual</button>
+      <button class="mode-btn" data-mode="confident">Confident</button>
+      <button class="mode-btn" data-mode="friendly">Friendly</button>
+      <button class="mode-btn" data-mode="persuasive">Persuasive</button>
+      <button class="mode-btn" data-mode="news">News</button>
+      <button class="mode-btn" data-mode="anonymize">Anonymize</button>
+    </div>
     <div class="tool-grid">
       <div class="io-col">
         <label for="paraphraser-input">Your text</label>
         <textarea id="paraphraser-input" spellcheck="false" placeholder="Paste a sentence or short paragraph to rewrite.">Our team is currently investigating the root cause of the outage and will provide updates as soon as we have more information.</textarea>
-        <label class="second-label">Mode</label>
-        <select id="paraphraser-mode">
-          <option value="standard">Standard</option>
-          <option value="formal">Formal</option>
-          <option value="fluency">Fluency (fix grammar, keep meaning)</option>
-          <option value="simple">Simple (plain English)</option>
-          <option value="creative">Creative</option>
-        </select>
         <button id="paraphraser-run-btn" class="primary-btn">Paraphrase</button>
         <div id="paraphraser-status" style="margin-top:10px;font-size:0.82rem;color:var(--text-muted);"></div>
       </div>
