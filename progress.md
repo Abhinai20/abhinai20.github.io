@@ -121,6 +121,35 @@ Not yet committed as of this note if resuming mid-session — check `git status`
 
 Added 6 tools (Multi-Doc YAML Splitter, Toleration/Taint Matcher, .env Diff Tool, Storage Unit Converter, Duration/Timestamp Diff, Port Number Reference) as part of the tool-audit request (removed 5 low-value tools, then added these 6 as replacements). User asked to remove them immediately after. Reverted cleanly via `git revert 97081a3` (commit `c1d1c09`) since it was the tip commit and the working tree was clean — the removal-of-5 commit (`64fad47`) was left in place. Current state: 63 tools, matching the count right after the removal batch. Don't re-add these 6 without being asked again.
 
+## Second, stricter audit pass — 2026-08-28 (63 -> 46 tools)
+
+After reverting batch 7, user asked to also validate and remove unused/waste tools from the *existing* set (not just newly added ones). Applied a stricter bar this time: **does this tool meaningfully beat an existing CLI command or established real tool a DevOps engineer already has?** Presented the reasoning via AskUserQuestion before executing (large cut); user chose to proceed with the full list.
+
+**Removed 17:**
+- Helm Values Merger — `helm template -f a -f b` gives the real merged result with Helm's actual array-override semantics; our naive JS deep merge could disagree in edge cases
+- K8s Label Selector Tester — `kubectl get pods -l <selector>` tests against real objects, strictly better than a simulator with typed-in fake labels
+- Ingress Path Matcher — real ingress controllers (nginx/ALB) have their own path-matching nuances our regex heuristic doesn't capture; risk of false confidence
+- Rollout Budget Calculator — simple arithmetic, low real friction
+- Dockerfile Stage Visualizer — cosmetic, low search intent
+- Docker Image Tag Comparator — trivial to eyeball two version strings
+- TF Resource Counter — `terraform show -json | jq` does this from real state
+- Terraform Variable Extractor — `terraform-docs` is the real, standard, widely-adopted tool for this
+- Terraform Dependency Grapher — `terraform graph` is authoritative (built-in, real state); our regex-based reference scan could miss real dependencies (data sources, module refs, implicit `depends_on`)
+- JWT Expiration Checker — confirmed genuine duplicate: the JWT Decoder already shows exp/iat/nbf as decoded dates plus an "Expires in X minutes" / "Expired X minutes ago" line
+- AWS IAM Policy Simulator — AWS provides its own official, authoritative IAM Policy Simulator for free; ours was explicitly "simplified" (no SCPs/conditions/permission boundaries) and risked giving false confidence on real access decisions
+- ASCII Table Generator, HTTP Header Parser, Sed Command Builder — all trivial to do by hand/eye, low real value-add
+- SQL Query Explainer — redundant with SQL Formatter's indentation already giving the same visual clarity
+- Log Timestamp Converter — overlapped heavily with Unix Timestamp Converter
+- Git Diff Statistics — `git diff --stat` is a one-line CLI replacement
+
+**Kept K8s Resource Quota Calculator** despite being in the same family as some removed K8s tools — passes the bar because summing requests/limits across many containers by hand is genuinely tedious and `kubectl` doesn't do this for you without metrics-server + a live cluster.
+
+Verified via a 115-assertion Playwright pass: exactly 46 tools remain, all 17 removed ids confirmed gone, every single remaining panel exists and activates correctly on click (checked all 46, not just a sample), zero console errors, spot-checked core logic (CIDR calculator, JWT decoder, Mermaid rendering, resource quota calc) still correct after the cuts. Screenshot-reviewed the trimmed sidebar.
+
+Removal script approach: since this touched ~17 HTML panels and ~17 JS sections, used small Python scripts (regex-based for HTML sections bounded by `<section id="panel-X">...</section>`, line-range-based for JS sections bounded by `// ---------- Title ----------` comment headers) rather than 34 manual Read+Edit round trips — much faster and less error-prone at this scale, verified with `node --check` for JS syntax validity and full Playwright pass afterward either way.
+
+Committed and pushed to `Abhinai20/abhinai20.github.io`.
+
 ## How to resume
 
 Open a Claude Code session with working directory `C:\Users\Minfy\Documents\GitHubRootSite` and say "resume the DevOps Toolbox work" — this file has the context needed.
