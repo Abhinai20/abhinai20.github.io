@@ -1328,28 +1328,6 @@ document.getElementById('cc-generate-btn').addEventListener('click', () => {
   }
 });
 
-// ---------- Branch Name Generator ----------
-document.getElementById('branchname-generate-btn').addEventListener('click', () => {
-  const resultEl = document.getElementById('branchname-result');
-  try {
-    const type = document.getElementById('branchname-type').value;
-    const desc = document.getElementById('branchname-input').value.trim();
-    if (!desc) throw new Error('Enter a description.');
-    const slug = desc
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .trim()
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .slice(0, 50)
-      .replace(/-+$/, '');
-    resultEl.className = 'result-box result-success';
-    resultEl.textContent = `${type}/${slug}`;
-  } catch (e) {
-    resultEl.className = 'result-box result-error';
-    resultEl.textContent = e.message;
-  }
-});
 
 // ---------- SQL Formatter ----------
 function formatSql(sql) {
@@ -1490,39 +1468,6 @@ document.getElementById('secretscanner-scan-btn').addEventListener('click', () =
   }
 });
 
-// ---------- GraphQL Query Formatter ----------
-function formatGraphql(query) {
-  let depth = 0;
-  let out = '';
-  const compact = query.replace(/\s+/g, ' ').trim();
-  for (let i = 0; i < compact.length; i++) {
-    const c = compact[i];
-    if (c === '{') {
-      out += ' {\n' + '  '.repeat(depth + 1);
-      depth++;
-    } else if (c === '}') {
-      depth = Math.max(0, depth - 1);
-      out += '\n' + '  '.repeat(depth) + '}';
-    } else if (c === ' ' && (compact[i - 1] === '{' || compact[i - 1] === '}')) {
-      // skip, handled above
-    } else {
-      out += c;
-    }
-  }
-  return out.split('\n').map((l) => l.trimEnd()).join('\n').replace(/ \{\n/g, ' {\n');
-}
-document.getElementById('graphqlfmt-format-btn').addEventListener('click', () => {
-  const resultEl = document.getElementById('graphqlfmt-result');
-  try {
-    const input = document.getElementById('graphqlfmt-input').value;
-    if (!input.trim()) throw new Error('Paste a GraphQL query first.');
-    resultEl.className = 'result-box result-success tf-output';
-    resultEl.textContent = formatGraphql(input);
-  } catch (e) {
-    resultEl.className = 'result-box result-error tf-output';
-    resultEl.textContent = e.message;
-  }
-});
 
 // ---------- ASCII Table Generator ----------
 function generateAsciiTable(input) {
@@ -2024,24 +1969,6 @@ document.getElementById('sqlexplainer-explain-btn').addEventListener('click', ()
   }
 });
 
-// ---------- QR Code Generator ----------
-document.getElementById('qrcode-generate-btn').addEventListener('click', () => {
-  const resultEl = document.getElementById('qrcode-result');
-  try {
-    const input = document.getElementById('qrcode-input').value.trim();
-    if (!input) throw new Error('Enter some text or a URL.');
-    const qr = qrcode(0, 'M');
-    qr.addData(input);
-    qr.make();
-    resultEl.className = 'result-box result-success';
-    resultEl.innerHTML = qr.createSvgTag({ scalable: true });
-    const svg = resultEl.querySelector('svg');
-    if (svg) { svg.style.width = '220px'; svg.style.height = '220px'; svg.style.background = '#fff'; svg.style.borderRadius = '8px'; }
-  } catch (e) {
-    resultEl.className = 'result-box result-error';
-    resultEl.textContent = e.message;
-  }
-});
 
 // ---------- Mermaid Diagram Preview ----------
 if (window.mermaid) mermaid.initialize({ startOnLoad: false, theme: 'dark' });
@@ -2060,37 +1987,6 @@ document.getElementById('mermaid-render-btn').addEventListener('click', async ()
   }
 });
 
-// ---------- Release Notes Generator ----------
-document.getElementById('releasenotes-generate-btn').addEventListener('click', () => {
-  const resultEl = document.getElementById('releasenotes-result');
-  try {
-    const version = document.getElementById('releasenotes-version').value.trim();
-    const date = document.getElementById('releasenotes-date').value.trim();
-    const lines = document.getElementById('releasenotes-input').value.split('\n').map((l) => l.trim()).filter(Boolean);
-    if (!version || !lines.length) throw new Error('Enter a version and at least one commit message.');
-    const groups = { feat: [], fix: [], other: [] };
-    const re = /^(feat|fix|docs|style|refactor|perf|test|chore|build|ci|revert)(\([a-z0-9_-]+\))?(!)?:\s*(.+)$/i;
-    for (const line of lines) {
-      const m = line.match(re);
-      if (m) {
-        const type = m[1].toLowerCase();
-        const bucket = type === 'feat' ? 'feat' : type === 'fix' ? 'fix' : 'other';
-        groups[bucket].push(m[4]);
-      } else {
-        groups.other.push(line);
-      }
-    }
-    let out = `## [${version}]${date ? ` - ${date}` : ''}\n\n`;
-    if (groups.feat.length) out += '### Added\n' + groups.feat.map((d) => `- ${d}`).join('\n') + '\n\n';
-    if (groups.fix.length) out += '### Fixed\n' + groups.fix.map((d) => `- ${d}`).join('\n') + '\n\n';
-    if (groups.other.length) out += '### Changed\n' + groups.other.map((d) => `- ${d}`).join('\n') + '\n\n';
-    resultEl.className = 'result-box result-success tf-output';
-    resultEl.textContent = out.trim();
-  } catch (e) {
-    resultEl.className = 'result-box result-error tf-output';
-    resultEl.textContent = e.message;
-  }
-});
 
 // ---------- Incident Timeline Builder ----------
 document.getElementById('incidenttimeline-build-btn').addEventListener('click', () => {
@@ -2409,23 +2305,6 @@ document.getElementById('restmock-generate-btn').addEventListener('click', () =>
   }
 });
 
-// ---------- Chat Prompt Formatter ----------
-document.getElementById('promptfmt-format-btn').addEventListener('click', () => {
-  const resultEl = document.getElementById('promptfmt-result');
-  try {
-    const systemText = document.getElementById('promptfmt-system').value.trim();
-    const userText = document.getElementById('promptfmt-user').value.trim();
-    if (!systemText && !userText) throw new Error('Fill in at least one field.');
-    const messages = [];
-    if (systemText) messages.push({ role: 'system', content: systemText });
-    if (userText) messages.push({ role: 'user', content: userText });
-    resultEl.className = 'result-box result-success tf-output';
-    resultEl.textContent = JSON.stringify({ messages }, null, 2);
-  } catch (e) {
-    resultEl.className = 'result-box result-error tf-output';
-    resultEl.textContent = e.message;
-  }
-});
 
 // ---------- .env File Validator ----------
 function parseEnvFile(text) {

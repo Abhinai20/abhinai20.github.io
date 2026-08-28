@@ -79,16 +79,13 @@
     <button class="tab-btn" data-tool="curl">cURL → Code</button>
     <button class="tab-btn" data-tool="xml">XML Formatter</button>
     <button class="tab-btn" data-tool="color">Color Converter</button>
-    <button class="tab-btn" data-tool="graphqlfmt">GraphQL Formatter</button>
     <button class="tab-btn" data-tool="asciitable">ASCII Table Generator</button>
     <button class="tab-btn" data-tool="httpheader">HTTP Header Parser</button>
     <button class="tab-btn" data-tool="tokenestimator">Token Estimator</button>
     <button class="tab-btn" data-tool="sedbuilder">Sed Command Builder</button>
     <button class="tab-btn" data-tool="sqlexplainer">SQL Query Explainer</button>
-    <button class="tab-btn" data-tool="qrcode">QR Code Generator</button>
     <button class="tab-btn" data-tool="mermaid">Mermaid Diagram Preview</button>
     <button class="tab-btn" data-tool="restmock">REST Endpoint Mock Generator</button>
-    <button class="tab-btn" data-tool="promptfmt">Chat Prompt Formatter</button>
     <button class="tab-btn" data-tool="envparser">.env File Validator</button>
     <button class="tab-btn" data-tool="nginxfmt">Nginx Config Formatter</button>
   </details>
@@ -117,11 +114,9 @@
     <button class="tab-btn" data-tool="snowflake">Snowflake ID Decoder</button>
     <button class="tab-btn" data-tool="gitdiff">Git Diff Statistics</button>
     <button class="tab-btn" data-tool="conventionalcommit">Conventional Commit</button>
-    <button class="tab-btn" data-tool="branchname">Branch Name Generator</button>
     <button class="tab-btn" data-tool="commitvalidator">Commit Message Validator</button>
     <button class="tab-btn" data-tool="changelog">Changelog Generator</button>
     <button class="tab-btn" data-tool="bsonid">BSON/ObjectId Decoder</button>
-    <button class="tab-btn" data-tool="releasenotes">Release Notes Generator</button>
     <button class="tab-btn" data-tool="incidenttimeline">Incident Timeline Builder</button>
   </details>
 </nav>
@@ -769,27 +764,6 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
     </div>
   </section>
 
-  <!-- BRANCH NAME GENERATOR -->
-  <section class="tool-panel" id="panel-branchname">
-    <div class="panel-header"><h1>Branch Name Generator</h1><button class="clear-btn" data-clear="branchname">Clear</button></div>
-    <p class="tool-desc">Turn a description into a clean git branch name.</p>
-    <div class="tool-grid tool-grid-single">
-      <div class="io-col">
-        <label for="branchname-type">Type</label>
-        <select id="branchname-type">
-          <option value="feature">feature</option><option value="bugfix">bugfix</option>
-          <option value="hotfix">hotfix</option><option value="chore">chore</option>
-        </select>
-        <label class="second-label">Description</label>
-        <input type="text" id="branchname-input" spellcheck="false" placeholder="Fix JWT expiration issue" value="Fix JWT expiration issue">
-        <button id="branchname-generate-btn" class="primary-btn">Generate</button>
-      </div>
-      <div class="io-col">
-        <label>Branch name</label>
-        <div id="branchname-result" class="result-box result-idle">Enter a description and click "Generate".</div>
-      </div>
-    </div>
-  </section>
 
   <!-- SQL FORMATTER -->
   <section class="tool-panel" id="panel-sqlfmt">
@@ -862,22 +836,6 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
     </div>
   </section>
 
-  <!-- GRAPHQL FORMATTER -->
-  <section class="tool-panel" id="panel-graphqlfmt">
-    <div class="panel-header"><h1>GraphQL Query Formatter</h1><button class="clear-btn" data-clear="graphqlfmt">Clear</button></div>
-    <p class="tool-desc">Paste a minified or messy GraphQL query/mutation and get it indented by brace depth.</p>
-    <div class="tool-grid">
-      <div class="io-col">
-        <label for="graphqlfmt-input">GraphQL</label>
-        <textarea id="graphqlfmt-input" spellcheck="false" placeholder="{ user(id: 1) { name email } }">{ user(id: 1) { name email posts { title } } }</textarea>
-        <button id="graphqlfmt-format-btn" class="primary-btn">Format</button>
-      </div>
-      <div class="io-col">
-        <label>Formatted</label>
-        <pre id="graphqlfmt-result" class="result-box result-idle tf-output">Paste a GraphQL query and click "Format".</pre>
-      </div>
-    </div>
-  </section>
 
   <!-- ASCII TABLE GENERATOR -->
   <section class="tool-panel" id="panel-asciitable">
@@ -1174,22 +1132,6 @@ tier=frontend</textarea>
     </div>
   </section>
 
-  <!-- QR CODE GENERATOR -->
-  <section class="tool-panel" id="panel-qrcode">
-    <div class="panel-header"><h1>QR Code Generator</h1><button class="clear-btn" data-clear="qrcode">Clear</button></div>
-    <p class="tool-desc">Turn any text or URL into a QR code, generated entirely in your browser — nothing is sent anywhere.</p>
-    <div class="tool-grid tool-grid-single">
-      <div class="io-col">
-        <label for="qrcode-input">Text or URL</label>
-        <input type="text" id="qrcode-input" spellcheck="false" placeholder="https://example.com" value="https://abhinai20.github.io/devops-toolbox/">
-        <button id="qrcode-generate-btn" class="primary-btn">Generate</button>
-      </div>
-      <div class="io-col">
-        <label>QR Code</label>
-        <div id="qrcode-result" class="result-box result-idle" style="display:flex;align-items:center;justify-content:center;">Enter text and click "Generate".</div>
-      </div>
-    </div>
-  </section>
 
   <!-- MERMAID DIAGRAM PREVIEW -->
   <section class="tool-panel" id="panel-mermaid">
@@ -1214,30 +1156,6 @@ tier=frontend</textarea>
     </div>
   </section>
 
-  <!-- RELEASE NOTES GENERATOR -->
-  <section class="tool-panel" id="panel-releasenotes">
-    <div class="panel-header"><h1>Release Notes Generator</h1><button class="clear-btn" data-clear="releasenotes">Clear</button></div>
-    <p class="tool-desc">Paste Conventional Commit messages and get "Keep a Changelog"-style release notes for a version.</p>
-    <div class="tool-grid">
-      <div class="io-col">
-        <label for="releasenotes-version">Version</label>
-        <input type="text" id="releasenotes-version" spellcheck="false" placeholder="1.2.0" value="1.2.0">
-        <label class="second-label">Date</label>
-        <input type="text" id="releasenotes-date" spellcheck="false" placeholder="2026-08-28" value="2026-08-28">
-        <label class="second-label">Commit messages (one per line)</label>
-        <textarea id="releasenotes-input" spellcheck="false" placeholder="feat: add login
-fix: null crash
-chore: bump deps">feat: add login endpoint
-fix: null pointer crash on empty response
-chore: bump dependencies</textarea>
-        <button id="releasenotes-generate-btn" class="primary-btn">Generate</button>
-      </div>
-      <div class="io-col">
-        <label>Release notes (Markdown)</label>
-        <pre id="releasenotes-result" class="result-box result-idle tf-output">Fill in the fields and click "Generate".</pre>
-      </div>
-    </div>
-  </section>
 
   <!-- INCIDENT TIMELINE BUILDER -->
   <section class="tool-panel" id="panel-incidenttimeline">
@@ -1475,24 +1393,6 @@ resource "aws_instance" "web" {
     </div>
   </section>
 
-  <!-- CHAT PROMPT FORMATTER -->
-  <section class="tool-panel" id="panel-promptfmt">
-    <div class="panel-header"><h1>Chat Prompt Formatter</h1><button class="clear-btn" data-clear="promptfmt">Clear</button></div>
-    <p class="tool-desc">Turn a system prompt + user message into the JSON <code>messages</code> array format used by OpenAI-style chat APIs.</p>
-    <div class="tool-grid">
-      <div class="io-col">
-        <label for="promptfmt-system">System prompt</label>
-        <textarea id="promptfmt-system" spellcheck="false" placeholder="You are a helpful assistant.">You are a helpful assistant.</textarea>
-        <label class="second-label">User message</label>
-        <textarea id="promptfmt-user" spellcheck="false" placeholder="Summarize this log file.">Summarize this log file.</textarea>
-        <button id="promptfmt-format-btn" class="primary-btn">Format</button>
-      </div>
-      <div class="io-col">
-        <label>Messages JSON</label>
-        <pre id="promptfmt-result" class="result-box result-idle tf-output">Fill in the fields and click "Format".</pre>
-      </div>
-    </div>
-  </section>
 
   <!-- .ENV FILE VALIDATOR -->
   <section class="tool-panel" id="panel-envparser">
@@ -1560,9 +1460,7 @@ NOT_A_VALID_LINE</textarea>
 
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@18.0.11/lib/marked.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js"></script><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <script src="assets/app.js?v=2"></script>
 </body>
 </html>
