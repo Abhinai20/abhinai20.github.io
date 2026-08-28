@@ -168,6 +168,18 @@ User reported the paraphraser "didn't even rephrase correctly in any modes" and 
 
 **Standing lesson, easy to forget**: whenever `app.js` or `style.css` changes, bump the `?v=` query string in `index.html` in the same commit. This exact class of bug (stale cached JS/CSS) has now bitten this project twice — once for a layout issue early on, and now for the paraphraser. Make bumping the version part of the standard "ship this change" checklist for this site, not an afterthought.
 
+## SEO fix — individual indexable pages per tool — 2026-08-28
+
+User asked how to get more traffic; biggest lever identified: all 46 tools lived behind JS tab-switching on one URL (`index.html`), so nothing could rank in Google for tool-specific searches like "cidr calculator online" — the whole site was invisible to that kind of query. Fixed:
+
+- Generated a real, standalone HTML page per tool at `devops-toolbox/tools/<toolid>.html` (45 pages — `yaml` stays covered by the homepage itself), each with a unique `<title>` and `<meta description>` pulled from that tool's own heading/description, and that tool's panel active by default (visible without needing JS to click anything).
+- Converted every sidebar `.tab-btn` from a `<button>` into a real `<a href="tools/<id>.html">` (or `../index.html` from within `tools/`) so search engines can discover and crawl every tool page via real links, not just via a sitemap.
+- For actual visitors with JS, click handling still intercepts (`preventDefault`) and does the same instant in-page panel switch as before — no behavior change for users, `history.pushState` keeps the URL bar in sync so links stay shareable/bookmarkable. Added a `popstate` handler (and a `history.replaceState` on load to seed the initial entry) so the back/forward buttons correctly restore the right tool.
+- Added `sitemap.xml` (46 URLs) and `robots.txt` (references the sitemap) at the `devops-toolbox/` root — next step for the user is to submit `https://abhinai20.github.io/devops-toolbox/sitemap.xml` to Google Search Console to speed up indexing.
+- Generation was scripted (Python), not hand-written per page — parses `index.html` once for nav/panel structure, then stamps out each tool page from a shared template with only title/meta/active-markers/asset-paths swapped. Rerunning it isn't set up as an automated build step; if new tools are added later, either rerun a similar script or manually create the new page following the same pattern as an existing one in `tools/`.
+- Verified via Playwright: direct-loaded 5 sample tool pages and confirmed unique title/meta/default-active-panel on each with zero JS needed; confirmed all 46 sitemap URLs match generated files; confirmed clicking a sidebar link from `index.html` still does instant in-page switching (no full reload) while correctly updating the URL bar; confirmed back button restores the previous tool; regression-checked that all 46 tools still switch correctly; landed directly on a deep tool page (simulating a Google click-through) and confirmed the tool actually works and other tools (including Mermaid) still work after navigating away. 28 total assertions, 0 failures, 0 console errors, 0 broken requests.
+- Cache-bust version bumped to `?v=6` across `index.html` and all 45 generated tool pages (each edit to `app.js`/`style.css` during this fix required a fresh bump — did this consistently in the same commit as the code change this time, per the standing lesson from the earlier stale-cache incident).
+
 ## How to resume
 
 Open a Claude Code session with working directory `C:\Users\Minfy\Documents\GitHubRootSite` and say "resume the DevOps Toolbox work" — this file has the context needed.

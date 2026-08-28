@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://abhinai20.github.io/devops-toolbox/sitemap.xml

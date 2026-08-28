@@ -1,11 +1,36 @@
 // ---------- Tab switching ----------
+// Nav items are real <a href> tags (each tool has its own crawlable page
+// under /tools/) so search engines can discover and index them individually.
+// For users with JS, clicks are intercepted to switch instantly in-page
+// instead of reloading, and the URL bar is updated via pushState so the
+// address stays shareable/bookmarkable.
+(() => {
+  const activeBtn = document.querySelector('.tab-btn.active');
+  if (activeBtn) history.replaceState({ tool: activeBtn.dataset.tool }, '', window.location.href);
+})();
 document.querySelectorAll('.tab-btn').forEach((btn) => {
-  btn.addEventListener('click', () => {
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
     document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
     document.querySelectorAll('.tool-panel').forEach((p) => p.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('panel-' + btn.dataset.tool).classList.add('active');
+    const href = btn.getAttribute('href');
+    if (href && href !== window.location.pathname) {
+      history.pushState({ tool: btn.dataset.tool }, '', href);
+    }
   });
+});
+window.addEventListener('popstate', (e) => {
+  const tool = e.state && e.state.tool;
+  if (!tool) return;
+  const targetBtn = document.querySelector(`.tab-btn[data-tool="${tool}"]`);
+  const targetPanel = document.getElementById('panel-' + tool);
+  if (!targetBtn || !targetPanel) return;
+  document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
+  document.querySelectorAll('.tool-panel').forEach((p) => p.classList.remove('active'));
+  targetBtn.classList.add('active');
+  targetPanel.classList.add('active');
 });
 // (Categories default to open so every tool is always reachable in one
 // click; each can still be individually collapsed via its <summary> to
