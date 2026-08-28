@@ -117,24 +117,6 @@ Not yet committed as of this note if resuming mid-session — check `git status`
 **Second bug-fix round same day — "still some are not working"**: the previous prompt-wording fix only solved the worst failure (the model answering a meta-question instead of rewriting). Stress-tested all 15 modes against 6 different realistic sentences (not just the one demo sentence) and found casual/friendly/persuasive/confident genuinely broke 40-60% of the time — garbled grammar, hallucinated details, or reversed meaning. Root cause this time: those modes used `do_sample: true, temperature: 1.0` for variety, and the randomness was what broke them, not the wording. Switched every mode to fully deterministic generation (`do_sample: false`) — re-ran the same 6-sentence × 15-mode stress test (90 combinations) and got zero broken outputs. Also reworded `academic` (→ "Rewrite this sentence in a formal academic style") and `news` (→ "Rewrite this sentence as a news headline") after finding their original phrasing still leaked meta-commentary on some inputs even without sampling, and added a small post-processing step that strips a leading echoed-instruction preamble if the model produces one (e.g. "The following is a formal academic style: ..."). Verified again through the real UI (pill clicks + actual model calls), 33/33 assertions pass, zero console errors.
 **Lesson for next time touching this tool**: always stress-test paraphraser prompt changes against several different real sentences, not just the one demo sentence in the textarea — single-sentence testing missed both rounds of these failures.
 
-## Tool audit + batch 7 — 2026-08-28 (63 -> 69 tools)
-
-User asked to audit the sidebar for low-value/wasteful tools and remove them, and add anything genuinely useful.
-
-**Removed 5** (68 -> 63): Release Notes Generator (functional near-duplicate of Changelog Generator — same input/logic, different header format), QR Code Generator (generic consumer utility, off-brand for a DevOps site, only tool needing a QR library), Chat Prompt Formatter (AI-prompt tangent, not ops/infra work, trivial to type by hand), Branch Name Generator (solves a problem that doesn't need tooling), GraphQL Formatter (narrow niche already covered by every GraphQL client's auto-format). Verified via Playwright that all 63 remaining panels still exist and a broad sample of tools (including neighbors of removed ones) still work, zero console errors.
-
-**Added 6** (63 -> 69), picked for genuine DevOps day-to-day value not yet covered:
-- Multi-Doc YAML Splitter (K8s & Docker) — splits `---`-separated manifests into labeled documents, reuses js-yaml already loaded
-- Toleration/Taint Matcher (K8s & Docker) — checks if a pod toleration covers a node taint
-- .env Diff Tool (Text & Code) — compares two `.env` files for added/removed/changed keys, catches config drift between environments
-- Storage Unit Converter (Text & Code) — generic decimal (KB/MB/GB) ↔ binary (KiB/MiB/GiB) conversion, distinct from the K8s-specific quantity converter
-- Duration / Timestamp Diff (Time) — human-readable duration between two timestamps, useful for incident postmortems
-- Port Number Reference (Networking) — static lookup table for ~50 well-known ports (22, 443, 5432, 6443, 9092, etc.)
-
-All verified in Node first, then an 85-assertion Playwright pass (1 flagged failure was a whitespace mismatch in my own test regex, not a real bug — confirmed by reading the actual output, which was numerically correct). Zero console errors. Screenshot-reviewed the Storage Unit Converter output.
-
-Committed and pushed to `Abhinai20/abhinai20.github.io`.
-
 ## How to resume
 
 Open a Claude Code session with working directory `C:\Users\Minfy\Documents\GitHubRootSite` and say "resume the DevOps Toolbox work" — this file has the context needed.
