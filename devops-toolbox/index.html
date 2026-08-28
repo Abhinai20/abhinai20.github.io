@@ -50,6 +50,8 @@
     <button class="tab-btn" data-tool="resourcequota">K8s Resource Quota Calculator</button>
     <button class="tab-btn" data-tool="dockerstages">Dockerfile Stage Visualizer</button>
     <button class="tab-btn" data-tool="tagcompare">Docker Image Tag Comparator</button>
+    <button class="tab-btn" data-tool="yamlsplit">Multi-Doc YAML Splitter</button>
+    <button class="tab-btn" data-tool="tolerationmatch">Toleration/Taint Matcher</button>
   </details>
 
   <details class="nav-group" open>
@@ -88,6 +90,8 @@
     <button class="tab-btn" data-tool="restmock">REST Endpoint Mock Generator</button>
     <button class="tab-btn" data-tool="envparser">.env File Validator</button>
     <button class="tab-btn" data-tool="nginxfmt">Nginx Config Formatter</button>
+    <button class="tab-btn" data-tool="envdiff">.env Diff Tool</button>
+    <button class="tab-btn" data-tool="storageunit">Storage Unit Converter</button>
   </details>
 
   <details class="nav-group" open>
@@ -98,6 +102,7 @@
     <button class="tab-btn" data-tool="timezone">Timezone Converter</button>
     <button class="tab-btn" data-tool="logtimestamp">Log Timestamp Converter</button>
     <button class="tab-btn" data-tool="cronnext">Cron Next Run Calculator</button>
+    <button class="tab-btn" data-tool="durationdiff">Duration / Timestamp Diff</button>
   </details>
 
   <details class="nav-group" open>
@@ -106,6 +111,7 @@
     <button class="tab-btn" data-tool="cidroverlap">CIDR Overlap Checker</button>
     <button class="tab-btn" data-tool="urlanalyzer">URL Analyzer</button>
     <button class="tab-btn" data-tool="httpstatus">HTTP Status Explorer</button>
+    <button class="tab-btn" data-tool="portref">Port Number Reference</button>
   </details>
 
   <details class="nav-group" open>
@@ -1447,6 +1453,153 @@ NOT_A_VALID_LINE</textarea>
       <div class="io-col">
         <label>Next 5 runs (UTC)</label>
         <div id="cronnext-result" class="result-box result-idle">Enter a cron expression and click "Show Next Runs".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MULTI-DOC YAML SPLITTER -->
+  <section class="tool-panel" id="panel-yamlsplit">
+    <div class="panel-header"><h1>Multi-Doc YAML Splitter</h1><button class="clear-btn" data-clear="yamlsplit">Clear</button></div>
+    <p class="tool-desc">Paste a multi-document YAML file (documents separated by <code>---</code>, common in Kubernetes manifests) and split it into individually labeled documents.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="yamlsplit-input">Multi-document YAML</label>
+        <textarea id="yamlsplit-input" spellcheck="false" placeholder="apiVersion: v1
+kind: ConfigMap
+---
+apiVersion: apps/v1
+kind: Deployment">apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-svc</textarea>
+        <button id="yamlsplit-split-btn" class="primary-btn">Split</button>
+      </div>
+      <div class="io-col">
+        <label>Documents</label>
+        <pre id="yamlsplit-result" class="result-box result-idle tf-output">Paste multi-document YAML and click "Split".</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOLERATION / TAINT MATCHER -->
+  <section class="tool-panel" id="panel-tolerationmatch">
+    <div class="panel-header"><h1>Toleration / Taint Matcher</h1><button class="clear-btn" data-clear="tolerationmatch">Clear</button></div>
+    <p class="tool-desc">Check whether a pod's <code>toleration</code> would let it be scheduled onto a node with a given <code>taint</code>.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="tolerationmatch-toleration">Toleration (JSON)</label>
+        <textarea id="tolerationmatch-toleration" spellcheck="false" placeholder='{"key": "gpu", "operator": "Equal", "value": "true", "effect": "NoSchedule"}'>{
+  "key": "gpu",
+  "operator": "Equal",
+  "value": "true",
+  "effect": "NoSchedule"
+}</textarea>
+        <label class="second-label">Taint (JSON)</label>
+        <textarea id="tolerationmatch-taint" spellcheck="false" placeholder='{"key": "gpu", "value": "true", "effect": "NoSchedule"}'>{
+  "key": "gpu",
+  "value": "true",
+  "effect": "NoSchedule"
+}</textarea>
+        <button id="tolerationmatch-test-btn" class="primary-btn">Test Match</button>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <div id="tolerationmatch-result" class="result-box result-idle">Fill in both fields and click "Test Match".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- .ENV DIFF TOOL -->
+  <section class="tool-panel" id="panel-envdiff">
+    <div class="panel-header"><h1>.env Diff Tool</h1><button class="clear-btn" data-clear="envdiff">Clear</button></div>
+    <p class="tool-desc">Compare two <code>.env</code> files and see which keys were added, removed, or changed — handy for spotting config drift between environments.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="envdiff-a">.env A (e.g. staging)</label>
+        <textarea id="envdiff-a" spellcheck="false" placeholder="DB_HOST=localhost
+DB_PORT=5432">DB_HOST=staging-db.internal
+DB_PORT=5432
+LOG_LEVEL=debug
+FEATURE_X=true</textarea>
+      </div>
+      <div class="io-col">
+        <label for="envdiff-b">.env B (e.g. production)</label>
+        <textarea id="envdiff-b" spellcheck="false" placeholder="DB_HOST=localhost
+DB_PORT=5432">DB_HOST=prod-db.internal
+DB_PORT=5432
+LOG_LEVEL=warn
+CACHE_TTL=300</textarea>
+      </div>
+    </div>
+    <button id="envdiff-compare-btn" class="primary-btn">Compare</button>
+    <label style="margin-top:16px;">Result</label>
+    <div id="envdiff-result" class="result-box result-idle">Fill in both files and click "Compare".</div>
+  </section>
+
+  <!-- STORAGE UNIT CONVERTER -->
+  <section class="tool-panel" id="panel-storageunit">
+    <div class="panel-header"><h1>Storage Unit Converter</h1><button class="clear-btn" data-clear="storageunit">Clear</button></div>
+    <p class="tool-desc">Convert between decimal (KB/MB/GB, powers of 1000) and binary (KiB/MiB/GiB, powers of 1024) storage units.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="storageunit-value">Value</label>
+        <input type="text" id="storageunit-value" spellcheck="false" placeholder="1" value="1">
+        <label class="second-label">From unit</label>
+        <select id="storageunit-from">
+          <option>B</option><option>KB</option><option>MB</option><option selected>GB</option><option>TB</option><option>PB</option>
+          <option>KiB</option><option>MiB</option><option>GiB</option><option>TiB</option><option>PiB</option>
+        </select>
+        <button id="storageunit-convert-btn" class="primary-btn">Convert to all units</button>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <div id="storageunit-result" class="result-box result-idle">Enter a value and click "Convert to all units".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DURATION / TIMESTAMP DIFF -->
+  <section class="tool-panel" id="panel-durationdiff">
+    <div class="panel-header"><h1>Duration / Timestamp Diff</h1><button class="clear-btn" data-clear="durationdiff">Clear</button></div>
+    <p class="tool-desc">Enter two timestamps and get the human-readable duration between them — handy for incident postmortems and SLA calculations.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="durationdiff-a">Start timestamp</label>
+        <input type="text" id="durationdiff-a" spellcheck="false" placeholder="2026-08-28T10:00:00Z" value="2026-08-28T10:00:00Z">
+        <label class="second-label">End timestamp</label>
+        <input type="text" id="durationdiff-b" spellcheck="false" placeholder="2026-08-28T10:07:30Z" value="2026-08-28T10:07:30Z">
+        <button id="durationdiff-calc-btn" class="primary-btn">Calculate</button>
+      </div>
+      <div class="io-col">
+        <label>Duration</label>
+        <div id="durationdiff-result" class="result-box result-idle">Enter both timestamps and click "Calculate".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PORT NUMBER REFERENCE -->
+  <section class="tool-panel" id="panel-portref">
+    <div class="panel-header"><h1>Port Number Reference</h1><button class="clear-btn" data-clear="portref">Clear</button></div>
+    <p class="tool-desc">Look up what a well-known port number is typically used for.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="portref-input">Port number</label>
+        <input type="text" id="portref-input" spellcheck="false" placeholder="443" value="443">
+        <button id="portref-lookup-btn" class="primary-btn">Look Up</button>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <div id="portref-result" class="result-box result-idle">Enter a port number and click "Look Up".</div>
       </div>
     </div>
   </section>
