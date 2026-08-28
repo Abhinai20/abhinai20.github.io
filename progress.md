@@ -73,7 +73,18 @@ K8s Quantity Converter, chmod Calculator, XML Formatter, Color Converter, CIDR O
 
 Committed and pushed to `Abhinai20/abhinai20.github.io`.
 
-**Backlog remaining** toward "70+": Helm Values Merger, K8s Label Selector Tester, Ingress Path Matcher Simulator, TLS Certificate Decoder, JWT Expiration Checker, REST Endpoint Mock Generator, Release Notes Generator, Incident Timeline Builder, Log Timestamp Converter, Prompt Formatter, Terraform Cost Estimator, K8s Deployment Rollout Visualizer, Regex Generator from Example, QR Code Generator/Decoder, Mermaid Diagram Preview, Sed/Awk Command Builder, SQL Query Explainer. Continue in verified batches — Node-test the tricky logic first, then a full Playwright pass, then screenshot review, then commit.
+## Batch 5 of tools — done and verified 2026-08-28 (55 tools total)
+
+12 more tools added: Helm Values Merger, K8s Label Selector Tester, Ingress Path Matcher, JWT Expiration Checker, TLS Certificate Decoder, Sed Command Builder, SQL Query Explainer, QR Code Generator, Mermaid Diagram Preview, Release Notes Generator, Incident Timeline Builder, Log Timestamp Converter.
+
+- Two new CDN libraries added (both pure client-side, no data leaves the browser): `qrcode-generator@1.4.4` for QR codes, `mermaid@11` for diagram rendering.
+- TLS Certificate Decoder required writing a minimal ASN.1 DER/X.509 parser from scratch (no library) — verified correctness by generating a real self-signed cert with OpenSSL and cross-checking every field (subject, issuer, serial number, validity dates) against Node's built-in `crypto.X509Certificate` as ground truth. Exact match.
+- Verified all other tricky logic in Node first (label selector matching, ingress path prefix/exact/wildcard matching, JWT exp decoding, Helm deep-merge, log timestamp format detection, incident timeline sorting+deltas, SQL clause extraction), then ran an 81-assertion Playwright pass (0 failures, 0 console errors) covering every new tool's happy/error paths, a regression check on 6 older tools, and the single-active-panel sidebar invariant. Screenshots confirmed the QR code and Mermaid diagram both render correctly against the dark theme.
+- **Bash-tool gotcha (carried over from batch 4):** heredocs (`<<'EOF'`) strip double backslashes from written files, silently corrupting any JS test script with regex escapes like `\\b` or `\\s`. Always use the Write tool for test scripts containing regex, not Bash heredocs.
+
+Committed and pushed to `Abhinai20/abhinai20.github.io`.
+
+**Backlog remaining** toward "70+" (~15 tools): K8s Deployment Rollout Visualizer, REST Endpoint Mock Generator, Regex Generator from Example, Terraform Cost Estimator, Prompt Formatter, and others not yet scoped. Continue in verified batches — Node-test the tricky logic first (cross-check against a real ground truth tool when possible, as done for the TLS decoder), then a full Playwright pass, then screenshot review, then commit.
 
 ## How to resume
 

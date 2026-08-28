@@ -1705,3 +1705,446 @@ document.getElementById('bsonid-decode-btn').addEventListener('click', () => {
     resultEl.textContent = e.message;
   }
 });
+
+// ---------- Helm Values Merger ----------
+function deepMergeValues(base, override) {
+  const out = { ...base };
+  for (const key of Object.keys(override)) {
+    const ov = override[key];
+    const bv = base[key];
+    if (ov && typeof ov === 'object' && !Array.isArray(ov) && bv && typeof bv === 'object' && !Array.isArray(bv)) {
+      out[key] = deepMergeValues(bv, ov);
+    } else {
+      out[key] = ov;
+    }
+  }
+  return out;
+}
+document.getElementById('helmmerge-merge-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('helmmerge-result');
+  try {
+    const baseYaml = document.getElementById('helmmerge-base').value;
+    const overrideYaml = document.getElementById('helmmerge-override').value;
+    if (!baseYaml.trim() || !overrideYaml.trim()) throw new Error('Fill in both the base and override values files.');
+    const base = jsyaml.load(baseYaml) || {};
+    const override = jsyaml.load(overrideYaml) || {};
+    const merged = deepMergeValues(base, override);
+    resultEl.className = 'result-box result-success tf-output';
+    resultEl.textContent = jsyaml.dump(merged);
+  } catch (e) {
+    resultEl.className = 'result-box result-error tf-output';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- K8s Label Selector Tester ----------
+function parseLabelLines(text) {
+  const labels = {};
+  for (const line of text.split('\n').map((l) => l.trim()).filter(Boolean)) {
+    const idx = line.indexOf('=');
+    if (idx === -1) throw new Error('Each label line must be key=value: ' + line);
+    labels[line.slice(0, idx).trim()] = line.slice(idx + 1).trim();
+  }
+  return labels;
+}
+function parseSelectorClauses(sel) {
+  return sel.split(',').map((s) => s.trim()).filter(Boolean).map((clause) => {
+    if (clause.includes('!=')) { const [k, v] = clause.split('!='); return { key: k.trim(), op: '!=', val: v.trim() }; }
+    if (clause.includes('=')) { const [k, v] = clause.split('='); return { key: k.trim(), op: '=', val: v.trim() }; }
+    return { key: clause.trim(), op: 'exists' };
+  });
+}
+document.getElementById('labelselector-test-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('labelselector-result');
+  try {
+    const labels = parseLabelLines(document.getElementById('labelselector-labels').value);
+    const exprRaw = document.getElementById('labelselector-expr').value.trim();
+    if (!exprRaw) throw new Error('Enter a selector expression.');
+    const clauses = parseSelectorClauses(exprRaw);
+    const evaluated = clauses.map((c) => {
+      let matched;
+      if (c.op === 'exists') matched = Object.prototype.hasOwnProperty.call(labels, c.key);
+      else if (c.op === '=') matched = labels[c.key] === c.val;
+      else matched = labels[c.key] !== c.val;
+      return { c, matched };
+    });
+    const allMatch = evaluated.every((e) => e.matched);
+    const lines = evaluated.map(({ c, matched }) => {
+      const desc = c.op === 'exists' ? c.key : `${c.key}${c.op}${c.val}`;
+      return `${matched ? 'PASS' : 'FAIL'}  ${desc}`;
+    });
+    resultEl.className = allMatch ? 'result-box result-success' : 'result-box result-error';
+    resultEl.textContent = (allMatch ? 'MATCH — all clauses satisfied\n\n' : 'NO MATCH\n\n') + lines.join('\n');
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- Ingress Path Matcher ----------
+function matchesIngressPath(requestPath, rulePath, pathType) {
+  if (pathType === 'Exact') return requestPath === rulePath;
+  if (pathType === 'Prefix') {
+    if (rulePath === '/') return true;
+    const normalizedRule = rulePath.endsWith('/') ? rulePath.slice(0, -1) : rulePath;
+    return requestPath === normalizedRule || requestPath.startsWith(normalizedRule + '/');
+  }
+  if (pathType === 'ImplementationSpecific') {
+    const escaped = rulePath.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
+    return new RegExp('^' + escaped + '$').test(requestPath);
+  }
+  return false;
+}
+document.getElementById('ingresspath-test-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('ingresspath-result');
+  try {
+    const requestPath = document.getElementById('ingresspath-request').value.trim();
+    const rulePath = document.getElementById('ingresspath-rule').value.trim();
+    const pathType = document.getElementById('ingresspath-type').value;
+    if (!requestPath || !rulePath) throw new Error('Enter both a request path and a rule path.');
+    const matched = matchesIngressPath(requestPath, rulePath, pathType);
+    resultEl.className = matched ? 'result-box result-success' : 'result-box result-error';
+    resultEl.textContent = matched
+      ? `MATCH — "${requestPath}" satisfies ${pathType} rule "${rulePath}"`
+      : `NO MATCH — "${requestPath}" does not satisfy ${pathType} rule "${rulePath}"`;
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- JWT Expiration Checker ----------
+function base64UrlDecode(str) {
+  const padded = str.replace(/-/g, '+').replace(/_/g, '/').padEnd(str.length + (4 - (str.length % 4)) % 4, '=');
+  return decodeURIComponent(atob(padded).split('').map((c) => '%' + c.charCodeAt(0).toString(16).padStart(2, '0')).join(''));
+}
+document.getElementById('jwtexpiry-check-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('jwtexpiry-result');
+  try {
+    const token = document.getElementById('jwtexpiry-input').value.trim();
+    const parts = token.split('.');
+    if (parts.length !== 3) throw new Error('Not a valid JWT (expected 3 dot-separated parts).');
+    const payload = JSON.parse(base64UrlDecode(parts[1]));
+    if (!payload.exp) {
+      resultEl.className = 'result-box result-idle';
+      resultEl.textContent = 'This token has no "exp" claim — it does not expire.';
+      return;
+    }
+    const expMs = payload.exp * 1000;
+    const nowMs = Date.now();
+    const isExpired = nowMs > expMs;
+    const deltaSec = Math.abs(Math.round((expMs - nowMs) / 1000));
+    const humanDelta = deltaSec < 60 ? `${deltaSec}s` : deltaSec < 3600 ? `${Math.round(deltaSec / 60)}m` : deltaSec < 86400 ? `${Math.round(deltaSec / 3600)}h` : `${Math.round(deltaSec / 86400)}d`;
+    resultEl.className = isExpired ? 'result-box result-error' : 'result-box result-success';
+    resultEl.textContent = [
+      `Expires at: ${new Date(expMs).toISOString()}`,
+      isExpired ? `Status: EXPIRED (${humanDelta} ago)` : `Status: Valid — expires in ${humanDelta}`,
+    ].join('\n');
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- TLS Certificate Decoder ----------
+function parseDer(bytes, offset) {
+  const tag = bytes[offset];
+  const lenByte = bytes[offset + 1];
+  let lenOffset = offset + 2;
+  let length;
+  if (lenByte & 0x80) {
+    const numBytes = lenByte & 0x7f;
+    length = 0;
+    for (let i = 0; i < numBytes; i++) length = (length << 8) | bytes[lenOffset + i];
+    lenOffset += numBytes;
+  } else {
+    length = lenByte;
+  }
+  const valueStart = lenOffset;
+  const valueEnd = valueStart + length;
+  const constructed = (tag & 0x20) !== 0;
+  let children = null;
+  if (constructed) {
+    children = [];
+    let p = valueStart;
+    while (p < valueEnd) {
+      const child = parseDer(bytes, p);
+      children.push(child);
+      p = child.end;
+    }
+  }
+  return { tag, length, valueStart, valueEnd, children, end: valueEnd };
+}
+function oidToString(bytes, start, end) {
+  const parts = [];
+  const first = bytes[start];
+  parts.push(Math.floor(first / 40), first % 40);
+  let val = 0;
+  for (let i = start + 1; i < end; i++) {
+    val = (val << 7) | (bytes[i] & 0x7f);
+    if (!(bytes[i] & 0x80)) { parts.push(val); val = 0; }
+  }
+  return parts.join('.');
+}
+const OID_NAMES = { '2.5.4.3': 'CN', '2.5.4.6': 'C', '2.5.4.7': 'L', '2.5.4.8': 'ST', '2.5.4.10': 'O', '2.5.4.11': 'OU' };
+function parseX509Name(node, bytes) {
+  const parts = [];
+  for (const rdnSet of node.children) {
+    for (const attrSeq of rdnSet.children) {
+      const [oidNode, valNode] = attrSeq.children;
+      const oid = oidToString(bytes, oidNode.valueStart, oidNode.valueEnd);
+      const name = OID_NAMES[oid] || oid;
+      const value = new TextDecoder('utf-8').decode(bytes.slice(valNode.valueStart, valNode.valueEnd));
+      parts.push(`${name}=${value}`);
+    }
+  }
+  return parts.join(', ');
+}
+function parseCertTime(bytes, start, end) {
+  const str = String.fromCharCode(...bytes.slice(start, end));
+  let m;
+  if ((m = str.match(/^(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})Z$/))) {
+    let year = parseInt(m[1], 10);
+    year += year < 50 ? 2000 : 1900;
+    return new Date(Date.UTC(year, +m[2] - 1, +m[3], +m[4], +m[5], +m[6])).toISOString();
+  }
+  if ((m = str.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})Z$/))) {
+    return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6])).toISOString();
+  }
+  throw new Error('Unrecognized certificate time format.');
+}
+function certBytesToHex(bytes, start, end) {
+  return Array.from(bytes.slice(start, end)).map((b) => b.toString(16).padStart(2, '0')).join(':');
+}
+function parseCertificatePem(pemStr) {
+  const b64 = pemStr.replace(/-----BEGIN CERTIFICATE-----/, '').replace(/-----END CERTIFICATE-----/, '').replace(/\s+/g, '');
+  if (!b64) throw new Error('No certificate data found. Expected a PEM block starting with -----BEGIN CERTIFICATE-----.');
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  const cert = parseDer(bytes, 0);
+  const tbsCert = cert.children[0];
+  const children = tbsCert.children;
+  let ci = 0;
+  if (children[ci].tag === 0xa0) ci++;
+  const serialNode = children[ci++];
+  ci++;
+  const issuerNode = children[ci++];
+  const validityNode = children[ci++];
+  const subjectNode = children[ci++];
+  const notBefore = parseCertTime(bytes, validityNode.children[0].valueStart, validityNode.children[0].valueEnd);
+  const notAfter = parseCertTime(bytes, validityNode.children[1].valueStart, validityNode.children[1].valueEnd);
+  return {
+    serialNumber: certBytesToHex(bytes, serialNode.valueStart, serialNode.valueEnd),
+    issuer: parseX509Name(issuerNode, bytes),
+    subject: parseX509Name(subjectNode, bytes),
+    notBefore,
+    notAfter,
+  };
+}
+document.getElementById('tlsdecoder-decode-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('tlsdecoder-result');
+  try {
+    const input = document.getElementById('tlsdecoder-input').value;
+    if (!input.trim()) throw new Error('Paste a PEM certificate first.');
+    const info = parseCertificatePem(input);
+    const now = new Date();
+    const isExpired = now > new Date(info.notAfter);
+    resultEl.className = 'result-box result-success tf-output';
+    resultEl.textContent = [
+      `Subject:       ${info.subject}`,
+      `Issuer:        ${info.issuer}`,
+      `Serial Number: ${info.serialNumber}`,
+      `Valid From:    ${info.notBefore}`,
+      `Valid Until:   ${info.notAfter}`,
+      `Status:        ${isExpired ? 'EXPIRED' : 'Valid (not expired)'}`,
+    ].join('\n');
+  } catch (e) {
+    resultEl.className = 'result-box result-error tf-output';
+    resultEl.textContent = 'Could not parse certificate: ' + e.message;
+  }
+});
+
+// ---------- Sed Command Builder ----------
+document.getElementById('sedbuilder-build-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('sedbuilder-result');
+  try {
+    const find = document.getElementById('sedbuilder-find').value;
+    const replace = document.getElementById('sedbuilder-replace').value;
+    const filename = document.getElementById('sedbuilder-filename').value.trim();
+    const global = document.getElementById('sedbuilder-global').checked;
+    const icase = document.getElementById('sedbuilder-icase').checked;
+    if (!find) throw new Error('Enter a "find" pattern.');
+    const escapedFind = find.replace(/\//g, '\\/');
+    const escapedReplace = replace.replace(/\//g, '\\/');
+    const flags = (global ? 'g' : '') + (icase ? 'i' : '');
+    const expr = `s/${escapedFind}/${escapedReplace}/${flags}`;
+    const cmd = filename ? `sed -i '${expr}' ${filename}` : `sed '${expr}'`;
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = cmd;
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- SQL Query Explainer ----------
+function explainSqlQuery(sql) {
+  const clauses = [];
+  const patterns = [
+    ['SELECT', /SELECT\s+(.+?)\s+FROM/is, (v) => `Selects these columns/expressions: ${v}`],
+    ['FROM', /FROM\s+([^\s]+)/i, (v) => `From the table: ${v}`],
+    ['WHERE', /WHERE\s+(.+?)(?:\s+GROUP BY|\s+ORDER BY|\s+LIMIT|$)/is, (v) => `Only rows where: ${v}`],
+    ['GROUP BY', /GROUP BY\s+(.+?)(?:\s+ORDER BY|\s+LIMIT|$)/is, (v) => `Grouped by: ${v}`],
+    ['ORDER BY', /ORDER BY\s+(.+?)(?:\s+LIMIT|$)/is, (v) => `Sorted by: ${v}`],
+    ['LIMIT', /LIMIT\s+(\d+)/i, (v) => `Limited to ${v} row(s)`],
+  ];
+  for (const [label, re, describe] of patterns) {
+    const m = sql.match(re);
+    if (m) clauses.push(`${label}: ${describe(m[1].trim())}`);
+  }
+  return clauses;
+}
+document.getElementById('sqlexplainer-explain-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('sqlexplainer-result');
+  try {
+    const input = document.getElementById('sqlexplainer-input').value;
+    if (!input.trim()) throw new Error('Paste a SQL query first.');
+    const clauses = explainSqlQuery(input);
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = clauses.length ? clauses.join('\n\n') : 'Could not recognize any SQL clauses in this query.';
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- QR Code Generator ----------
+document.getElementById('qrcode-generate-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('qrcode-result');
+  try {
+    const input = document.getElementById('qrcode-input').value.trim();
+    if (!input) throw new Error('Enter some text or a URL.');
+    const qr = qrcode(0, 'M');
+    qr.addData(input);
+    qr.make();
+    resultEl.className = 'result-box result-success';
+    resultEl.innerHTML = qr.createSvgTag({ scalable: true });
+    const svg = resultEl.querySelector('svg');
+    if (svg) { svg.style.width = '220px'; svg.style.height = '220px'; svg.style.background = '#fff'; svg.style.borderRadius = '8px'; }
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- Mermaid Diagram Preview ----------
+if (window.mermaid) mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+document.getElementById('mermaid-render-btn').addEventListener('click', async () => {
+  const resultEl = document.getElementById('mermaid-result');
+  try {
+    const input = document.getElementById('mermaid-input').value;
+    if (!input.trim()) throw new Error('Paste some Mermaid syntax first.');
+    const id = 'mermaid-svg-' + Date.now();
+    const { svg } = await mermaid.render(id, input);
+    resultEl.className = 'result-box result-success';
+    resultEl.innerHTML = svg;
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = 'Could not render diagram: ' + (e.message || String(e));
+  }
+});
+
+// ---------- Release Notes Generator ----------
+document.getElementById('releasenotes-generate-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('releasenotes-result');
+  try {
+    const version = document.getElementById('releasenotes-version').value.trim();
+    const date = document.getElementById('releasenotes-date').value.trim();
+    const lines = document.getElementById('releasenotes-input').value.split('\n').map((l) => l.trim()).filter(Boolean);
+    if (!version || !lines.length) throw new Error('Enter a version and at least one commit message.');
+    const groups = { feat: [], fix: [], other: [] };
+    const re = /^(feat|fix|docs|style|refactor|perf|test|chore|build|ci|revert)(\([a-z0-9_-]+\))?(!)?:\s*(.+)$/i;
+    for (const line of lines) {
+      const m = line.match(re);
+      if (m) {
+        const type = m[1].toLowerCase();
+        const bucket = type === 'feat' ? 'feat' : type === 'fix' ? 'fix' : 'other';
+        groups[bucket].push(m[4]);
+      } else {
+        groups.other.push(line);
+      }
+    }
+    let out = `## [${version}]${date ? ` - ${date}` : ''}\n\n`;
+    if (groups.feat.length) out += '### Added\n' + groups.feat.map((d) => `- ${d}`).join('\n') + '\n\n';
+    if (groups.fix.length) out += '### Fixed\n' + groups.fix.map((d) => `- ${d}`).join('\n') + '\n\n';
+    if (groups.other.length) out += '### Changed\n' + groups.other.map((d) => `- ${d}`).join('\n') + '\n\n';
+    resultEl.className = 'result-box result-success tf-output';
+    resultEl.textContent = out.trim();
+  } catch (e) {
+    resultEl.className = 'result-box result-error tf-output';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- Incident Timeline Builder ----------
+document.getElementById('incidenttimeline-build-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('incidenttimeline-result');
+  try {
+    const input = document.getElementById('incidenttimeline-input').value;
+    const lines = input.split('\n').map((l) => l.trim()).filter(Boolean);
+    if (!lines.length) throw new Error('Paste at least one timestamped event.');
+    const events = lines.map((line) => {
+      const m = line.match(/^(\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(:\d{2})?(\.\d+)?Z?)\s*[-:]?\s*(.*)$/) ||
+        line.match(/^(\d{2}:\d{2}(:\d{2})?)\s*[-:]?\s*(.*)$/);
+      if (!m) throw new Error('Could not parse a timestamp from line: ' + line);
+      const tsStr = m[1];
+      const desc = m[m.length - 1];
+      const date = tsStr.length <= 8 ? new Date(`1970-01-01T${tsStr}Z`) : new Date(tsStr.replace(' ', 'T'));
+      if (isNaN(date.getTime())) throw new Error('Invalid timestamp: ' + tsStr);
+      return { date, desc };
+    });
+    events.sort((a, b) => a.date - b.date);
+    const out = events.map((ev, i) => {
+      const delta = i === 0 ? '' : ` (+${Math.round((ev.date - events[i - 1].date) / 1000)}s)`;
+      return `${ev.date.toISOString()}${delta}  —  ${ev.desc}`;
+    });
+    resultEl.className = 'result-box result-success tf-output';
+    resultEl.textContent = out.join('\n');
+  } catch (e) {
+    resultEl.className = 'result-box result-error tf-output';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- Log Timestamp Converter ----------
+function parseLogTimestamp(str) {
+  str = str.trim();
+  let m = str.match(/(\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)/);
+  if (m) return new Date(m[1].replace(' ', 'T'));
+  m = str.match(/([A-Z][a-z]{2}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2})/);
+  if (m) return new Date(`${m[1]} ${new Date().getFullYear()} UTC`);
+  if (/^\d{10}$/.test(str)) return new Date(Number(str) * 1000);
+  if (/^\d{13}$/.test(str)) return new Date(Number(str));
+  throw new Error('Could not recognize a timestamp format in that input.');
+}
+document.getElementById('logtimestamp-convert-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('logtimestamp-result');
+  try {
+    const input = document.getElementById('logtimestamp-input').value.trim();
+    if (!input) throw new Error('Enter a timestamp.');
+    const date = parseLogTimestamp(input);
+    if (isNaN(date.getTime())) throw new Error('Could not parse that as a valid date.');
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = [
+      `ISO 8601:        ${date.toISOString()}`,
+      `Unix (seconds):  ${Math.floor(date.getTime() / 1000)}`,
+      `Unix (ms):       ${date.getTime()}`,
+      `UTC string:      ${date.toUTCString()}`,
+      `Local time:      ${date.toString()}`,
+    ].join('\n');
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});

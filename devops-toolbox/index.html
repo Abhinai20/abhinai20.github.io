@@ -38,6 +38,9 @@
     <button class="tab-btn" data-tool="k8slint">K8s Manifest Analyzer</button>
     <button class="tab-btn" data-tool="dockerlint">Dockerfile Checker</button>
     <button class="tab-btn" data-tool="k8squantity">K8s Quantity Converter</button>
+    <button class="tab-btn" data-tool="helmmerge">Helm Values Merger</button>
+    <button class="tab-btn" data-tool="labelselector">K8s Label Selector Tester</button>
+    <button class="tab-btn" data-tool="ingresspath">Ingress Path Matcher</button>
   </details>
 
   <details class="nav-group" open>
@@ -54,6 +57,8 @@
     <button class="tab-btn" data-tool="base64">Base64 / URL Encode</button>
     <button class="tab-btn" data-tool="chmod">chmod Calculator</button>
     <button class="tab-btn" data-tool="secretscanner">Secret Scanner</button>
+    <button class="tab-btn" data-tool="jwtexpiry">JWT Expiration Checker</button>
+    <button class="tab-btn" data-tool="tlsdecoder">TLS Certificate Decoder</button>
   </details>
 
   <details class="nav-group" open>
@@ -66,6 +71,10 @@
     <button class="tab-btn" data-tool="asciitable">ASCII Table Generator</button>
     <button class="tab-btn" data-tool="httpheader">HTTP Header Parser</button>
     <button class="tab-btn" data-tool="tokenestimator">Token Estimator</button>
+    <button class="tab-btn" data-tool="sedbuilder">Sed Command Builder</button>
+    <button class="tab-btn" data-tool="sqlexplainer">SQL Query Explainer</button>
+    <button class="tab-btn" data-tool="qrcode">QR Code Generator</button>
+    <button class="tab-btn" data-tool="mermaid">Mermaid Diagram Preview</button>
   </details>
 
   <details class="nav-group" open>
@@ -74,6 +83,7 @@
     <button class="tab-btn" data-tool="cronbuilder">Cron Builder</button>
     <button class="tab-btn" data-tool="timestamp">Unix Timestamp</button>
     <button class="tab-btn" data-tool="timezone">Timezone Converter</button>
+    <button class="tab-btn" data-tool="logtimestamp">Log Timestamp Converter</button>
   </details>
 
   <details class="nav-group" open>
@@ -94,6 +104,8 @@
     <button class="tab-btn" data-tool="commitvalidator">Commit Message Validator</button>
     <button class="tab-btn" data-tool="changelog">Changelog Generator</button>
     <button class="tab-btn" data-tool="bsonid">BSON/ObjectId Decoder</button>
+    <button class="tab-btn" data-tool="releasenotes">Release Notes Generator</button>
+    <button class="tab-btn" data-tool="incidenttimeline">Incident Timeline Builder</button>
   </details>
 </nav>
 
@@ -953,6 +965,266 @@ chore: update dependencies</textarea>
     </div>
   </section>
 
+  <!-- HELM VALUES MERGER -->
+  <section class="tool-panel" id="panel-helmmerge">
+    <div class="panel-header"><h1>Helm Values Merger</h1><button class="clear-btn" data-clear="helmmerge">Clear</button></div>
+    <p class="tool-desc">Deep-merge a base <code>values.yaml</code> with an override file — override wins on conflicts, objects merge recursively, exactly like <code>helm install -f base.yaml -f override.yaml</code>.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="helmmerge-base">Base values.yaml</label>
+        <textarea id="helmmerge-base" spellcheck="false" placeholder="replicaCount: 1
+image:
+  repository: nginx
+  tag: latest">replicaCount: 1
+image:
+  repository: nginx
+  tag: latest
+resources:
+  limits:
+    cpu: 100m</textarea>
+      </div>
+      <div class="io-col">
+        <label for="helmmerge-override">Override values.yaml</label>
+        <textarea id="helmmerge-override" spellcheck="false" placeholder="replicaCount: 3
+image:
+  tag: v1.2.0">replicaCount: 3
+image:
+  tag: v1.2.0
+resources:
+  limits:
+    memory: 256Mi</textarea>
+      </div>
+    </div>
+    <button id="helmmerge-merge-btn" class="primary-btn">Merge</button>
+    <label style="margin-top:16px;">Merged result</label>
+    <pre id="helmmerge-result" class="result-box result-idle tf-output">Fill in both files and click "Merge".</pre>
+  </section>
+
+  <!-- K8S LABEL SELECTOR TESTER -->
+  <section class="tool-panel" id="panel-labelselector">
+    <div class="panel-header"><h1>Kubernetes Label Selector Tester</h1><button class="clear-btn" data-clear="labelselector">Clear</button></div>
+    <p class="tool-desc">Check whether a set of labels matches a label selector expression (the same syntax as <code>kubectl get pods -l ...</code>).</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="labelselector-labels">Labels (key=value, one per line)</label>
+        <textarea id="labelselector-labels" spellcheck="false" placeholder="app=web
+env=prod
+tier=frontend">app=web
+env=prod
+tier=frontend</textarea>
+        <label class="second-label">Selector expression</label>
+        <input type="text" id="labelselector-expr" spellcheck="false" placeholder="app=web,env=prod" value="app=web,env=prod">
+        <button id="labelselector-test-btn" class="primary-btn">Test Match</button>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <div id="labelselector-result" class="result-box result-idle">Enter labels and a selector, then click "Test Match".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INGRESS PATH MATCHER -->
+  <section class="tool-panel" id="panel-ingresspath">
+    <div class="panel-header"><h1>Ingress Path Matcher</h1><button class="clear-btn" data-clear="ingresspath">Clear</button></div>
+    <p class="tool-desc">Simulate whether a request path matches a Kubernetes Ingress rule path, given the pathType (Exact, Prefix, or ImplementationSpecific with <code>*</code> wildcards).</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="ingresspath-request">Request path</label>
+        <input type="text" id="ingresspath-request" spellcheck="false" placeholder="/api/v1/users" value="/api/v1/users">
+        <label class="second-label">Ingress rule path</label>
+        <input type="text" id="ingresspath-rule" spellcheck="false" placeholder="/api" value="/api">
+        <label class="second-label">pathType</label>
+        <select id="ingresspath-type">
+          <option value="Prefix">Prefix</option>
+          <option value="Exact">Exact</option>
+          <option value="ImplementationSpecific">ImplementationSpecific (supports *)</option>
+        </select>
+        <button id="ingresspath-test-btn" class="primary-btn">Test Match</button>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <div id="ingresspath-result" class="result-box result-idle">Fill in the fields and click "Test Match".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- JWT EXPIRATION CHECKER -->
+  <section class="tool-panel" id="panel-jwtexpiry">
+    <div class="panel-header"><h1>JWT Expiration Checker</h1><button class="clear-btn" data-clear="jwtexpiry">Clear</button></div>
+    <p class="tool-desc">Paste a JWT and instantly see whether it's expired, and how much time is left (or how long ago it expired).</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="jwtexpiry-input">JWT</label>
+        <textarea id="jwtexpiry-input" spellcheck="false" placeholder="eyJhbGciOiJIUzI1NiIs..."></textarea>
+        <button id="jwtexpiry-check-btn" class="primary-btn">Check Expiration</button>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <div id="jwtexpiry-result" class="result-box result-idle">Paste a JWT and click "Check Expiration".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TLS CERTIFICATE DECODER -->
+  <section class="tool-panel" id="panel-tlsdecoder">
+    <div class="panel-header"><h1>TLS Certificate Decoder</h1><button class="clear-btn" data-clear="tlsdecoder">Clear</button></div>
+    <p class="tool-desc">Paste a PEM-encoded X.509 certificate (<code>-----BEGIN CERTIFICATE-----</code>) and see its subject, issuer, validity dates, and serial number. Parsed entirely in your browser with no server round-trip.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="tlsdecoder-input">PEM certificate</label>
+        <textarea id="tlsdecoder-input" spellcheck="false" placeholder="-----BEGIN CERTIFICATE-----&#10;MIIC...&#10;-----END CERTIFICATE-----"></textarea>
+        <button id="tlsdecoder-decode-btn" class="primary-btn">Decode</button>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <pre id="tlsdecoder-result" class="result-box result-idle tf-output">Paste a PEM certificate and click "Decode".</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- SED COMMAND BUILDER -->
+  <section class="tool-panel" id="panel-sedbuilder">
+    <div class="panel-header"><h1>Sed Command Builder</h1><button class="clear-btn" data-clear="sedbuilder">Clear</button></div>
+    <p class="tool-desc">Fill in a find/replace and get a ready-to-run <code>sed</code> command.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="sedbuilder-find">Find</label>
+        <input type="text" id="sedbuilder-find" spellcheck="false" placeholder="foo" value="foo">
+        <label class="second-label">Replace with</label>
+        <input type="text" id="sedbuilder-replace" spellcheck="false" placeholder="bar" value="bar">
+        <label class="second-label">File name (optional — leave blank for stdin)</label>
+        <input type="text" id="sedbuilder-filename" spellcheck="false" placeholder="file.txt">
+        <label class="second-label"><input type="checkbox" id="sedbuilder-global" checked> Replace all occurrences per line (g)</label>
+        <label class="second-label"><input type="checkbox" id="sedbuilder-icase"> Case-insensitive (i)</label>
+        <button id="sedbuilder-build-btn" class="primary-btn">Build Command</button>
+      </div>
+      <div class="io-col">
+        <label>Command</label>
+        <div id="sedbuilder-result" class="result-box result-idle">Fill in the fields and click "Build Command".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SQL QUERY EXPLAINER -->
+  <section class="tool-panel" id="panel-sqlexplainer">
+    <div class="panel-header"><h1>SQL Query Explainer</h1><button class="clear-btn" data-clear="sqlexplainer">Clear</button></div>
+    <p class="tool-desc">Paste a SQL query and get each clause broken down in plain English. Heuristic parsing, not a real SQL parser — works best on simple single-statement queries.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="sqlexplainer-input">SQL query</label>
+        <textarea id="sqlexplainer-input" spellcheck="false" placeholder="SELECT id, name FROM users WHERE age > 18 ORDER BY name LIMIT 10">SELECT id, name FROM users WHERE age > 18 GROUP BY name ORDER BY id LIMIT 10</textarea>
+        <button id="sqlexplainer-explain-btn" class="primary-btn">Explain</button>
+      </div>
+      <div class="io-col">
+        <label>Explanation</label>
+        <div id="sqlexplainer-result" class="result-box result-idle">Paste a query and click "Explain".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QR CODE GENERATOR -->
+  <section class="tool-panel" id="panel-qrcode">
+    <div class="panel-header"><h1>QR Code Generator</h1><button class="clear-btn" data-clear="qrcode">Clear</button></div>
+    <p class="tool-desc">Turn any text or URL into a QR code, generated entirely in your browser — nothing is sent anywhere.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="qrcode-input">Text or URL</label>
+        <input type="text" id="qrcode-input" spellcheck="false" placeholder="https://example.com" value="https://abhinai20.github.io/devops-toolbox/">
+        <button id="qrcode-generate-btn" class="primary-btn">Generate</button>
+      </div>
+      <div class="io-col">
+        <label>QR Code</label>
+        <div id="qrcode-result" class="result-box result-idle" style="display:flex;align-items:center;justify-content:center;">Enter text and click "Generate".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MERMAID DIAGRAM PREVIEW -->
+  <section class="tool-panel" id="panel-mermaid">
+    <div class="panel-header"><h1>Mermaid Diagram Preview</h1><button class="clear-btn" data-clear="mermaid">Clear</button></div>
+    <p class="tool-desc">Paste <a href="https://mermaid.js.org/" target="_blank" rel="nofollow">Mermaid</a> diagram syntax (flowcharts, sequence diagrams, etc.) and see it rendered live.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="mermaid-input">Mermaid syntax</label>
+        <textarea id="mermaid-input" spellcheck="false" placeholder="graph TD
+  A[Start] --> B{Decision}
+  B -->|Yes| C[Deploy]
+  B -->|No| D[Fix]">graph TD
+  A[Start] --> B{Decision}
+  B -->|Yes| C[Deploy]
+  B -->|No| D[Fix]</textarea>
+        <button id="mermaid-render-btn" class="primary-btn">Render</button>
+      </div>
+      <div class="io-col">
+        <label>Preview</label>
+        <div id="mermaid-result" class="result-box result-idle" style="overflow:auto;">Paste Mermaid syntax and click "Render".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELEASE NOTES GENERATOR -->
+  <section class="tool-panel" id="panel-releasenotes">
+    <div class="panel-header"><h1>Release Notes Generator</h1><button class="clear-btn" data-clear="releasenotes">Clear</button></div>
+    <p class="tool-desc">Paste Conventional Commit messages and get "Keep a Changelog"-style release notes for a version.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="releasenotes-version">Version</label>
+        <input type="text" id="releasenotes-version" spellcheck="false" placeholder="1.2.0" value="1.2.0">
+        <label class="second-label">Date</label>
+        <input type="text" id="releasenotes-date" spellcheck="false" placeholder="2026-08-28" value="2026-08-28">
+        <label class="second-label">Commit messages (one per line)</label>
+        <textarea id="releasenotes-input" spellcheck="false" placeholder="feat: add login
+fix: null crash
+chore: bump deps">feat: add login endpoint
+fix: null pointer crash on empty response
+chore: bump dependencies</textarea>
+        <button id="releasenotes-generate-btn" class="primary-btn">Generate</button>
+      </div>
+      <div class="io-col">
+        <label>Release notes (Markdown)</label>
+        <pre id="releasenotes-result" class="result-box result-idle tf-output">Fill in the fields and click "Generate".</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- INCIDENT TIMELINE BUILDER -->
+  <section class="tool-panel" id="panel-incidenttimeline">
+    <div class="panel-header"><h1>Incident Timeline Builder</h1><button class="clear-btn" data-clear="incidenttimeline">Clear</button></div>
+    <p class="tool-desc">Paste timestamped events (one per line, ISO timestamp or HH:MM:SS first) and get them sorted chronologically with time deltas between each — handy for post-incident writeups.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="incidenttimeline-input">Events</label>
+        <textarea id="incidenttimeline-input" spellcheck="false" placeholder="2026-08-28T10:05:00Z: alert fired
+2026-08-28T10:00:00Z: deploy started
+2026-08-28T10:07:30Z: rollback complete">2026-08-28T10:05:00Z: alert fired
+2026-08-28T10:00:00Z: deploy started
+2026-08-28T10:07:30Z: rollback complete</textarea>
+        <button id="incidenttimeline-build-btn" class="primary-btn">Build Timeline</button>
+      </div>
+      <div class="io-col">
+        <label>Timeline</label>
+        <pre id="incidenttimeline-result" class="result-box result-idle tf-output">Paste timestamped events and click "Build Timeline".</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOG TIMESTAMP CONVERTER -->
+  <section class="tool-panel" id="panel-logtimestamp">
+    <div class="panel-header"><h1>Log Timestamp Converter</h1><button class="clear-btn" data-clear="logtimestamp">Clear</button></div>
+    <p class="tool-desc">Paste a timestamp from a log line (ISO 8601, syslog format, or Unix epoch seconds/milliseconds) and get it converted to a readable date plus other common formats.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="logtimestamp-input">Timestamp (or a full log line containing one)</label>
+        <input type="text" id="logtimestamp-input" spellcheck="false" placeholder="2026-08-28T05:12:27.123Z" value="2026-08-28T05:12:27.123Z">
+        <button id="logtimestamp-convert-btn" class="primary-btn">Convert</button>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <div id="logtimestamp-result" class="result-box result-idle">Paste a timestamp and click "Convert".</div>
+      </div>
+    </div>
+  </section>
+
 </main>
 </div>
 
@@ -963,6 +1235,8 @@ chore: update dependencies</textarea>
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@18.0.11/lib/marked.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <script src="assets/app.js?v=2"></script>
 </body>
 </html>
