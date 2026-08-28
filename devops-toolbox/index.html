@@ -28,6 +28,9 @@
     <button class="tab-btn" data-tool="jsonfmt">JSON Formatter</button>
     <button class="tab-btn" data-tool="diff">Diff Viewer</button>
     <button class="tab-btn" data-tool="md2word">Markdown → Word</button>
+    <button class="tab-btn" data-tool="sqlfmt">SQL Formatter</button>
+    <button class="tab-btn" data-tool="xmljson">XML ↔ JSON</button>
+    <button class="tab-btn" data-tool="jsonschema">JSON Schema Generator</button>
   </details>
 
   <details class="nav-group" open>
@@ -50,6 +53,7 @@
     <button class="tab-btn" data-tool="hash">Hash Generator</button>
     <button class="tab-btn" data-tool="base64">Base64 / URL Encode</button>
     <button class="tab-btn" data-tool="chmod">chmod Calculator</button>
+    <button class="tab-btn" data-tool="secretscanner">Secret Scanner</button>
   </details>
 
   <details class="nav-group" open>
@@ -58,11 +62,16 @@
     <button class="tab-btn" data-tool="curl">cURL → Code</button>
     <button class="tab-btn" data-tool="xml">XML Formatter</button>
     <button class="tab-btn" data-tool="color">Color Converter</button>
+    <button class="tab-btn" data-tool="graphqlfmt">GraphQL Formatter</button>
+    <button class="tab-btn" data-tool="asciitable">ASCII Table Generator</button>
+    <button class="tab-btn" data-tool="httpheader">HTTP Header Parser</button>
+    <button class="tab-btn" data-tool="tokenestimator">Token Estimator</button>
   </details>
 
   <details class="nav-group" open>
     <summary class="nav-group-label">Time</summary>
     <button class="tab-btn" data-tool="cron">Cron Explainer</button>
+    <button class="tab-btn" data-tool="cronbuilder">Cron Builder</button>
     <button class="tab-btn" data-tool="timestamp">Unix Timestamp</button>
     <button class="tab-btn" data-tool="timezone">Timezone Converter</button>
   </details>
@@ -82,6 +91,9 @@
     <button class="tab-btn" data-tool="gitdiff">Git Diff Statistics</button>
     <button class="tab-btn" data-tool="conventionalcommit">Conventional Commit</button>
     <button class="tab-btn" data-tool="branchname">Branch Name Generator</button>
+    <button class="tab-btn" data-tool="commitvalidator">Commit Message Validator</button>
+    <button class="tab-btn" data-tool="changelog">Changelog Generator</button>
+    <button class="tab-btn" data-tool="bsonid">BSON/ObjectId Decoder</button>
   </details>
 </nav>
 
@@ -711,6 +723,232 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
       <div class="io-col">
         <label>Branch name</label>
         <div id="branchname-result" class="result-box result-idle">Enter a description and click "Generate".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SQL FORMATTER -->
+  <section class="tool-panel" id="panel-sqlfmt">
+    <div class="panel-header"><h1>SQL Formatter</h1><button class="clear-btn" data-clear="sqlfmt">Clear</button></div>
+    <p class="tool-desc">Paste a SQL query and get it reformatted with each major clause on its own line.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="sqlfmt-input">SQL</label>
+        <textarea id="sqlfmt-input" spellcheck="false" placeholder="select id, name from users where age > 18 order by name">select id, name from users where age > 18 order by name</textarea>
+        <button id="sqlfmt-format-btn" class="primary-btn">Format</button>
+      </div>
+      <div class="io-col">
+        <label>Formatted SQL</label>
+        <pre id="sqlfmt-result" class="result-box result-idle tf-output">Paste SQL and click "Format".</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- XML <-> JSON -->
+  <section class="tool-panel" id="panel-xmljson">
+    <div class="panel-header"><h1>XML &harr; JSON Converter</h1><button class="clear-btn" data-clear="xmljson">Clear</button></div>
+    <p class="tool-desc">Convert between XML and JSON in either direction.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="xmljson-input">Input (XML or JSON)</label>
+        <textarea id="xmljson-input" spellcheck="false" placeholder='<person><name>Bob</name><age>30</age></person>'></textarea>
+        <div class="btn-row">
+          <button id="xmljson-to-json-btn" class="primary-btn">XML → JSON</button>
+          <button id="xmljson-to-xml-btn" class="secondary-btn">JSON → XML</button>
+        </div>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <pre id="xmljson-result" class="result-box result-idle tf-output">Paste XML or JSON and pick a direction.</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- JSON SCHEMA GENERATOR -->
+  <section class="tool-panel" id="panel-jsonschema">
+    <div class="panel-header"><h1>JSON Schema Generator</h1><button class="clear-btn" data-clear="jsonschema">Clear</button></div>
+    <p class="tool-desc">Paste a sample JSON value and get a best-effort JSON Schema (draft-07) inferred from it.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="jsonschema-input">Sample JSON</label>
+        <textarea id="jsonschema-input" spellcheck="false" placeholder='{"name": "Bob", "age": 30}'>{"name": "Bob", "age": 30, "active": true, "tags": ["a", "b"]}</textarea>
+        <button id="jsonschema-generate-btn" class="primary-btn">Generate Schema</button>
+      </div>
+      <div class="io-col">
+        <label>Schema</label>
+        <pre id="jsonschema-result" class="result-box result-idle tf-output">Paste sample JSON and click "Generate Schema".</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECRET SCANNER -->
+  <section class="tool-panel" id="panel-secretscanner">
+    <div class="panel-header"><h1>Secret Scanner</h1><button class="clear-btn" data-clear="secretscanner">Clear</button></div>
+    <p class="tool-desc">Paste code, config, or logs and scan for accidentally-committed secrets (AWS keys, GitHub tokens, private key blocks, generic API keys, Slack tokens). Runs entirely in your browser — nothing is uploaded.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="secretscanner-input">Text to scan</label>
+        <textarea id="secretscanner-input" spellcheck="false" placeholder="Paste code, .env contents, or logs here"></textarea>
+        <button id="secretscanner-scan-btn" class="primary-btn">Scan</button>
+      </div>
+      <div class="io-col">
+        <label>Findings</label>
+        <div id="secretscanner-result" class="result-box result-idle">Paste some text and click "Scan".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GRAPHQL FORMATTER -->
+  <section class="tool-panel" id="panel-graphqlfmt">
+    <div class="panel-header"><h1>GraphQL Query Formatter</h1><button class="clear-btn" data-clear="graphqlfmt">Clear</button></div>
+    <p class="tool-desc">Paste a minified or messy GraphQL query/mutation and get it indented by brace depth.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="graphqlfmt-input">GraphQL</label>
+        <textarea id="graphqlfmt-input" spellcheck="false" placeholder="{ user(id: 1) { name email } }">{ user(id: 1) { name email posts { title } } }</textarea>
+        <button id="graphqlfmt-format-btn" class="primary-btn">Format</button>
+      </div>
+      <div class="io-col">
+        <label>Formatted</label>
+        <pre id="graphqlfmt-result" class="result-box result-idle tf-output">Paste a GraphQL query and click "Format".</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ASCII TABLE GENERATOR -->
+  <section class="tool-panel" id="panel-asciitable">
+    <div class="panel-header"><h1>ASCII Table Generator</h1><button class="clear-btn" data-clear="asciitable">Clear</button></div>
+    <p class="tool-desc">Paste comma-separated rows (first row = header) and get a monospace ASCII table, ready to paste into a terminal, README, or Slack message.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="asciitable-input">CSV rows (comma-separated)</label>
+        <textarea id="asciitable-input" spellcheck="false" placeholder="Name,Status,Region">Name,Status,Region
+web-01,running,us-east-1
+web-02,stopped,us-west-2</textarea>
+        <button id="asciitable-generate-btn" class="primary-btn">Generate</button>
+      </div>
+      <div class="io-col">
+        <label>ASCII Table</label>
+        <pre id="asciitable-result" class="result-box result-idle tf-output">Paste CSV rows and click "Generate".</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- HTTP HEADER PARSER -->
+  <section class="tool-panel" id="panel-httpheader">
+    <div class="panel-header"><h1>HTTP Header Parser</h1><button class="clear-btn" data-clear="httpheader">Clear</button></div>
+    <p class="tool-desc">Paste raw HTTP request or response headers and get them broken into a readable table.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="httpheader-input">Raw headers</label>
+        <textarea id="httpheader-input" spellcheck="false" placeholder="Content-Type: application/json
+Cache-Control: no-cache
+Authorization: Bearer abc123">Content-Type: application/json
+Cache-Control: no-cache, max-age=0
+X-Request-Id: 8f14e45f-ceea-467e-9946-abc123</textarea>
+        <button id="httpheader-parse-btn" class="primary-btn">Parse</button>
+      </div>
+      <div class="io-col">
+        <label>Parsed headers</label>
+        <div id="httpheader-result" class="result-box result-idle">Paste headers and click "Parse".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOKEN ESTIMATOR -->
+  <section class="tool-panel" id="panel-tokenestimator">
+    <div class="panel-header"><h1>LLM Token Estimator</h1><button class="clear-btn" data-clear="tokenestimator">Clear</button></div>
+    <p class="tool-desc">Paste text (like a prompt) and get a rough estimate of how many LLM tokens it will consume. Heuristic only — not an exact tokenizer.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="tokenestimator-input">Text</label>
+        <textarea id="tokenestimator-input" spellcheck="false" placeholder="Paste your prompt here"></textarea>
+        <button id="tokenestimator-estimate-btn" class="primary-btn">Estimate</button>
+      </div>
+      <div class="io-col">
+        <label>Estimate</label>
+        <div id="tokenestimator-result" class="result-box result-idle">Paste text and click "Estimate".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CRON BUILDER -->
+  <section class="tool-panel" id="panel-cronbuilder">
+    <div class="panel-header"><h1>Cron Builder</h1><button class="clear-btn" data-clear="cronbuilder">Clear</button></div>
+    <p class="tool-desc">Fill in each field and get a valid 5-field cron expression (the reverse of the Cron Explainer).</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="cronbuilder-minute">Minute</label>
+        <input type="text" id="cronbuilder-minute" spellcheck="false" placeholder="*" value="0">
+        <label class="second-label">Hour</label>
+        <input type="text" id="cronbuilder-hour" spellcheck="false" placeholder="*" value="9">
+        <label class="second-label">Day of month</label>
+        <input type="text" id="cronbuilder-dom" spellcheck="false" placeholder="*" value="*">
+        <label class="second-label">Month</label>
+        <input type="text" id="cronbuilder-month" spellcheck="false" placeholder="*" value="*">
+        <label class="second-label">Day of week</label>
+        <input type="text" id="cronbuilder-dow" spellcheck="false" placeholder="*" value="1-5">
+        <button id="cronbuilder-build-btn" class="primary-btn">Build</button>
+      </div>
+      <div class="io-col">
+        <label>Cron expression</label>
+        <div id="cronbuilder-result" class="result-box result-idle">Fill in the fields and click "Build".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMMIT MESSAGE VALIDATOR -->
+  <section class="tool-panel" id="panel-commitvalidator">
+    <div class="panel-header"><h1>Commit Message Validator</h1><button class="clear-btn" data-clear="commitvalidator">Clear</button></div>
+    <p class="tool-desc">Paste a commit message and check it against the <a href="https://www.conventionalcommits.org/" target="_blank" rel="nofollow">Conventional Commits</a> format.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="commitvalidator-input">Commit message</label>
+        <textarea id="commitvalidator-input" spellcheck="false" placeholder="feat(auth): add login endpoint">feat(auth): add login endpoint</textarea>
+        <button id="commitvalidator-check-btn" class="primary-btn">Validate</button>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <div id="commitvalidator-result" class="result-box result-idle">Paste a commit message and click "Validate".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHANGELOG GENERATOR -->
+  <section class="tool-panel" id="panel-changelog">
+    <div class="panel-header"><h1>Changelog Generator</h1><button class="clear-btn" data-clear="changelog">Clear</button></div>
+    <p class="tool-desc">Paste a list of Conventional Commit messages (one per line, e.g. from <code>git log --oneline</code>) and get a grouped Markdown changelog.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="changelog-input">Commit messages (one per line)</label>
+        <textarea id="changelog-input" spellcheck="false" placeholder="feat(auth): add login endpoint
+fix(api): handle null response
+chore: update dependencies">feat(auth): add login endpoint
+fix(api): handle null response
+docs: update README
+chore: update dependencies</textarea>
+        <button id="changelog-generate-btn" class="primary-btn">Generate Changelog</button>
+      </div>
+      <div class="io-col">
+        <label>Changelog (Markdown)</label>
+        <pre id="changelog-result" class="result-box result-idle tf-output">Paste commit messages and click "Generate Changelog".</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- BSON/OBJECTID DECODER -->
+  <section class="tool-panel" id="panel-bsonid">
+    <div class="panel-header"><h1>BSON/ObjectId Decoder</h1><button class="clear-btn" data-clear="bsonid">Clear</button></div>
+    <p class="tool-desc">Decode a MongoDB ObjectId (24 hex characters) to extract its embedded creation timestamp.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="bsonid-input">ObjectId</label>
+        <input type="text" id="bsonid-input" spellcheck="false" placeholder="507f1f77bcf86cd799439011" value="507f1f77bcf86cd799439011">
+        <button id="bsonid-decode-btn" class="primary-btn">Decode</button>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <div id="bsonid-result" class="result-box result-idle">Enter an ObjectId and click "Decode".</div>
       </div>
     </div>
   </section>

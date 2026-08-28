@@ -61,7 +61,19 @@ K8s Quantity Converter, chmod Calculator, XML Formatter, Color Converter, CIDR O
 
 **Large backlog still remains** beyond these 31 tools (toward "70+"): Helm Values Merger, K8s Label Selector Tester, Ingress Path Matcher Simulator, HTTP Header Parser, TLS Certificate Decoder, Commit Message Validator, Cron Builder, Sed/Awk Command Builder, SQL Formatter, SQL Query Explainer, XML↔JSON Converter, BSON/ObjectId Decoder, JWT Expiration Checker, GraphQL Query Formatter, REST Endpoint Mock Generator, JSON Schema Generator, Release Notes/Changelog Generator, Incident Timeline Builder, Log Timestamp Converter, Token Estimator, Prompt Formatter, Terraform Cost Estimator, K8s Deployment Rollout Visualizer, Regex Generator from Example, QR Code Generator/Decoder, Mermaid Diagram Preview, ASCII Table Generator, Secret Scanner. Continue in verified batches like this one — do not skip the Node + Playwright verification pass even under time pressure, it has caught real bugs in every batch so far.
 
-Not yet committed/pushed as of this note — do that next, then continue with batch 4 if the user wants to keep going.
+## Batch 4 of tools — done and verified 2026-08-28 (43 tools total)
+
+12 more tools added: SQL Formatter, XML↔JSON Converter, JSON Schema Generator, Secret Scanner, GraphQL Query Formatter, ASCII Table Generator, HTTP Header Parser, LLM Token Estimator, Cron Builder, Commit Message Validator, Changelog Generator, BSON/ObjectId Decoder.
+
+- Also fixed the sidebar layout per user request: moved the logo/tagline out of a separate full-width header banner and into the top of the sidebar itself (`.nav-brand`), so the nav column now runs the full page height from the true top-left corner. Caught a real bug in the process — a stray extra `}` in the mobile media query had silently broken `.tool-panel` show/hide, making two panels render at once. Fixed and verified. Brand text is centered per follow-up request.
+- Reviewed all 43 tools for near-duplicates per user request — found none; the closest-looking pairs (CIDR Calculator vs CIDR Overlap Checker, Unix Timestamp vs Timezone Converter, JSON↔YAML vs JSON Formatter) each do a genuinely distinct job.
+- Analytics: user wants usage data but with zero new account/login. Resolution: GitHub already provides this for free on this repo at **Insights → Traffic** (github.com/Abhinai20/abhinai20.github.io/graphs/traffic) — page views, unique visitors, top referrers, no setup. No tracking script was added.
+- Verified via Node tests (SQL formatter, XML↔JSON, JSON Schema inference, secret-scanner regexes, cron builder, commit validator, changelog grouping, BSON decode) then a 67-assertion Playwright pass (0 failures, 0 console errors) covering every new tool's happy/error paths plus a regression check on yaml/cidr/color/uuid panels and the single-active-panel sidebar invariant. Screenshots reviewed for the centered brand block and ASCII table rendering.
+- **Bash-tool gotcha learned this session:** writing JS test files via `bash heredocs with <<'EOF'` silently strips double backslashes (e.g. `\\b` in a regex string became `\b`), corrupting regex-heavy test scripts without any error. Fixed by using the Write tool for anything with regex escapes instead of heredocs. Keep using Write, not Bash heredoc, for JS/regex test scaffolding going forward.
+
+Committed and pushed to `Abhinai20/abhinai20.github.io`.
+
+**Backlog remaining** toward "70+": Helm Values Merger, K8s Label Selector Tester, Ingress Path Matcher Simulator, TLS Certificate Decoder, JWT Expiration Checker, REST Endpoint Mock Generator, Release Notes Generator, Incident Timeline Builder, Log Timestamp Converter, Prompt Formatter, Terraform Cost Estimator, K8s Deployment Rollout Visualizer, Regex Generator from Example, QR Code Generator/Decoder, Mermaid Diagram Preview, Sed/Awk Command Builder, SQL Query Explainer. Continue in verified batches — Node-test the tricky logic first, then a full Playwright pass, then screenshot review, then commit.
 
 ## How to resume
 

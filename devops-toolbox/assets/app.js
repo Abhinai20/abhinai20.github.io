@@ -1345,3 +1345,363 @@ document.getElementById('branchname-generate-btn').addEventListener('click', () 
     resultEl.textContent = e.message;
   }
 });
+
+// ---------- SQL Formatter ----------
+function formatSql(sql) {
+  const keywords = ['SELECT', 'FROM', 'WHERE', 'LEFT JOIN', 'RIGHT JOIN', 'INNER JOIN', 'JOIN', 'GROUP BY', 'ORDER BY', 'HAVING', 'LIMIT', 'INSERT INTO', 'VALUES', 'UPDATE', 'SET', 'DELETE FROM', 'AND', 'OR'];
+  const sorted = [...keywords].sort((a, b) => b.length - a.length);
+  let formatted = sql.replace(/\s+/g, ' ').trim();
+  for (const kw of sorted) {
+    const pattern = kw.split(' ').join('\\s+');
+    const re = new RegExp('\\b' + pattern + '\\b', 'gi');
+    formatted = formatted.replace(re, '\n' + kw);
+  }
+  return formatted.split('\n').map((l) => l.trim()).filter(Boolean).join('\n');
+}
+document.getElementById('sqlfmt-format-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('sqlfmt-result');
+  try {
+    const input = document.getElementById('sqlfmt-input').value;
+    if (!input.trim()) throw new Error('Paste a SQL query first.');
+    resultEl.className = 'result-box result-success tf-output';
+    resultEl.textContent = formatSql(input);
+  } catch (e) {
+    resultEl.className = 'result-box result-error tf-output';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- XML <-> JSON Converter ----------
+function xmlNodeToObj(node) {
+  const children = Array.from(node.children);
+  if (children.length === 0) return node.textContent;
+  const obj = {};
+  for (const child of children) {
+    const val = xmlNodeToObj(child);
+    if (obj[child.tagName] !== undefined) {
+      if (!Array.isArray(obj[child.tagName])) obj[child.tagName] = [obj[child.tagName]];
+      obj[child.tagName].push(val);
+    } else {
+      obj[child.tagName] = val;
+    }
+  }
+  return obj;
+}
+function jsonToXmlString(val, key) {
+  if (Array.isArray(val)) return val.map((v) => jsonToXmlString(v, key)).join('');
+  if (val !== null && typeof val === 'object') {
+    return `<${key}>` + Object.entries(val).map(([k, v]) => jsonToXmlString(v, k)).join('') + `</${key}>`;
+  }
+  return `<${key}>${String(val)}</${key}>`;
+}
+document.getElementById('xmljson-to-json-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('xmljson-result');
+  try {
+    const input = document.getElementById('xmljson-input').value;
+    if (!input.trim()) throw new Error('Paste some XML first.');
+    const doc = new DOMParser().parseFromString(input, 'application/xml');
+    const errorNode = doc.querySelector('parsererror');
+    if (errorNode) throw new Error('Invalid XML: ' + errorNode.textContent.trim().split('\n')[0]);
+    const obj = { [doc.documentElement.tagName]: xmlNodeToObj(doc.documentElement) };
+    resultEl.className = 'result-box result-success tf-output';
+    resultEl.textContent = JSON.stringify(obj, null, 2);
+  } catch (e) {
+    resultEl.className = 'result-box result-error tf-output';
+    resultEl.textContent = e.message;
+  }
+});
+document.getElementById('xmljson-to-xml-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('xmljson-result');
+  try {
+    const input = document.getElementById('xmljson-input').value;
+    if (!input.trim()) throw new Error('Paste some JSON first.');
+    const parsed = JSON.parse(input);
+    const keys = Object.keys(parsed);
+    const xml = keys.length === 1
+      ? jsonToXmlString(parsed[keys[0]], keys[0])
+      : jsonToXmlString(parsed, 'root');
+    resultEl.className = 'result-box result-success tf-output';
+    resultEl.textContent = formatXml(xml);
+  } catch (e) {
+    resultEl.className = 'result-box result-error tf-output';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- JSON Schema Generator ----------
+function inferSchema(value) {
+  if (value === null) return { type: 'null' };
+  if (Array.isArray(value)) return { type: 'array', items: value.length ? inferSchema(value[0]) : {} };
+  const t = typeof value;
+  if (t === 'object') {
+    const properties = {};
+    for (const k of Object.keys(value)) properties[k] = inferSchema(value[k]);
+    return { type: 'object', properties, required: Object.keys(value) };
+  }
+  if (t === 'number') return { type: Number.isInteger(value) ? 'integer' : 'number' };
+  return { type: t };
+}
+document.getElementById('jsonschema-generate-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('jsonschema-result');
+  try {
+    const input = document.getElementById('jsonschema-input').value;
+    if (!input.trim()) throw new Error('Paste some sample JSON first.');
+    const parsed = JSON.parse(input);
+    const schema = { $schema: 'http://json-schema.org/draft-07/schema#', ...inferSchema(parsed) };
+    resultEl.className = 'result-box result-success tf-output';
+    resultEl.textContent = JSON.stringify(schema, null, 2);
+  } catch (e) {
+    resultEl.className = 'result-box result-error tf-output';
+    resultEl.textContent = 'Invalid JSON: ' + e.message;
+  }
+});
+
+// ---------- Secret Scanner ----------
+const SECRET_PATTERNS = [
+  { name: 'AWS Access Key ID', re: /\bAKIA[0-9A-Z]{16}\b/g },
+  { name: 'GitHub Personal Access Token', re: /\bgh[pousr]_[A-Za-z0-9]{36,}\b/g },
+  { name: 'Generic API key/secret assignment', re: /\b(api[_-]?key|apikey|secret|token)\b\s*[:=]\s*['"][A-Za-z0-9\-_]{16,}['"]/gi },
+  { name: 'Private key block', re: /-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----/g },
+  { name: 'Slack token', re: /\bxox[baprs]-[A-Za-z0-9-]{10,}\b/g },
+  { name: 'Google API key', re: /\bAIza[0-9A-Za-z\-_]{35}\b/g },
+];
+document.getElementById('secretscanner-scan-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('secretscanner-result');
+  try {
+    const input = document.getElementById('secretscanner-input').value;
+    if (!input.trim()) throw new Error('Paste some text to scan.');
+    const findings = [];
+    for (const p of SECRET_PATTERNS) {
+      const matches = input.match(p.re);
+      if (matches) findings.push(`${p.name}: ${matches.length} match(es)\n  ` + [...new Set(matches)].join('\n  '));
+    }
+    resultEl.className = findings.length ? 'result-box result-error' : 'result-box result-success';
+    resultEl.textContent = findings.length
+      ? `Found ${findings.length} potential secret pattern(s):\n\n` + findings.join('\n\n')
+      : 'No known secret patterns detected. (This is a heuristic scan, not a guarantee — always double-check manually.)';
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- GraphQL Query Formatter ----------
+function formatGraphql(query) {
+  let depth = 0;
+  let out = '';
+  const compact = query.replace(/\s+/g, ' ').trim();
+  for (let i = 0; i < compact.length; i++) {
+    const c = compact[i];
+    if (c === '{') {
+      out += ' {\n' + '  '.repeat(depth + 1);
+      depth++;
+    } else if (c === '}') {
+      depth = Math.max(0, depth - 1);
+      out += '\n' + '  '.repeat(depth) + '}';
+    } else if (c === ' ' && (compact[i - 1] === '{' || compact[i - 1] === '}')) {
+      // skip, handled above
+    } else {
+      out += c;
+    }
+  }
+  return out.split('\n').map((l) => l.trimEnd()).join('\n').replace(/ \{\n/g, ' {\n');
+}
+document.getElementById('graphqlfmt-format-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('graphqlfmt-result');
+  try {
+    const input = document.getElementById('graphqlfmt-input').value;
+    if (!input.trim()) throw new Error('Paste a GraphQL query first.');
+    resultEl.className = 'result-box result-success tf-output';
+    resultEl.textContent = formatGraphql(input);
+  } catch (e) {
+    resultEl.className = 'result-box result-error tf-output';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- ASCII Table Generator ----------
+function generateAsciiTable(input) {
+  const lines = input.trim().split('\n').map((l) => l.trim()).filter(Boolean);
+  if (lines.length < 1) throw new Error('Enter at least a header row.');
+  const rows = lines.map((l) => l.split(',').map((c) => c.trim()));
+  const colCount = rows[0].length;
+  const widths = Array(colCount).fill(0);
+  for (const row of rows) row.forEach((cell, i) => { widths[i] = Math.max(widths[i], (cell || '').length); });
+  const sep = '+' + widths.map((w) => '-'.repeat(w + 2)).join('+') + '+';
+  const renderRow = (row) => '| ' + widths.map((w, i) => (row[i] || '').padEnd(w)).join(' | ') + ' |';
+  const out = [sep, renderRow(rows[0]), sep];
+  for (let i = 1; i < rows.length; i++) out.push(renderRow(rows[i]));
+  out.push(sep);
+  return out.join('\n');
+}
+document.getElementById('asciitable-generate-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('asciitable-result');
+  try {
+    const input = document.getElementById('asciitable-input').value;
+    if (!input.trim()) throw new Error('Paste CSV rows first.');
+    resultEl.className = 'result-box result-success tf-output';
+    resultEl.textContent = generateAsciiTable(input);
+  } catch (e) {
+    resultEl.className = 'result-box result-error tf-output';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- HTTP Header Parser ----------
+document.getElementById('httpheader-parse-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('httpheader-result');
+  try {
+    const input = document.getElementById('httpheader-input').value;
+    const lines = input.split('\n').map((l) => l.trim()).filter(Boolean).filter((l) => !l.startsWith('HTTP/'));
+    if (!lines.length) throw new Error('Paste some headers first.');
+    const parsed = [];
+    for (const line of lines) {
+      const idx = line.indexOf(':');
+      if (idx === -1) { parsed.push([line, '']); continue; }
+      parsed.push([line.slice(0, idx).trim(), line.slice(idx + 1).trim()]);
+    }
+    const maxKeyLen = Math.max(...parsed.map(([k]) => k.length));
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = parsed.map(([k, v]) => `${k.padEnd(maxKeyLen)}  =  ${v}`).join('\n');
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- LLM Token Estimator ----------
+document.getElementById('tokenestimator-estimate-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('tokenestimator-result');
+  try {
+    const input = document.getElementById('tokenestimator-input').value;
+    if (!input.trim()) throw new Error('Paste some text first.');
+    const chars = input.length;
+    const words = input.trim().split(/\s+/).filter(Boolean).length;
+    const estByChars = Math.ceil(chars / 4);
+    const estByWords = Math.ceil(words * 1.3);
+    const estimate = Math.round((estByChars + estByWords) / 2);
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = [
+      `Characters: ${chars.toLocaleString('en-US')}`,
+      `Words:      ${words.toLocaleString('en-US')}`,
+      ``,
+      `Estimated tokens: ~${estimate.toLocaleString('en-US')}`,
+      `(This is a rough heuristic, not an exact tokenizer — real results vary by model and language.)`,
+    ].join('\n');
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- Cron Builder ----------
+document.getElementById('cronbuilder-build-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('cronbuilder-result');
+  try {
+    const get = (id) => {
+      const v = document.getElementById(id).value.trim();
+      return v === '' ? '*' : v;
+    };
+    const minute = get('cronbuilder-minute');
+    const hour = get('cronbuilder-hour');
+    const dom = get('cronbuilder-dom');
+    const month = get('cronbuilder-month');
+    const dow = get('cronbuilder-dow');
+    const validPart = /^(\*|\d+|\d+-\d+|\*\/\d+|\d+(,\d+)*)$/;
+    for (const [label, v] of [['minute', minute], ['hour', hour], ['day of month', dom], ['month', month], ['day of week', dow]]) {
+      if (!validPart.test(v)) throw new Error(`Invalid ${label} field: "${v}"`);
+    }
+    const expr = [minute, hour, dom, month, dow].join(' ');
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = expr;
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- Commit Message Validator ----------
+function validateCommitMessage(msg) {
+  const lines = msg.split('\n');
+  const header = lines[0] || '';
+  const re = /^(feat|fix|docs|style|refactor|perf|test|chore|build|ci|revert)(\([a-z0-9_-]+\))?(!)?: .+$/;
+  const issues = [];
+  if (!header) issues.push('Message is empty.');
+  if (header.length > 72) issues.push(`Header line is ${header.length} characters — conventionally kept to 72 or fewer.`);
+  if (header && !re.test(header)) issues.push('Header doesn\'t match "type(scope): description" format (allowed types: feat, fix, docs, style, refactor, perf, test, chore, build, ci, revert).');
+  if (header.endsWith('.')) issues.push('Header should not end with a period.');
+  return issues;
+}
+document.getElementById('commitvalidator-check-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('commitvalidator-result');
+  try {
+    const input = document.getElementById('commitvalidator-input').value;
+    if (!input.trim()) throw new Error('Paste a commit message first.');
+    const issues = validateCommitMessage(input);
+    resultEl.className = issues.length ? 'result-box result-error' : 'result-box result-success';
+    resultEl.textContent = issues.length
+      ? `Not conventional — ${issues.length} issue(s):\n\n` + issues.map((i) => '- ' + i).join('\n')
+      : 'Valid Conventional Commit message.';
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- Changelog Generator ----------
+document.getElementById('changelog-generate-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('changelog-result');
+  try {
+    const input = document.getElementById('changelog-input').value;
+    const lines = input.split('\n').map((l) => l.trim()).filter(Boolean);
+    if (!lines.length) throw new Error('Paste at least one commit message.');
+    const groups = { feat: [], fix: [], docs: [], perf: [], refactor: [], other: [] };
+    const labels = { feat: 'Features', fix: 'Bug Fixes', docs: 'Documentation', perf: 'Performance', refactor: 'Refactoring', other: 'Other Changes' };
+    const re = /^(feat|fix|docs|style|refactor|perf|test|chore|build|ci|revert)(\([a-z0-9_-]+\))?(!)?:\s*(.+)$/i;
+    for (const line of lines) {
+      const cleaned = line.replace(/^[a-f0-9]{7,40}\s+/i, '');
+      const m = cleaned.match(re);
+      if (m) {
+        const type = m[1].toLowerCase();
+        const scope = m[2] ? m[2].slice(1, -1) : '';
+        const desc = m[4];
+        const bucket = groups[type] ? type : 'other';
+        groups[bucket].push(scope ? `**${scope}:** ${desc}` : desc);
+      } else {
+        groups.other.push(cleaned);
+      }
+    }
+    const sections = [];
+    for (const key of ['feat', 'fix', 'perf', 'refactor', 'docs', 'other']) {
+      if (groups[key].length) sections.push(`### ${labels[key]}\n` + groups[key].map((d) => `- ${d}`).join('\n'));
+    }
+    resultEl.className = 'result-box result-success tf-output';
+    resultEl.textContent = sections.join('\n\n') || 'No recognizable commit messages found.';
+  } catch (e) {
+    resultEl.className = 'result-box result-error tf-output';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- BSON/ObjectId Decoder ----------
+document.getElementById('bsonid-decode-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('bsonid-result');
+  try {
+    const id = document.getElementById('bsonid-input').value.trim();
+    if (!/^[0-9a-f]{24}$/i.test(id)) throw new Error('Expected a 24-character hex ObjectId.');
+    const timestamp = parseInt(id.slice(0, 8), 16);
+    const machineHex = id.slice(8, 14);
+    const pid = parseInt(id.slice(14, 18), 16);
+    const counter = parseInt(id.slice(18, 24), 16);
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = [
+      `Timestamp:        ${new Date(timestamp * 1000).toISOString()}`,
+      `Machine ID (hex): ${machineHex}`,
+      `Process ID:       ${pid}`,
+      `Counter:          ${counter}`,
+    ].join('\n');
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
