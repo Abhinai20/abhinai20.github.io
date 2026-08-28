@@ -84,7 +84,17 @@ Committed and pushed to `Abhinai20/abhinai20.github.io`.
 
 Committed and pushed to `Abhinai20/abhinai20.github.io`.
 
-**Backlog remaining** toward "70+" (~15 tools): K8s Deployment Rollout Visualizer, REST Endpoint Mock Generator, Regex Generator from Example, Terraform Cost Estimator, Prompt Formatter, and others not yet scoped. Continue in verified batches — Node-test the tricky logic first (cross-check against a real ground truth tool when possible, as done for the TLS decoder), then a full Playwright pass, then screenshot review, then commit.
+## Batch 6 of tools — done and verified 2026-08-28 (67 tools total)
+
+12 more tools: Rollout Budget Calculator, K8s Resource Quota Calculator, Dockerfile Multi-Stage Visualizer, Docker Image Tag Comparator, Terraform Variable Extractor, Terraform Dependency Grapher, AWS IAM Policy Simulator, REST Endpoint Mock Generator, Chat Prompt Formatter, .env File Validator, Nginx Config Formatter, Cron Next Run Calculator.
+
+- **Scope correction caught before shipping:** originally planned a full step-by-step "K8s Deployment Rollout Visualizer" that simulates the rolling-update controller pod-by-pod. Node-tested it first and found the hand-rolled algorithm was genuinely wrong (got stuck cycling the same state for 45+ iterations — real K8s rollout scheduling isn't a simple deterministic loop). Rather than ship a plausible-looking but incorrect simulation, descoped it to a **Rollout Budget Calculator** — just the verifiable numbers (maxSurge/maxUnavailable pod counts, max total pods, min available pods), which is accurate and still useful for capacity planning. This is the right call whenever a "visualize the full process" idea turns out to need modeling a system's real dynamic behavior rather than a fixed formula — verify the algorithm first, and descope to what's provably correct rather than shipping a fabricated animation.
+- Dockerfile Stage Visualizer and Terraform Dependency Grapher both reuse the Mermaid renderer added in batch 5 — good reuse, both verified to render real SVGs.
+- Verified all other logic in Node first (label/env/HCL parsing regexes, IAM policy evaluation, semver tag comparison, nginx brace-depth indenting, cron next-run-time calculation), then ran a 91-assertion Playwright pass (0 real failures, 0 console errors — one flaky assertion about sidebar position turned out to be a Playwright click/scroll timing artifact in the test itself, confirmed via isolated reproduction that the page is correct).
+
+Committed and pushed to `Abhinai20/abhinai20.github.io`.
+
+**Backlog remaining** toward "70+" (~3 tools to round out): a few more ideas not yet scoped (e.g. GitHub Actions workflow linter, Docker Compose validator, S3 bucket policy generator). Continue in verified batches — Node-test the tricky logic first (cross-check against a real ground truth tool when possible, as done for the TLS decoder), descope anything that turns out to need modeling real dynamic system behavior rather than a fixed formula, then a full Playwright pass, then screenshot review, then commit.
 
 ## How to resume
 

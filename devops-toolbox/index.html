@@ -41,6 +41,10 @@
     <button class="tab-btn" data-tool="helmmerge">Helm Values Merger</button>
     <button class="tab-btn" data-tool="labelselector">K8s Label Selector Tester</button>
     <button class="tab-btn" data-tool="ingresspath">Ingress Path Matcher</button>
+    <button class="tab-btn" data-tool="rolloutbudget">Rollout Budget Calculator</button>
+    <button class="tab-btn" data-tool="resourcequota">K8s Resource Quota Calculator</button>
+    <button class="tab-btn" data-tool="dockerstages">Dockerfile Stage Visualizer</button>
+    <button class="tab-btn" data-tool="tagcompare">Docker Image Tag Comparator</button>
   </details>
 
   <details class="nav-group" open>
@@ -48,6 +52,8 @@
     <button class="tab-btn" data-tool="tf">TF Plan Formatter</button>
     <button class="tab-btn" data-tool="tfcount">TF Resource Counter</button>
     <button class="tab-btn" data-tool="arn">ARN Parser</button>
+    <button class="tab-btn" data-tool="tfvars">Terraform Variable Extractor</button>
+    <button class="tab-btn" data-tool="tfgraph">Terraform Dependency Grapher</button>
   </details>
 
   <details class="nav-group" open>
@@ -59,6 +65,7 @@
     <button class="tab-btn" data-tool="secretscanner">Secret Scanner</button>
     <button class="tab-btn" data-tool="jwtexpiry">JWT Expiration Checker</button>
     <button class="tab-btn" data-tool="tlsdecoder">TLS Certificate Decoder</button>
+    <button class="tab-btn" data-tool="iamsim">AWS IAM Policy Simulator</button>
   </details>
 
   <details class="nav-group" open>
@@ -75,6 +82,10 @@
     <button class="tab-btn" data-tool="sqlexplainer">SQL Query Explainer</button>
     <button class="tab-btn" data-tool="qrcode">QR Code Generator</button>
     <button class="tab-btn" data-tool="mermaid">Mermaid Diagram Preview</button>
+    <button class="tab-btn" data-tool="restmock">REST Endpoint Mock Generator</button>
+    <button class="tab-btn" data-tool="promptfmt">Chat Prompt Formatter</button>
+    <button class="tab-btn" data-tool="envparser">.env File Validator</button>
+    <button class="tab-btn" data-tool="nginxfmt">Nginx Config Formatter</button>
   </details>
 
   <details class="nav-group" open>
@@ -84,6 +95,7 @@
     <button class="tab-btn" data-tool="timestamp">Unix Timestamp</button>
     <button class="tab-btn" data-tool="timezone">Timezone Converter</button>
     <button class="tab-btn" data-tool="logtimestamp">Log Timestamp Converter</button>
+    <button class="tab-btn" data-tool="cronnext">Cron Next Run Calculator</button>
   </details>
 
   <details class="nav-group" open>
@@ -1221,6 +1233,280 @@ chore: bump dependencies</textarea>
       <div class="io-col">
         <label>Result</label>
         <div id="logtimestamp-result" class="result-box result-idle">Paste a timestamp and click "Convert".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROLLOUT BUDGET CALCULATOR -->
+  <section class="tool-panel" id="panel-rolloutbudget">
+    <div class="panel-header"><h1>Rollout Budget Calculator</h1><button class="clear-btn" data-clear="rolloutbudget">Clear</button></div>
+    <p class="tool-desc">Given a Deployment's replica count and RollingUpdate strategy, compute the pod counts that <code>maxSurge</code> and <code>maxUnavailable</code> actually allow during a rollout.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="rolloutbudget-replicas">Replicas</label>
+        <input type="text" id="rolloutbudget-replicas" spellcheck="false" placeholder="4" value="4">
+        <label class="second-label">maxSurge (number or %)</label>
+        <input type="text" id="rolloutbudget-surge" spellcheck="false" placeholder="25%" value="25%">
+        <label class="second-label">maxUnavailable (number or %)</label>
+        <input type="text" id="rolloutbudget-unavail" spellcheck="false" placeholder="25%" value="25%">
+        <button id="rolloutbudget-calc-btn" class="primary-btn">Calculate</button>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <div id="rolloutbudget-result" class="result-box result-idle">Fill in the fields and click "Calculate".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- K8S RESOURCE QUOTA CALCULATOR -->
+  <section class="tool-panel" id="panel-resourcequota">
+    <div class="panel-header"><h1>Kubernetes Resource Quota Calculator</h1><button class="clear-btn" data-clear="resourcequota">Clear</button></div>
+    <p class="tool-desc">Paste CPU or memory quantities (one per line, e.g. from each container's <code>resources.requests</code>) and get the total.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="resourcequota-input">Quantities (one per line)</label>
+        <textarea id="resourcequota-input" spellcheck="false" placeholder="500m
+250m
+1000m">500m
+250m
+1000m</textarea>
+        <button id="resourcequota-calc-btn" class="primary-btn">Sum</button>
+      </div>
+      <div class="io-col">
+        <label>Total</label>
+        <div id="resourcequota-result" class="result-box result-idle">Paste quantities and click "Sum".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOCKERFILE STAGE VISUALIZER -->
+  <section class="tool-panel" id="panel-dockerstages">
+    <div class="panel-header"><h1>Dockerfile Multi-Stage Visualizer</h1><button class="clear-btn" data-clear="dockerstages">Clear</button></div>
+    <p class="tool-desc">Paste a multi-stage Dockerfile and see a diagram of how <code>COPY --from=</code> connects the build stages.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="dockerstages-input">Dockerfile</label>
+        <textarea id="dockerstages-input" spellcheck="false" placeholder="FROM node:18 AS builder
+...
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html">FROM node:18 AS builder
+WORKDIR /app
+COPY . .
+RUN npm run build
+
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html</textarea>
+        <button id="dockerstages-visualize-btn" class="primary-btn">Visualize</button>
+      </div>
+      <div class="io-col">
+        <label>Stage graph</label>
+        <div id="dockerstages-result" class="result-box result-idle">Paste a Dockerfile and click "Visualize".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOCKER IMAGE TAG COMPARATOR -->
+  <section class="tool-panel" id="panel-tagcompare">
+    <div class="panel-header"><h1>Docker Image Tag Comparator</h1><button class="clear-btn" data-clear="tagcompare">Clear</button></div>
+    <p class="tool-desc">Compare two image tags to see which is newer (semantic-version-aware).</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="tagcompare-a">Tag A</label>
+        <input type="text" id="tagcompare-a" spellcheck="false" placeholder="v1.2.3" value="v1.2.3">
+        <label class="second-label">Tag B</label>
+        <input type="text" id="tagcompare-b" spellcheck="false" placeholder="v1.10.0" value="v1.10.0">
+        <button id="tagcompare-compare-btn" class="primary-btn">Compare</button>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <div id="tagcompare-result" class="result-box result-idle">Enter two tags and click "Compare".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TERRAFORM VARIABLE EXTRACTOR -->
+  <section class="tool-panel" id="panel-tfvars">
+    <div class="panel-header"><h1>Terraform Variable Extractor</h1><button class="clear-btn" data-clear="tfvars">Clear</button></div>
+    <p class="tool-desc">Paste Terraform HCL containing <code>variable</code> blocks and get a summary table of name, type, default, and description.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="tfvars-input">Terraform HCL</label>
+        <textarea id="tfvars-input" spellcheck="false" placeholder='variable "region" {
+  type = string
+  default = "us-east-1"
+}'>variable "region" {
+  type        = string
+  default     = "us-east-1"
+  description = "AWS region"
+}
+
+variable "instance_count" {
+  type        = number
+  description = "Number of instances"
+}</textarea>
+        <button id="tfvars-extract-btn" class="primary-btn">Extract</button>
+      </div>
+      <div class="io-col">
+        <label>Variables</label>
+        <pre id="tfvars-result" class="result-box result-idle tf-output">Paste HCL and click "Extract".</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- TERRAFORM DEPENDENCY GRAPHER -->
+  <section class="tool-panel" id="panel-tfgraph">
+    <div class="panel-header"><h1>Terraform Dependency Grapher</h1><button class="clear-btn" data-clear="tfgraph">Clear</button></div>
+    <p class="tool-desc">Paste Terraform HCL and see a diagram of which resources reference which others (via <code>resource_type.name</code> interpolations).</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="tfgraph-input">Terraform HCL</label>
+        <textarea id="tfgraph-input" spellcheck="false" placeholder='resource "aws_instance" "web" {
+  subnet_id = aws_subnet.main.id
+}'>resource "aws_vpc" "main" {
+  cidr_block = "10.0.0.0/16"
+}
+
+resource "aws_subnet" "main" {
+  vpc_id = aws_vpc.main.id
+}
+
+resource "aws_instance" "web" {
+  subnet_id = aws_subnet.main.id
+}</textarea>
+        <button id="tfgraph-visualize-btn" class="primary-btn">Visualize</button>
+      </div>
+      <div class="io-col">
+        <label>Dependency graph</label>
+        <div id="tfgraph-result" class="result-box result-idle">Paste HCL and click "Visualize".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AWS IAM POLICY SIMULATOR -->
+  <section class="tool-panel" id="panel-iamsim">
+    <div class="panel-header"><h1>AWS IAM Policy Simulator</h1><button class="clear-btn" data-clear="iamsim">Clear</button></div>
+    <p class="tool-desc">Paste an IAM policy JSON document, then test whether a given action + resource would be Allowed or Denied. Simplified evaluation (explicit Deny beats Allow; no SCPs/permission boundaries/conditions) — always verify with the real AWS Policy Simulator before relying on this for production access decisions.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="iamsim-policy">IAM Policy JSON</label>
+        <textarea id="iamsim-policy" spellcheck="false" placeholder='{"Statement": [...]}'>{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::mybucket/*"
+    }
+  ]
+}</textarea>
+        <label class="second-label">Action</label>
+        <input type="text" id="iamsim-action" spellcheck="false" placeholder="s3:GetObject" value="s3:GetObject">
+        <label class="second-label">Resource ARN</label>
+        <input type="text" id="iamsim-resource" spellcheck="false" placeholder="arn:aws:s3:::mybucket/file.txt" value="arn:aws:s3:::mybucket/file.txt">
+        <button id="iamsim-test-btn" class="primary-btn">Simulate</button>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <div id="iamsim-result" class="result-box result-idle">Fill in the fields and click "Simulate".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REST ENDPOINT MOCK GENERATOR -->
+  <section class="tool-panel" id="panel-restmock">
+    <div class="panel-header"><h1>REST Endpoint Mock Generator</h1><button class="clear-btn" data-clear="restmock">Clear</button></div>
+    <p class="tool-desc">Paste a sample JSON response and get a ready-to-run Express.js mock server for that endpoint.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="restmock-method">Method</label>
+        <select id="restmock-method">
+          <option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option><option>PATCH</option>
+        </select>
+        <label class="second-label">Path</label>
+        <input type="text" id="restmock-path" spellcheck="false" placeholder="/api/users/:id" value="/api/users/:id">
+        <label class="second-label">Sample JSON response</label>
+        <textarea id="restmock-json" spellcheck="false" placeholder='{"id": 1, "name": "Bob"}'>{"id": 1, "name": "Bob"}</textarea>
+        <button id="restmock-generate-btn" class="primary-btn">Generate</button>
+      </div>
+      <div class="io-col">
+        <label>Express.js mock server</label>
+        <pre id="restmock-result" class="result-box result-idle tf-output">Fill in the fields and click "Generate".</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHAT PROMPT FORMATTER -->
+  <section class="tool-panel" id="panel-promptfmt">
+    <div class="panel-header"><h1>Chat Prompt Formatter</h1><button class="clear-btn" data-clear="promptfmt">Clear</button></div>
+    <p class="tool-desc">Turn a system prompt + user message into the JSON <code>messages</code> array format used by OpenAI-style chat APIs.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="promptfmt-system">System prompt</label>
+        <textarea id="promptfmt-system" spellcheck="false" placeholder="You are a helpful assistant.">You are a helpful assistant.</textarea>
+        <label class="second-label">User message</label>
+        <textarea id="promptfmt-user" spellcheck="false" placeholder="Summarize this log file.">Summarize this log file.</textarea>
+        <button id="promptfmt-format-btn" class="primary-btn">Format</button>
+      </div>
+      <div class="io-col">
+        <label>Messages JSON</label>
+        <pre id="promptfmt-result" class="result-box result-idle tf-output">Fill in the fields and click "Format".</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- .ENV FILE VALIDATOR -->
+  <section class="tool-panel" id="panel-envparser">
+    <div class="panel-header"><h1>.env File Validator</h1><button class="clear-btn" data-clear="envparser">Clear</button></div>
+    <p class="tool-desc">Paste a <code>.env</code> file and check for duplicate keys, empty values, and malformed lines.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="envparser-input">.env contents</label>
+        <textarea id="envparser-input" spellcheck="false" placeholder="DB_HOST=localhost
+DB_PORT=5432">DB_HOST=localhost
+DB_PORT=5432
+DB_HOST=127.0.0.1
+API_KEY=
+# a comment
+NOT_A_VALID_LINE</textarea>
+        <button id="envparser-check-btn" class="primary-btn">Validate</button>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <div id="envparser-result" class="result-box result-idle">Paste a .env file and click "Validate".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NGINX CONFIG FORMATTER -->
+  <section class="tool-panel" id="panel-nginxfmt">
+    <div class="panel-header"><h1>Nginx Config Formatter</h1><button class="clear-btn" data-clear="nginxfmt">Clear</button></div>
+    <p class="tool-desc">Paste a minified or messy nginx config block and get it indented by brace depth.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="nginxfmt-input">Nginx config</label>
+        <textarea id="nginxfmt-input" spellcheck="false" placeholder="server { listen 80; location / { proxy_pass http://backend; } }">server { listen 80; server_name example.com; location / { proxy_pass http://backend; } }</textarea>
+        <button id="nginxfmt-format-btn" class="primary-btn">Format</button>
+      </div>
+      <div class="io-col">
+        <label>Formatted</label>
+        <pre id="nginxfmt-result" class="result-box result-idle tf-output">Paste an nginx config and click "Format".</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- CRON NEXT RUN CALCULATOR -->
+  <section class="tool-panel" id="panel-cronnext">
+    <div class="panel-header"><h1>Cron Next Run Calculator</h1><button class="clear-btn" data-clear="cronnext">Clear</button></div>
+    <p class="tool-desc">Paste a 5-field cron expression and see the next several run times (computed in UTC).</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="cronnext-input">Cron expression</label>
+        <input type="text" id="cronnext-input" spellcheck="false" placeholder="0 9 * * 1-5" value="0 9 * * 1-5">
+        <button id="cronnext-calc-btn" class="primary-btn">Show Next Runs</button>
+      </div>
+      <div class="io-col">
+        <label>Next 5 runs (UTC)</label>
+        <div id="cronnext-result" class="result-box result-idle">Enter a cron expression and click "Show Next Runs".</div>
       </div>
     </div>
   </section>

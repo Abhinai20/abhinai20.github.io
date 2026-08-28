@@ -2148,3 +2148,407 @@ document.getElementById('logtimestamp-convert-btn').addEventListener('click', ()
     resultEl.textContent = e.message;
   }
 });
+
+// ---------- Rollout Budget Calculator ----------
+function rolloutBudget({ replicas, maxSurge, maxUnavailable }) {
+  const parsePct = (v, base) => {
+    const s = String(v).trim();
+    if (!s) throw new Error('Fill in all fields.');
+    if (s.endsWith('%')) return Math.ceil((parseFloat(s) / 100) * base);
+    const n = parseInt(s, 10);
+    if (Number.isNaN(n)) throw new Error('Invalid value: ' + s);
+    return n;
+  };
+  const surge = Math.max(0, parsePct(maxSurge, replicas));
+  const unavail = Math.max(0, parsePct(maxUnavailable, replicas));
+  return { surge, unavail, maxTotalPods: replicas + surge, minAvailablePods: Math.max(0, replicas - unavail) };
+}
+document.getElementById('rolloutbudget-calc-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('rolloutbudget-result');
+  try {
+    const replicas = parseInt(document.getElementById('rolloutbudget-replicas').value, 10);
+    if (Number.isNaN(replicas) || replicas < 1) throw new Error('Enter a valid replica count.');
+    const maxSurge = document.getElementById('rolloutbudget-surge').value;
+    const maxUnavailable = document.getElementById('rolloutbudget-unavail').value;
+    const { surge, unavail, maxTotalPods, minAvailablePods } = rolloutBudget({ replicas, maxSurge, maxUnavailable });
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = [
+      `maxSurge resolves to:       ${surge} extra pod(s)`,
+      `maxUnavailable resolves to: ${unavail} pod(s)`,
+      ``,
+      `During rollout, pod count may reach:  ${maxTotalPods} (${replicas} desired + ${surge} surge)`,
+      `During rollout, available pods stay at least: ${minAvailablePods}`,
+    ].join('\n');
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- K8s Resource Quota Calculator ----------
+document.getElementById('resourcequota-calc-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('resourcequota-result');
+  try {
+    const lines = document.getElementById('resourcequota-input').value.split('\n').map((l) => l.trim()).filter(Boolean);
+    if (!lines.length) throw new Error('Paste at least one quantity.');
+    let total = 0;
+    for (const line of lines) total += parseK8sQuantity(line).value;
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = [
+      `Sum of ${lines.length} value(s): ${total.toLocaleString('en-US')}`,
+      `As bytes/units: ${formatBytes(total)}`,
+      `As CPU cores/millicores: ${total}${total < 1 ? ` (${Math.round(total * 1000)}m)` : ''}`,
+    ].join('\n');
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- Dockerfile Multi-Stage Visualizer ----------
+function parseDockerStages(dockerfile) {
+  const lines = dockerfile.split('\n');
+  const stages = [];
+  const edges = [];
+  let stageIdx = 0;
+  for (const line of lines) {
+    const fromMatch = line.match(/^\s*FROM\s+(\S+)(?:\s+AS\s+(\S+))?/i);
+    if (fromMatch) { stages.push({ base: fromMatch[1], name: fromMatch[2] || `stage${stageIdx}` }); stageIdx++; }
+    const copyMatch = line.match(/^\s*COPY\s+--from=(\S+)/i);
+    if (copyMatch) edges.push({ from: copyMatch[1], to: stages[stages.length - 1] ? stages[stages.length - 1].name : '?' });
+  }
+  return { stages, edges };
+}
+document.getElementById('dockerstages-visualize-btn').addEventListener('click', async () => {
+  const resultEl = document.getElementById('dockerstages-result');
+  try {
+    const input = document.getElementById('dockerstages-input').value;
+    if (!input.trim()) throw new Error('Paste a Dockerfile first.');
+    const { stages, edges } = parseDockerStages(input);
+    if (!stages.length) throw new Error('No FROM lines found.');
+    let mermaidSrc = 'graph LR\n';
+    stages.forEach((s) => { mermaidSrc += `  ${s.name}["${s.name}\\n(${s.base})"]\n`; });
+    edges.forEach((e) => { mermaidSrc += `  ${e.from} --> ${e.to}\n`; });
+    const { svg } = await mermaid.render('dockerstages-svg-' + Date.now(), mermaidSrc);
+    resultEl.className = 'result-box result-success';
+    resultEl.innerHTML = svg;
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = 'Could not visualize: ' + (e.message || String(e));
+  }
+});
+
+// ---------- Docker Image Tag Comparator ----------
+document.getElementById('tagcompare-compare-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('tagcompare-result');
+  try {
+    const a = document.getElementById('tagcompare-a').value.trim();
+    const b = document.getElementById('tagcompare-b').value.trim();
+    if (!a || !b) throw new Error('Enter both tags.');
+    const semverRe = /^v?(\d+)\.(\d+)\.(\d+)/;
+    const ma = a.match(semverRe), mb = b.match(semverRe);
+    if (!ma || !mb) {
+      resultEl.className = 'result-box result-idle';
+      resultEl.textContent = `Cannot compare — at least one tag is not semantic-version-like: "${a}" vs "${b}"`;
+      return;
+    }
+    let result = `${a} and ${b} are the same version`;
+    for (let i = 1; i <= 3; i++) {
+      const na = parseInt(ma[i], 10), nb = parseInt(mb[i], 10);
+      if (na !== nb) { result = na > nb ? `${a} is newer than ${b}` : `${b} is newer than ${a}`; break; }
+    }
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = result;
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- Terraform Variable Extractor ----------
+function extractTfVariables(hcl) {
+  const blocks = [];
+  const re = /variable\s+"([^"]+)"\s*\{([^}]*)\}/gs;
+  let m;
+  while ((m = re.exec(hcl))) {
+    const [, name, body] = m;
+    const type = (body.match(/type\s*=\s*(\S+)/) || [])[1] || 'any';
+    const def = (body.match(/default\s*=\s*(.+)/) || [])[1];
+    const desc = (body.match(/description\s*=\s*"([^"]*)"/) || [])[1];
+    blocks.push({ name, type, default: def ? def.trim() : undefined, description: desc });
+  }
+  return blocks;
+}
+document.getElementById('tfvars-extract-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('tfvars-result');
+  try {
+    const input = document.getElementById('tfvars-input').value;
+    if (!input.trim()) throw new Error('Paste some Terraform HCL first.');
+    const vars = extractTfVariables(input);
+    if (!vars.length) throw new Error('No variable blocks found.');
+    const lines = vars.map((v) => [
+      `variable "${v.name}"`,
+      `  type:        ${v.type}`,
+      v.default !== undefined ? `  default:     ${v.default}` : `  default:     (required, no default)`,
+      v.description ? `  description: ${v.description}` : null,
+    ].filter(Boolean).join('\n'));
+    resultEl.className = 'result-box result-success tf-output';
+    resultEl.textContent = lines.join('\n\n');
+  } catch (e) {
+    resultEl.className = 'result-box result-error tf-output';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- Terraform Dependency Grapher ----------
+function extractTfResources(hcl) {
+  const resources = [];
+  const re = /resource\s+"([^"]+)"\s+"([^"]+)"\s*\{([\s\S]*?)\n\}/g;
+  let m;
+  const blocks = [];
+  while ((m = re.exec(hcl))) blocks.push({ type: m[1], name: m[2], body: m[3], id: `${m[1]}.${m[2]}` });
+  for (const block of blocks) {
+    const refs = new Set();
+    for (const other of blocks) {
+      if (other.id === block.id) continue;
+      const re2 = new RegExp('\\b' + other.id.replace('.', '\\.') + '\\b');
+      if (re2.test(block.body)) refs.add(other.id);
+    }
+    resources.push({ id: block.id, refs: [...refs] });
+  }
+  return resources;
+}
+document.getElementById('tfgraph-visualize-btn').addEventListener('click', async () => {
+  const resultEl = document.getElementById('tfgraph-result');
+  try {
+    const input = document.getElementById('tfgraph-input').value;
+    if (!input.trim()) throw new Error('Paste some Terraform HCL first.');
+    const resources = extractTfResources(input);
+    if (!resources.length) throw new Error('No resource blocks found.');
+    const safeId = (id) => id.replace(/[^a-zA-Z0-9_]/g, '_');
+    let mermaidSrc = 'graph LR\n';
+    resources.forEach((r) => { mermaidSrc += `  ${safeId(r.id)}["${r.id}"]\n`; });
+    resources.forEach((r) => { r.refs.forEach((ref) => { mermaidSrc += `  ${safeId(r.id)} --> ${safeId(ref)}\n`; }); });
+    const { svg } = await mermaid.render('tfgraph-svg-' + Date.now(), mermaidSrc);
+    resultEl.className = 'result-box result-success';
+    resultEl.innerHTML = svg;
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = 'Could not visualize: ' + (e.message || String(e));
+  }
+});
+
+// ---------- AWS IAM Policy Simulator ----------
+function evaluateIamPolicy(policy, action, resource) {
+  const statements = policy.Statement || [];
+  const matches = (pattern, value) => {
+    const re = new RegExp('^' + pattern.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*') + '$', 'i');
+    return re.test(value);
+  };
+  let decision = 'Deny (implicit — no matching statement)';
+  const matchedStatements = [];
+  for (const stmt of statements) {
+    const actions = Array.isArray(stmt.Action) ? stmt.Action : [stmt.Action];
+    const resources = Array.isArray(stmt.Resource) ? stmt.Resource : [stmt.Resource];
+    const actionMatches = actions.some((a) => matches(a, action));
+    const resourceMatches = resources.some((r) => matches(r, resource));
+    if (actionMatches && resourceMatches) {
+      matchedStatements.push(stmt);
+      if (stmt.Effect === 'Deny') return { decision: 'Deny (explicit)', matchedStatements: [stmt] };
+      if (stmt.Effect === 'Allow') decision = 'Allow';
+    }
+  }
+  return { decision, matchedStatements };
+}
+document.getElementById('iamsim-test-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('iamsim-result');
+  try {
+    const policyRaw = document.getElementById('iamsim-policy').value;
+    const action = document.getElementById('iamsim-action').value.trim();
+    const resource = document.getElementById('iamsim-resource').value.trim();
+    if (!policyRaw.trim() || !action || !resource) throw new Error('Fill in the policy, action, and resource.');
+    const policy = JSON.parse(policyRaw);
+    const { decision, matchedStatements } = evaluateIamPolicy(policy, action, resource);
+    resultEl.className = decision.startsWith('Allow') ? 'result-box result-success' : 'result-box result-error';
+    resultEl.textContent = [
+      `Decision: ${decision}`,
+      ``,
+      `Action:   ${action}`,
+      `Resource: ${resource}`,
+      ``,
+      `Matched statement(s): ${matchedStatements.length}`,
+      matchedStatements.length ? JSON.stringify(matchedStatements, null, 2) : '(none)',
+    ].join('\n');
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = 'Invalid policy JSON or input: ' + e.message;
+  }
+});
+
+// ---------- REST Endpoint Mock Generator ----------
+document.getElementById('restmock-generate-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('restmock-result');
+  try {
+    const method = document.getElementById('restmock-method').value;
+    const path = document.getElementById('restmock-path').value.trim();
+    const jsonRaw = document.getElementById('restmock-json').value;
+    if (!path || !jsonRaw.trim()) throw new Error('Fill in a path and sample JSON.');
+    const sample = JSON.parse(jsonRaw);
+    const indented = JSON.stringify(sample, null, 2).split('\n').join('\n  ');
+    const code = `const express = require('express');\nconst app = express();\n\napp.${method.toLowerCase()}('${path}', (req, res) => {\n  res.json(${indented});\n});\n\napp.listen(3000, () => console.log('Mock server running on http://localhost:3000'));`;
+    resultEl.className = 'result-box result-success tf-output';
+    resultEl.textContent = code;
+  } catch (e) {
+    resultEl.className = 'result-box result-error tf-output';
+    resultEl.textContent = 'Invalid JSON: ' + e.message;
+  }
+});
+
+// ---------- Chat Prompt Formatter ----------
+document.getElementById('promptfmt-format-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('promptfmt-result');
+  try {
+    const systemText = document.getElementById('promptfmt-system').value.trim();
+    const userText = document.getElementById('promptfmt-user').value.trim();
+    if (!systemText && !userText) throw new Error('Fill in at least one field.');
+    const messages = [];
+    if (systemText) messages.push({ role: 'system', content: systemText });
+    if (userText) messages.push({ role: 'user', content: userText });
+    resultEl.className = 'result-box result-success tf-output';
+    resultEl.textContent = JSON.stringify({ messages }, null, 2);
+  } catch (e) {
+    resultEl.className = 'result-box result-error tf-output';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- .env File Validator ----------
+function parseEnvFile(text) {
+  const lines = text.split('\n');
+  const seen = {};
+  const issues = [];
+  const entries = [];
+  lines.forEach((rawLine, i) => {
+    const line = rawLine.trim();
+    if (!line || line.startsWith('#')) return;
+    const m = line.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/);
+    if (!m) { issues.push(`Line ${i + 1}: doesn't look like KEY=VALUE: "${line}"`); return; }
+    const [, key, value] = m;
+    if (seen[key]) issues.push(`Line ${i + 1}: duplicate key "${key}" (also defined on line ${seen[key]})`);
+    seen[key] = i + 1;
+    if (!value) issues.push(`Line ${i + 1}: "${key}" has an empty value`);
+    entries.push({ key, value });
+  });
+  return { entries, issues };
+}
+document.getElementById('envparser-check-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('envparser-result');
+  try {
+    const input = document.getElementById('envparser-input').value;
+    if (!input.trim()) throw new Error('Paste a .env file first.');
+    const { entries, issues } = parseEnvFile(input);
+    resultEl.className = issues.length ? 'result-box result-error' : 'result-box result-success';
+    resultEl.textContent = [
+      `${entries.length} key(s) found, ${issues.length} issue(s):`,
+      '',
+      ...(issues.length ? issues.map((i) => '- ' + i) : ['No issues found.']),
+    ].join('\n');
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- Nginx Config Formatter ----------
+function formatNginxConfig(input) {
+  const compact = input.replace(/\s+/g, ' ').trim();
+  let depth = 0;
+  const lines = [];
+  let current = '';
+  for (let i = 0; i < compact.length; i++) {
+    const c = compact[i];
+    if (c === '{') {
+      lines.push('  '.repeat(depth) + current.trim() + ' {');
+      current = '';
+      depth++;
+    } else if (c === '}') {
+      if (current.trim()) lines.push('  '.repeat(depth) + current.trim());
+      current = '';
+      depth = Math.max(0, depth - 1);
+      lines.push('  '.repeat(depth) + '}');
+    } else if (c === ';') {
+      lines.push('  '.repeat(depth) + current.trim() + ';');
+      current = '';
+    } else {
+      current += c;
+    }
+  }
+  return lines.filter((l) => l.trim()).join('\n');
+}
+document.getElementById('nginxfmt-format-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('nginxfmt-result');
+  try {
+    const input = document.getElementById('nginxfmt-input').value;
+    if (!input.trim()) throw new Error('Paste an nginx config first.');
+    resultEl.className = 'result-box result-success tf-output';
+    resultEl.textContent = formatNginxConfig(input);
+  } catch (e) {
+    resultEl.className = 'result-box result-error tf-output';
+    resultEl.textContent = e.message;
+  }
+});
+
+// ---------- Cron Next Run Calculator ----------
+function parseCronField(field, min, max) {
+  const values = new Set();
+  for (const part of field.split(',')) {
+    let m;
+    if (part === '*') { for (let i = min; i <= max; i++) values.add(i); }
+    else if ((m = part.match(/^\*\/(\d+)$/))) { const step = +m[1]; for (let i = min; i <= max; i += step) values.add(i); }
+    else if ((m = part.match(/^(\d+)-(\d+)(?:\/(\d+))?$/))) {
+      const step = m[3] ? +m[3] : 1;
+      for (let i = +m[1]; i <= +m[2]; i += step) values.add(i);
+    } else if ((m = part.match(/^\d+$/))) { values.add(+part); }
+    else throw new Error('Unsupported cron field syntax: ' + part);
+  }
+  return values;
+}
+function nextCronRuns(expr, count, fromDate) {
+  const fields = expr.trim().split(/\s+/);
+  if (fields.length !== 5) throw new Error('Expected a 5-field cron expression (minute hour day-of-month month day-of-week).');
+  const [minF, hourF, domF, monthF, dowF] = fields;
+  const minutes = parseCronField(minF, 0, 59);
+  const hours = parseCronField(hourF, 0, 23);
+  const doms = domF === '*' ? null : parseCronField(domF, 1, 31);
+  const months = parseCronField(monthF, 1, 12);
+  const dows = dowF === '*' ? null : parseCronField(dowF, 0, 6);
+  const results = [];
+  let cursor = new Date(fromDate.getTime());
+  cursor.setUTCSeconds(0, 0);
+  cursor = new Date(cursor.getTime() + 60000);
+  let iterations = 0;
+  while (results.length < count && iterations < 600000) {
+    iterations++;
+    const min = cursor.getUTCMinutes(), hr = cursor.getUTCHours(), dom = cursor.getUTCDate(), mon = cursor.getUTCMonth() + 1, dow = cursor.getUTCDay();
+    const domOk = doms === null || doms.has(dom);
+    const dowOk = dows === null || dows.has(dow);
+    const dayOk = (doms === null && dows === null) ? true : (doms !== null && dows !== null) ? (domOk || dowOk) : (domOk && dowOk);
+    if (minutes.has(min) && hours.has(hr) && months.has(mon) && dayOk) results.push(new Date(cursor.getTime()));
+    cursor = new Date(cursor.getTime() + 60000);
+  }
+  if (results.length < count) throw new Error('Could not find enough matching run times (check the expression).');
+  return results;
+}
+document.getElementById('cronnext-calc-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('cronnext-result');
+  try {
+    const expr = document.getElementById('cronnext-input').value.trim();
+    if (!expr) throw new Error('Enter a cron expression.');
+    const runs = nextCronRuns(expr, 5, new Date());
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = runs.map((d) => d.toISOString().replace('T', ' ').replace('.000Z', ' UTC')).join('\n');
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+  }
+});
