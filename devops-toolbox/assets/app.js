@@ -2571,24 +2571,46 @@ function getParaphraserPipeline(onProgress) {
   }
   return paraphraserPipelinePromise;
 }
+// NOTE: this small model reliably follows short, single-line "Paraphrase this
+// sentence ...: <text>" prompts. A multi-line "Rewrite the following text
+// ...:\n<text>" phrasing was tried first and made several modes answer as if
+// responding to a question about the text (meta-commentary, echoed labels)
+// instead of actually rewriting it — verified against the real model before
+// picking this phrasing.
 const PARAPHRASE_PROMPTS = {
-  standard: (t) => `Paraphrase the following text:\n${t}`,
-  fluency: (t) => `Fix the grammar and improve the fluency of the following text, keeping the same meaning:\n${t}`,
-  formal: (t) => `Rewrite the following text in a more formal tone:\n${t}`,
-  academic: (t) => `Rewrite the following text in a formal, academic, scholarly tone:\n${t}`,
-  simple: (t) => `Rewrite the following text in simple, plain English:\n${t}`,
-  creative: (t) => `Rewrite the following text creatively, using different words and sentence structure:\n${t}`,
-  expand: (t) => `Expand the following text with more detail and elaboration:\n${t}`,
-  shorten: (t) => `Shorten and condense the following text while keeping the key meaning:\n${t}`,
-  diplomatic: (t) => `Rewrite the following text in a diplomatic, tactful, and polite tone:\n${t}`,
-  casual: (t) => `Rewrite the following text in a casual, relaxed, conversational tone:\n${t}`,
-  confident: (t) => `Rewrite the following text in a confident, assertive tone:\n${t}`,
-  friendly: (t) => `Rewrite the following text in a warm, friendly tone:\n${t}`,
-  persuasive: (t) => `Rewrite the following text in a persuasive, compelling tone:\n${t}`,
-  news: (t) => `Rewrite the following text in the objective, neutral tone of a news report:\n${t}`,
-  anonymize: (t) => `Rewrite the following text to remove any distinctive personal writing style, making it sound generic and anonymous:\n${t}`,
+  standard: (t) => `Paraphrase this sentence: ${t}`,
+  fluency: (t) => `Rewrite this sentence to be more fluent: ${t}`,
+  formal: (t) => `Paraphrase this sentence to sound more formal: ${t}`,
+  academic: (t) => `Paraphrase this sentence in an academic, scholarly style: ${t}`,
+  simple: (t) => `Paraphrase this sentence in simple, plain English: ${t}`,
+  creative: (t) => `Paraphrase this sentence creatively: ${t}`,
+  expand: (t) => `Expand this sentence with more detail: ${t}`,
+  shorten: (t) => `Shorten this sentence while keeping the meaning: ${t}`,
+  diplomatic: (t) => `Paraphrase this sentence diplomatically: ${t}`,
+  casual: (t) => `Paraphrase this sentence casually: ${t}`,
+  confident: (t) => `Paraphrase this sentence to sound more confident: ${t}`,
+  friendly: (t) => `Paraphrase this sentence in a friendly tone: ${t}`,
+  persuasive: (t) => `Paraphrase this sentence to sound more persuasive: ${t}`,
+  news: (t) => `Paraphrase this sentence in a neutral, objective news tone: ${t}`,
+  anonymize: (t) => `Paraphrase this sentence to remove any distinctive personal writing style: ${t}`,
 };
 const PARAPHRASE_SAMPLED_MODES = new Set(['creative', 'casual', 'friendly', 'persuasive']);
+// Start downloading the model as soon as the tool is opened, not when the
+// user clicks "Paraphrase" - hides most of the ~90MB download behind the
+// time it takes to read the description and pick a mode/type input.
+document.querySelector('.tab-btn[data-tool="paraphraser"]').addEventListener('click', () => {
+  const statusEl = document.getElementById('paraphraser-status');
+  const seenFiles = {};
+  getParaphraserPipeline((progress) => {
+    if (progress.status === 'progress' && progress.file) {
+      seenFiles[progress.file] = progress.progress || 0;
+      const pct = Math.round(Object.values(seenFiles).reduce((a, b) => a + b, 0) / Object.keys(seenFiles).length);
+      statusEl.textContent = `Loading AI model… ${pct}% (one-time, then cached in your browser)`;
+    } else if (progress.status === 'ready') {
+      statusEl.textContent = '';
+    }
+  }).catch(() => { /* surfaced again if/when the user actually clicks Paraphrase */ });
+}, { once: true });
 document.querySelectorAll('#paraphraser-modes .mode-btn').forEach((btn) => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('#paraphraser-modes .mode-btn').forEach((b) => b.classList.remove('active'));
@@ -2622,7 +2644,8 @@ document.getElementById('paraphraser-run-btn').addEventListener('click', async (
     const prompt = PARAPHRASE_PROMPTS[mode](input);
     const sampled = PARAPHRASE_SAMPLED_MODES.has(mode);
     const output = await paraphraser(prompt, { max_new_tokens: 200, temperature: sampled ? 1.0 : 0.7, do_sample: sampled });
-    const text = output[0].generated_text.trim();
+    let text = output[0].generated_text.trim();
+    if (/^".*"$/.test(text)) text = text.slice(1, -1).trim();
     resultEl.className = 'result-box result-success';
     resultEl.textContent = text || '(The model returned an empty result — try rephrasing or shortening the input.)';
     statusEl.textContent = '';
