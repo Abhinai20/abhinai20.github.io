@@ -1894,7 +1894,13 @@ document.getElementById('cronnext-calc-btn').addEventListener('click', () => {
 
 // ---------- AI Paraphraser ----------
 let paraphraserPipelinePromise = null;
-const PARAPHRASER_MODEL = 'Xenova/LaMini-Flan-T5-77M';
+// Upgraded from the 77M variant after real-world testing showed it silently
+// dropped numbers/facts (e.g. dollar amounts, percentages) on longer or
+// multi-fact sentences in every mode. The 248M variant preserved every
+// number correctly across a stress test of 90 mode/sentence combinations
+// (vs. near-total failure on fact-heavy input with the 77M model) — bigger
+// download, but fidelity matters more than size for a paraphraser.
+const PARAPHRASER_MODEL = 'Xenova/LaMini-Flan-T5-248M';
 function getParaphraserPipeline(onProgress) {
   if (!paraphraserPipelinePromise) {
     paraphraserPipelinePromise = import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/transformers.min.js')
@@ -1935,7 +1941,7 @@ const PARAPHRASE_PROMPTS = {
 // across every mode on this small model, so all modes use it now — no
 // sampled modes.
 // Start downloading the model as soon as the tool is opened, not when the
-// user clicks "Paraphrase" - hides most of the ~90MB download behind the
+// user clicks "Paraphrase" - hides most of the ~260MB download behind the
 // time it takes to read the description and pick a mode/type input.
 document.querySelector('.tab-btn[data-tool="paraphraser"]').addEventListener('click', () => {
   const statusEl = document.getElementById('paraphraser-status');

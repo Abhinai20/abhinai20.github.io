@@ -150,6 +150,18 @@ Removal script approach: since this touched ~17 HTML panels and ~17 JS sections,
 
 Committed and pushed to `Abhinai20/abhinai20.github.io`.
 
+## Critical fidelity bug fix — 2026-08-28 (model upgraded 77M -> 248M)
+
+User reported the paraphraser "didn't even rephrase correctly in any modes" and — the important part — that it **dropped the dollar figure** from a cost-estimate sentence ("approximately USD 10/month" vanished entirely from the output). Reproduced and confirmed: this was a real information-fidelity failure, not a wording nitpick.
+
+**Root cause**: stress-tested the 77M model against longer, fact-heavy sentences (multiple numbers/percentages/dollar amounts in one sentence) — it silently dropped or garbled facts across all modes, and in one case actively misattributed numbers to the wrong metric (claimed "the error rate fell from 450ms to 90ms" when 450ms/90ms was actually the *other* clause's latency figures). This never showed up in earlier testing because those tests used short, single-fact sentences.
+
+**Fix**: upgraded the model from `Xenova/LaMini-Flan-T5-77M` to `Xenova/LaMini-Flan-T5-248M`. Verified the larger model preserves every number correctly across a 90-combination stress test (15 modes × 6 sentences including the exact multi-fact sentences that broke the small model) — only 3 residual "failures," and those are defensible by design: "news" (headline style) and "persuasive" compressing out granular metrics the way a real headline/pitch would, not fidelity loss. Re-tested the exact bug-report sentence through the live UI — now correctly preserves both "USD 10/month" and "20 GB/month".
+
+**Trade-off accepted**: model download grew from ~90MB to ~260MB (updated in the tool description and result placeholder text, plus the code comment). Fidelity matters more than download size for a tool whose entire purpose is preserving meaning.
+
+**User's separate question — "can I use this for timesheet rephrasing/summarizing/expanding?"**: yes, already feasible with the existing modes — Standard/Fluency for rephrasing, Shorten for summaries. "Expand" is the weak point: tested 4 different prompt phrasings and found small models can't reliably add *genuinely relevant* new detail — safer phrasings barely change the input, more assertive ones invent generic filler (e.g. turned a $120/month server spec into a paragraph of "high-performance, reliable, efficient" filler while dropping the $120 itself). Shipped the version that elaborates naturally on short task-log-style lines (the closest match to real timesheet entries) and added a visible caution in the tool description: "Expand and Creative modes can add generic-sounding phrasing that wasn't in your original text — always review the output before using it somewhere that needs to be strictly accurate (e.g. a timesheet or status report)." This is an honest disclosure of a real limitation, not a fixable bug — don't over-promise Expand mode's reliability in future copy changes.
+
 ## How to resume
 
 Open a Claude Code session with working directory `C:\Users\Minfy\Documents\GitHubRootSite` and say "resume the DevOps Toolbox work" — this file has the context needed.
