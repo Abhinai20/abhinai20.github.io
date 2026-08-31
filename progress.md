@@ -196,6 +196,12 @@ This site had zero monetization beyond AdSense — no Amazon affiliate links at 
 - Verified live: HTTP 200, 8 affiliate links present with the correct tag, nav link confirmed on both a sample tool page and the homepage with correct relative paths (`../resources.html` vs `resources.html`), sitemap confirmed updated.
 - Not yet run through the project's own Playwright verification pass (the standing practice for this codebase) — worth doing if touching this area again, to confirm no regression on the tab-switching JS across all 45 tool pages.
 
+## AdSense status check across all 3 properties (2026-08-31)
+
+All three sites (this one, abhinaibondada.blogspot.com, theclouddesk.blogspot.com) show approval status **"Getting ready"** in AdSense — still in review, not rejected. All three also showed **"Ads.txt status: Not found"** in the dashboard, which looked alarming since this exact issue was already fixed once on the sister blog. Investigated directly via curl: **all three ads.txt files are actually correct and live right now** (HTTP 200, correct publisher ID `pub-8946983522733896` on each). The dashboard's "Not found" is almost certainly a stale AdSense crawl — its own "Last updated" timestamps predate when each was actually fixed/verified. Nothing to fix on the ads.txt content itself; likely clears on Google's next periodic re-crawl (no way to force this, unlike Search Console's Request Indexing).
+
+**Real bug found and fixed in the process**: this site (`abhinai20.github.io`) had no `robots.txt` at the actual domain root — only inside `/devops-toolbox/`, which crawlers don't recognize (robots.txt must be at the true root). Not a blocker (missing robots.txt just means "crawl everything," not blocked), but added a proper root `robots.txt` anyway, pointing at the devops-toolbox sitemap.
+
 ## How to resume
 
 Open a Claude Code session with working directory `C:\Users\Minfy\Documents\GitHubRootSite` and say "resume the DevOps Toolbox work" — this file has the context needed.
