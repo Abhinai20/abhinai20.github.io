@@ -180,6 +180,12 @@ User asked how to get more traffic; biggest lever identified: all 46 tools lived
 - Verified via Playwright: direct-loaded 5 sample tool pages and confirmed unique title/meta/default-active-panel on each with zero JS needed; confirmed all 46 sitemap URLs match generated files; confirmed clicking a sidebar link from `index.html` still does instant in-page switching (no full reload) while correctly updating the URL bar; confirmed back button restores the previous tool; regression-checked that all 46 tools still switch correctly; landed directly on a deep tool page (simulating a Google click-through) and confirmed the tool actually works and other tools (including Mermaid) still work after navigating away. 28 total assertions, 0 failures, 0 console errors, 0 broken requests.
 - Cache-bust version bumped to `?v=6` across `index.html` and all 45 generated tool pages (each edit to `app.js`/`style.css` during this fix required a fresh bump — did this consistently in the same commit as the code change this time, per the standing lesson from the earlier stale-cache incident).
 
+## Automatic sitemap resubmission wired in (2026-08-31)
+
+Added by the sister-project session working on the two blogs, since this site's Search Console property was found already verified there. Unlike the blogs, this site has no scheduled publishing cadence — it's static, updated whenever a tool gets added/changed — so this runs on **push** instead of a schedule: `.github/workflows/resubmit-sitemap.yml` triggers on any push to `main` touching `devops-toolbox/**`, running `scripts/resubmit_sitemap.py` which pings Search Console's sitemap resubmit endpoint (a real, documented API — not the restricted Indexing API, which only covers JobPosting/BroadcastEvent content). Verified working end-to-end locally.
+
+**Manual step needed**: add 3 GitHub Actions secrets to this repo (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`) — see `credentials/api_keys.md` for the values. Same Google account/grant as the two blogs (shared refresh token, now scoped to cover both Blogger and Search Console).
+
 ## How to resume
 
 Open a Claude Code session with working directory `C:\Users\Minfy\Documents\GitHubRootSite` and say "resume the DevOps Toolbox work" — this file has the context needed.

@@ -1,0 +1,23 @@
+name: Resubmit Sitemap to Search Console
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "devops-toolbox/**"
+  workflow_dispatch: {}
+
+jobs:
+  resubmit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Resubmit sitemap
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
+        run: python scripts/resubmit_sitemap.py
