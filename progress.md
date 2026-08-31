@@ -186,6 +186,16 @@ Added by the sister-project session working on the two blogs, since this site's 
 
 **Manual step needed**: add 3 GitHub Actions secrets to this repo (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`) — see `credentials/api_keys.md` for the values. Same Google account/grant as the two blogs (shared refresh token, now scoped to cover both Blogger and Search Console).
 
+## Monetization expansion — Recommended Resources page (2026-08-31)
+
+This site had zero monetization beyond AdSense — no Amazon affiliate links at all, unlike the two blogs. Added `devops-toolbox/resources.html`: real, category-matched book/gear recommendations (AWS certs, Kubernetes, Terraform, Git, home-lab hardware) using the existing Amazon Associates tag `abhinaibondada-21`, genuinely tied to what the tools on this site are for — not a generic "best DevOps books" list.
+
+- Linked from every single page's nav (all 45 tool pages + homepage) via a new "More" nav-group. **Important implementation detail**: the link deliberately uses a new CSS class `.nav-static-link`, NOT `.tab-btn` — giving it `.tab-btn` would have made `app.js`'s click handler intercept it and crash (`document.getElementById('panel-' + undefined)` since there's no matching tool panel for this page), breaking navigation entirely. `.nav-static-link` is a visual clone with no JS binding, so it's just a normal link (full page load, not the instant in-page switch other tools get).
+- Batch-inserted via a small Python script (`add_resources_link.py`, run once from scratch, not kept in the repo) following this project's own established pattern for site-wide edits — same approach documented earlier in this file for tool removal/addition batches.
+- Added to `sitemap.xml`. Bumped the CSS cache-bust version to `?v=8` site-wide per the project's own documented "always bump `?v=` when style.css changes" lesson (see the earlier stale-cache incident notes above).
+- Verified live: HTTP 200, 8 affiliate links present with the correct tag, nav link confirmed on both a sample tool page and the homepage with correct relative paths (`../resources.html` vs `resources.html`), sitemap confirmed updated.
+- Not yet run through the project's own Playwright verification pass (the standing practice for this codebase) — worth doing if touching this area again, to confirm no regression on the tab-switching JS across all 45 tool pages.
+
 ## How to resume
 
 Open a Claude Code session with working directory `C:\Users\Minfy\Documents\GitHubRootSite` and say "resume the DevOps Toolbox work" — this file has the context needed.
