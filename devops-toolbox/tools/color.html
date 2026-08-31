@@ -36,7 +36,7 @@
   }
 }
 </script>
-<link rel="stylesheet" href="../assets/style.css?v=6">
+<link rel="stylesheet" href="../assets/style.css?v=7">
 </head>
 <body>
 
@@ -186,7 +186,7 @@ spec:
         <div id="yaml-result" class="result-box result-idle">Paste YAML and click "Check YAML" to see the result here.</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="jsonfmt.html">JSON Formatter</a></li><li><a href="diff.html">Diff Viewer</a></li><li><a href="md2word.html">Markdown → Word</a></li></ul></div></section>
 
   <!-- TERRAFORM PLAN FORMATTER -->
   <section class="tool-panel" id="panel-tf">
@@ -218,7 +218,7 @@ spec:
       <span class="legend-item"><span class="swatch swatch-change"></span> update in-place</span>
       <span class="legend-item"><span class="swatch swatch-replace"></span> replace (destroy + create)</span>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="arn.html">ARN Parser</a></li></ul></div></section>
 
   <!-- CRON EXPLAINER -->
   <section class="tool-panel" id="panel-cron">
@@ -238,7 +238,7 @@ spec:
     <div class="cron-ref">
       <strong>Field order:</strong> <code>minute hour day-of-month month day-of-week</code>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="cronbuilder.html">Cron Builder</a></li><li><a href="timestamp.html">Unix Timestamp</a></li><li><a href="timezone.html">Timezone Converter</a></li><li><a href="cronnext.html">Cron Next Run Calculator</a></li></ul></div></section>
 
   <!-- MARKDOWN TO WORD -->
   <section class="tool-panel" id="panel-md2word">
@@ -264,7 +264,7 @@ a code block
         <div id="md-preview" class="result-box result-idle md-preview">Paste Markdown and click convert — a preview of the formatted result will appear here, and a .docx file will download automatically.</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="jsonfmt.html">JSON Formatter</a></li><li><a href="diff.html">Diff Viewer</a></li></ul></div></section>
 
   <!-- JSON <-> YAML -->
   <section class="tool-panel" id="panel-jsonyaml">
@@ -284,7 +284,7 @@ a code block
         <pre id="jy-result" class="result-box result-idle tf-output">Paste JSON or YAML, then pick a direction.</pre>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="jsonfmt.html">JSON Formatter</a></li><li><a href="diff.html">Diff Viewer</a></li><li><a href="md2word.html">Markdown → Word</a></li></ul></div></section>
 
   <!-- JSON FORMATTER -->
   <section class="tool-panel" id="panel-jsonfmt">
@@ -305,7 +305,7 @@ a code block
         <pre id="jf-result" class="result-box result-idle tf-output">Paste JSON and pick an action.</pre>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="diff.html">Diff Viewer</a></li><li><a href="md2word.html">Markdown → Word</a></li></ul></div></section>
   <!-- KUBERNETES MANIFEST ANALYZER -->
   <section class="tool-panel" id="panel-k8slint">
     <div class="panel-header"><h1>Kubernetes Manifest Analyzer</h1><button class="clear-btn" data-clear="k8slint">Clear</button></div>
@@ -330,7 +330,7 @@ spec:
         <div id="k8s-result" class="result-box result-idle">Paste a manifest and click "Analyze".</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="dockerlint.html">Dockerfile Checker</a></li><li><a href="k8squantity.html">K8s Quantity Converter</a></li><li><a href="resourcequota.html">K8s Resource Quota Calculator</a></li></ul></div></section>
 
   <!-- DOCKERFILE CHECKER -->
   <section class="tool-panel" id="panel-dockerlint">
@@ -350,7 +350,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <div id="docker-result" class="result-box result-idle">Paste a Dockerfile and click "Check".</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="k8slint.html">K8s Manifest Analyzer</a></li><li><a href="k8squantity.html">K8s Quantity Converter</a></li><li><a href="resourcequota.html">K8s Resource Quota Calculator</a></li></ul></div></section>
 
   <!-- ARN PARSER -->
   <section class="tool-panel" id="panel-arn">
@@ -367,7 +367,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <div id="arn-result" class="result-box result-idle">Enter an ARN and click "Parse".</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="tf.html">TF Plan Formatter</a></li></ul></div></section>
 
   <!-- JWT DECODER -->
   <section class="tool-panel" id="panel-jwt">
@@ -384,7 +384,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <pre id="jwt-result" class="result-box result-idle tf-output">Paste a JWT and click "Decode".</pre>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="hash.html">Hash Generator</a></li><li><a href="base64.html">Base64 / URL Encode</a></li><li><a href="chmod.html">chmod Calculator</a></li><li><a href="secretscanner.html">Secret Scanner</a></li></ul></div></section>
 
   <!-- REGEX TESTER -->
   <section class="tool-panel" id="panel-regex">
@@ -405,7 +405,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <div id="regex-result" class="result-box result-idle">Enter a pattern and text, then click "Test".</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li><li><a href="color.html">Color Converter</a></li><li><a href="tokenestimator.html">Token Estimator</a></li></ul></div></section>
 
   <!-- BASE64 / URL ENCODE -->
   <section class="tool-panel" id="panel-base64">
@@ -429,7 +429,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <pre id="b64-result" class="result-box result-idle tf-output">Paste text and pick an action.</pre>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="jwt.html">JWT Decoder</a></li><li><a href="hash.html">Hash Generator</a></li><li><a href="chmod.html">chmod Calculator</a></li><li><a href="secretscanner.html">Secret Scanner</a></li></ul></div></section>
 
   <!-- HASH GENERATOR -->
   <section class="tool-panel" id="panel-hash">
@@ -446,7 +446,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <pre id="hash-result" class="result-box result-idle tf-output">Paste text and click "Generate Hashes".</pre>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="jwt.html">JWT Decoder</a></li><li><a href="base64.html">Base64 / URL Encode</a></li><li><a href="chmod.html">chmod Calculator</a></li><li><a href="secretscanner.html">Secret Scanner</a></li></ul></div></section>
 
   <!-- DIFF VIEWER -->
   <section class="tool-panel" id="panel-diff">
@@ -465,7 +465,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
     <button id="diff-compare-btn" class="primary-btn" style="margin-top:12px;">Compare</button>
     <label style="margin-top:16px;">Result</label>
     <pre id="diff-result" class="result-box result-idle tf-output">Paste text in both boxes and click "Compare".</pre>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="jsonfmt.html">JSON Formatter</a></li><li><a href="md2word.html">Markdown → Word</a></li></ul></div></section>
 
   <!-- UNIX TIMESTAMP -->
   <section class="tool-panel" id="panel-timestamp">
@@ -485,7 +485,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
     </div>
     <label style="margin-top:16px;">Result</label>
     <div id="ts-result" class="result-box result-idle">Use either field above.</div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="cron.html">Cron Explainer</a></li><li><a href="cronbuilder.html">Cron Builder</a></li><li><a href="timezone.html">Timezone Converter</a></li><li><a href="cronnext.html">Cron Next Run Calculator</a></li></ul></div></section>
 
   <!-- TIMEZONE CONVERTER -->
   <section class="tool-panel" id="panel-timezone">
@@ -502,7 +502,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <div id="tz-result" class="result-box result-idle">Pick a date/time and click "Convert".</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="cron.html">Cron Explainer</a></li><li><a href="cronbuilder.html">Cron Builder</a></li><li><a href="timestamp.html">Unix Timestamp</a></li><li><a href="cronnext.html">Cron Next Run Calculator</a></li></ul></div></section>
 
   <!-- CURL TO CODE -->
   <section class="tool-panel" id="panel-curl">
@@ -519,7 +519,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <pre id="curl-result" class="result-box result-idle tf-output">Paste a curl command and click "Convert".</pre>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="xml.html">XML Formatter</a></li><li><a href="color.html">Color Converter</a></li><li><a href="tokenestimator.html">Token Estimator</a></li></ul></div></section>
 
   <!-- CIDR CALCULATOR -->
   <section class="tool-panel" id="panel-cidr">
@@ -536,7 +536,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <div id="cidr-result" class="result-box result-idle">Enter a CIDR block and click "Calculate".</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="cidroverlap.html">CIDR Overlap Checker</a></li><li><a href="urlanalyzer.html">URL Analyzer</a></li><li><a href="httpstatus.html">HTTP Status Explorer</a></li></ul></div></section>
 
   <!-- K8S QUANTITY CONVERTER -->
   <section class="tool-panel" id="panel-k8squantity">
@@ -553,7 +553,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <div id="k8sq-result" class="result-box result-idle">Enter a quantity and click "Convert".</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="k8slint.html">K8s Manifest Analyzer</a></li><li><a href="dockerlint.html">Dockerfile Checker</a></li><li><a href="resourcequota.html">K8s Resource Quota Calculator</a></li></ul></div></section>
 
   <!-- CHMOD CALCULATOR -->
   <section class="tool-panel" id="panel-chmod">
@@ -573,7 +573,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
     </div>
     <label style="margin-top:16px;">Result</label>
     <div id="chmod-result" class="result-box result-idle">Use either field above.</div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="jwt.html">JWT Decoder</a></li><li><a href="hash.html">Hash Generator</a></li><li><a href="base64.html">Base64 / URL Encode</a></li><li><a href="secretscanner.html">Secret Scanner</a></li></ul></div></section>
 
   <!-- XML FORMATTER -->
   <section class="tool-panel" id="panel-xml">
@@ -590,7 +590,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <pre id="xml-result" class="result-box result-idle tf-output">Paste XML and click "Format &amp; Validate".</pre>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="color.html">Color Converter</a></li><li><a href="tokenestimator.html">Token Estimator</a></li></ul></div></section>
 
   <!-- COLOR CONVERTER -->
   <section class="tool-panel active" id="panel-color">
@@ -607,7 +607,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <div id="color-result" class="result-box result-idle">Enter a color and click "Convert".</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li><li><a href="tokenestimator.html">Token Estimator</a></li></ul></div></section>
 
   <!-- CIDR OVERLAP CHECKER -->
   <section class="tool-panel" id="panel-cidroverlap">
@@ -628,7 +628,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <div id="cidroverlap-result" class="result-box result-idle">Paste CIDR blocks and click "Check Overlaps".</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="cidr.html">CIDR Calculator</a></li><li><a href="urlanalyzer.html">URL Analyzer</a></li><li><a href="httpstatus.html">HTTP Status Explorer</a></li></ul></div></section>
 
   <!-- URL ANALYZER -->
   <section class="tool-panel" id="panel-urlanalyzer">
@@ -645,7 +645,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <div id="urlanalyzer-result" class="result-box result-idle">Enter a URL and click "Analyze".</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="cidr.html">CIDR Calculator</a></li><li><a href="cidroverlap.html">CIDR Overlap Checker</a></li><li><a href="httpstatus.html">HTTP Status Explorer</a></li></ul></div></section>
 
   <!-- HTTP STATUS EXPLORER -->
   <section class="tool-panel" id="panel-httpstatus">
@@ -662,7 +662,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <div id="httpstatus-result" class="result-box result-idle">Enter a status code and click "Look Up".</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="cidr.html">CIDR Calculator</a></li><li><a href="cidroverlap.html">CIDR Overlap Checker</a></li><li><a href="urlanalyzer.html">URL Analyzer</a></li></ul></div></section>
 
   <!-- UUID INSPECTOR -->
   <section class="tool-panel" id="panel-uuid">
@@ -679,7 +679,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <div id="uuid-result" class="result-box result-idle">Enter a UUID and click "Inspect".</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="snowflake.html">Snowflake ID Decoder</a></li><li><a href="conventionalcommit.html">Conventional Commit</a></li><li><a href="commitvalidator.html">Commit Message Validator</a></li><li><a href="changelog.html">Changelog Generator</a></li></ul></div></section>
 
   <!-- SNOWFLAKE ID DECODER -->
   <section class="tool-panel" id="panel-snowflake">
@@ -701,7 +701,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <div id="snowflake-result" class="result-box result-idle">Enter a snowflake ID and click "Decode".</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="uuid.html">UUID Inspector</a></li><li><a href="conventionalcommit.html">Conventional Commit</a></li><li><a href="commitvalidator.html">Commit Message Validator</a></li><li><a href="changelog.html">Changelog Generator</a></li></ul></div></section>
   <!-- CONVENTIONAL COMMIT GENERATOR -->
   <section class="tool-panel" id="panel-conventionalcommit">
     <div class="panel-header"><h1>Conventional Commit Generator</h1><button class="clear-btn" data-clear="conventionalcommit">Clear</button></div>
@@ -725,7 +725,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <div id="cc-result" class="result-box result-idle">Fill in the fields and click "Generate".</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="uuid.html">UUID Inspector</a></li><li><a href="snowflake.html">Snowflake ID Decoder</a></li><li><a href="commitvalidator.html">Commit Message Validator</a></li><li><a href="changelog.html">Changelog Generator</a></li></ul></div></section>
 
 
   <!-- SQL FORMATTER -->
@@ -743,7 +743,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <pre id="sqlfmt-result" class="result-box result-idle tf-output">Paste SQL and click "Format".</pre>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="jsonfmt.html">JSON Formatter</a></li><li><a href="diff.html">Diff Viewer</a></li></ul></div></section>
 
   <!-- XML <-> JSON -->
   <section class="tool-panel" id="panel-xmljson">
@@ -763,7 +763,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <pre id="xmljson-result" class="result-box result-idle tf-output">Paste XML or JSON and pick a direction.</pre>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="jsonfmt.html">JSON Formatter</a></li><li><a href="diff.html">Diff Viewer</a></li></ul></div></section>
 
   <!-- JSON SCHEMA GENERATOR -->
   <section class="tool-panel" id="panel-jsonschema">
@@ -780,7 +780,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <pre id="jsonschema-result" class="result-box result-idle tf-output">Paste sample JSON and click "Generate Schema".</pre>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="jsonfmt.html">JSON Formatter</a></li><li><a href="diff.html">Diff Viewer</a></li></ul></div></section>
 
   <!-- SECRET SCANNER -->
   <section class="tool-panel" id="panel-secretscanner">
@@ -797,7 +797,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <div id="secretscanner-result" class="result-box result-idle">Paste some text and click "Scan".</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="jwt.html">JWT Decoder</a></li><li><a href="hash.html">Hash Generator</a></li><li><a href="base64.html">Base64 / URL Encode</a></li><li><a href="chmod.html">chmod Calculator</a></li></ul></div></section>
   <!-- TOKEN ESTIMATOR -->
   <section class="tool-panel" id="panel-tokenestimator">
     <div class="panel-header"><h1>LLM Token Estimator</h1><button class="clear-btn" data-clear="tokenestimator">Clear</button></div>
@@ -813,7 +813,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <div id="tokenestimator-result" class="result-box result-idle">Paste text and click "Estimate".</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li><li><a href="color.html">Color Converter</a></li></ul></div></section>
 
   <!-- CRON BUILDER -->
   <section class="tool-panel" id="panel-cronbuilder">
@@ -838,7 +838,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <div id="cronbuilder-result" class="result-box result-idle">Fill in the fields and click "Build".</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="cron.html">Cron Explainer</a></li><li><a href="timestamp.html">Unix Timestamp</a></li><li><a href="timezone.html">Timezone Converter</a></li><li><a href="cronnext.html">Cron Next Run Calculator</a></li></ul></div></section>
 
   <!-- COMMIT MESSAGE VALIDATOR -->
   <section class="tool-panel" id="panel-commitvalidator">
@@ -855,7 +855,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <div id="commitvalidator-result" class="result-box result-idle">Paste a commit message and click "Validate".</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="uuid.html">UUID Inspector</a></li><li><a href="snowflake.html">Snowflake ID Decoder</a></li><li><a href="conventionalcommit.html">Conventional Commit</a></li><li><a href="changelog.html">Changelog Generator</a></li></ul></div></section>
 
   <!-- CHANGELOG GENERATOR -->
   <section class="tool-panel" id="panel-changelog">
@@ -877,7 +877,7 @@ chore: update dependencies</textarea>
         <pre id="changelog-result" class="result-box result-idle tf-output">Paste commit messages and click "Generate Changelog".</pre>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="uuid.html">UUID Inspector</a></li><li><a href="snowflake.html">Snowflake ID Decoder</a></li><li><a href="conventionalcommit.html">Conventional Commit</a></li><li><a href="commitvalidator.html">Commit Message Validator</a></li></ul></div></section>
 
   <!-- BSON/OBJECTID DECODER -->
   <section class="tool-panel" id="panel-bsonid">
@@ -894,7 +894,7 @@ chore: update dependencies</textarea>
         <div id="bsonid-result" class="result-box result-idle">Enter an ObjectId and click "Decode".</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="uuid.html">UUID Inspector</a></li><li><a href="snowflake.html">Snowflake ID Decoder</a></li><li><a href="conventionalcommit.html">Conventional Commit</a></li><li><a href="commitvalidator.html">Commit Message Validator</a></li></ul></div></section>
   <!-- TLS CERTIFICATE DECODER -->
   <section class="tool-panel" id="panel-tlsdecoder">
     <div class="panel-header"><h1>TLS Certificate Decoder</h1><button class="clear-btn" data-clear="tlsdecoder">Clear</button></div>
@@ -910,7 +910,7 @@ chore: update dependencies</textarea>
         <pre id="tlsdecoder-result" class="result-box result-idle tf-output">Paste a PEM certificate and click "Decode".</pre>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="jwt.html">JWT Decoder</a></li><li><a href="hash.html">Hash Generator</a></li><li><a href="base64.html">Base64 / URL Encode</a></li><li><a href="chmod.html">chmod Calculator</a></li></ul></div></section>
 
   <!-- MERMAID DIAGRAM PREVIEW -->
   <section class="tool-panel" id="panel-mermaid">
@@ -933,7 +933,7 @@ chore: update dependencies</textarea>
         <div id="mermaid-result" class="result-box result-idle" style="overflow:auto;">Paste Mermaid syntax and click "Render".</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li><li><a href="color.html">Color Converter</a></li></ul></div></section>
 
 
   <!-- INCIDENT TIMELINE BUILDER -->
@@ -955,7 +955,7 @@ chore: update dependencies</textarea>
         <pre id="incidenttimeline-result" class="result-box result-idle tf-output">Paste timestamped events and click "Build Timeline".</pre>
       </div>
     </div>
-  </section>  <!-- K8S RESOURCE QUOTA CALCULATOR -->
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="uuid.html">UUID Inspector</a></li><li><a href="snowflake.html">Snowflake ID Decoder</a></li><li><a href="conventionalcommit.html">Conventional Commit</a></li><li><a href="commitvalidator.html">Commit Message Validator</a></li></ul></div></section>  <!-- K8S RESOURCE QUOTA CALCULATOR -->
   <section class="tool-panel" id="panel-resourcequota">
     <div class="panel-header"><h1>Kubernetes Resource Quota Calculator</h1><button class="clear-btn" data-clear="resourcequota">Clear</button></div>
     <p class="tool-desc">Paste CPU or memory quantities (one per line, e.g. from each container's <code>resources.requests</code>) and get the total.</p>
@@ -974,7 +974,7 @@ chore: update dependencies</textarea>
         <div id="resourcequota-result" class="result-box result-idle">Paste quantities and click "Sum".</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="k8slint.html">K8s Manifest Analyzer</a></li><li><a href="dockerlint.html">Dockerfile Checker</a></li><li><a href="k8squantity.html">K8s Quantity Converter</a></li></ul></div></section>
   <!-- REST ENDPOINT MOCK GENERATOR -->
   <section class="tool-panel" id="panel-restmock">
     <div class="panel-header"><h1>REST Endpoint Mock Generator</h1><button class="clear-btn" data-clear="restmock">Clear</button></div>
@@ -996,7 +996,7 @@ chore: update dependencies</textarea>
         <pre id="restmock-result" class="result-box result-idle tf-output">Fill in the fields and click "Generate".</pre>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li><li><a href="color.html">Color Converter</a></li></ul></div></section>
 
 
   <!-- .ENV FILE VALIDATOR -->
@@ -1020,7 +1020,7 @@ NOT_A_VALID_LINE</textarea>
         <div id="envparser-result" class="result-box result-idle">Paste a .env file and click "Validate".</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li><li><a href="color.html">Color Converter</a></li></ul></div></section>
 
   <!-- NGINX CONFIG FORMATTER -->
   <section class="tool-panel" id="panel-nginxfmt">
@@ -1037,7 +1037,7 @@ NOT_A_VALID_LINE</textarea>
         <pre id="nginxfmt-result" class="result-box result-idle tf-output">Paste an nginx config and click "Format".</pre>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li><li><a href="color.html">Color Converter</a></li></ul></div></section>
 
   <!-- CRON NEXT RUN CALCULATOR -->
   <section class="tool-panel" id="panel-cronnext">
@@ -1054,7 +1054,7 @@ NOT_A_VALID_LINE</textarea>
         <div id="cronnext-result" class="result-box result-idle">Enter a cron expression and click "Show Next Runs".</div>
       </div>
     </div>
-  </section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="cron.html">Cron Explainer</a></li><li><a href="cronbuilder.html">Cron Builder</a></li><li><a href="timestamp.html">Unix Timestamp</a></li><li><a href="timezone.html">Timezone Converter</a></li></ul></div></section>
 
 </main>
 </div>
@@ -1066,6 +1066,6 @@ NOT_A_VALID_LINE</textarea>
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@18.0.11/lib/marked.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js"></script><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-<script src="../assets/app.js?v=6"></script>
+<script src="../assets/app.js?v=7"></script>
 </body>
 </html>
