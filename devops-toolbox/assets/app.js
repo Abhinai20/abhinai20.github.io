@@ -4,33 +4,64 @@
 // For users with JS, clicks are intercepted to switch instantly in-page
 // instead of reloading, and the URL bar is updated via pushState so the
 // address stays shareable/bookmarkable.
+//
+// IMPORTANT: relative hrefs must always be resolved against the page's
+// stable <link rel="canonical"> URL, NEVER against window.location. After
+// one pushState, window.location no longer matches the physically loaded
+// document (it's still the same DOM, just a spoofed address), so resolving
+// the *next* relative href against it drifts further with every click -
+// e.g. clicking several tools in a row from index.html would accumulate
+// "/tools/tools/tools/..." forever, since each click's relative "tools/x.html"
+// href got re-resolved against the previous click's already-fake location.
+// The canonical link never changes, so anchoring to it keeps every computed
+// URL correct no matter how many in-page switches happen first.
+const CANONICAL_BASE = (document.querySelector('link[rel="canonical"]') || {}).href || window.location.href;
+function activateTool(tool) {
+  const targetBtn = document.querySelector(`.tab-btn[data-tool="${tool}"]`);
+  const targetPanel = document.getElementById('panel-' + tool);
+  if (!targetBtn || !targetPanel) return false;
+  document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
+  document.querySelectorAll('.tool-panel').forEach((p) => p.classList.remove('active'));
+  targetBtn.classList.add('active');
+  targetPanel.classList.add('active');
+  return true;
+}
+// pushState/replaceState throw a SecurityError if given a URL whose origin
+// doesn't match the document's actual origin (e.g. testing on localhost
+// while the canonical tag hardcodes the production domain). Passing a
+// path-only string (no scheme/host) sidesteps this entirely - browsers
+// always resolve a path-only history URL against the current page's own
+// origin, so it's correct in production AND safe to test locally.
+function toSameOriginPath(href) {
+  const resolved = new URL(href, CANONICAL_BASE);
+  return resolved.pathname + resolved.search + resolved.hash;
+}
 (() => {
   const activeBtn = document.querySelector('.tab-btn.active');
-  if (activeBtn) history.replaceState({ tool: activeBtn.dataset.tool }, '', window.location.href);
+  if (activeBtn) history.replaceState({ tool: activeBtn.dataset.tool }, '', toSameOriginPath(window.location.href));
 })();
-document.querySelectorAll('.tab-btn').forEach((btn) => {
+document.querySelectorAll('.tab-btn, .related-tools a').forEach((btn) => {
   btn.addEventListener('click', (e) => {
-    e.preventDefault();
-    document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
-    document.querySelectorAll('.tool-panel').forEach((p) => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('panel-' + btn.dataset.tool).classList.add('active');
     const href = btn.getAttribute('href');
-    if (href && href !== window.location.pathname) {
-      history.pushState({ tool: btn.dataset.tool }, '', href);
+    const tool = btn.dataset.tool;
+    if (!href) return;
+    const targetPath = toSameOriginPath(href);
+    // .related-tools links don't carry data-tool; derive it from the filename.
+    const targetTool = tool
+      || (/(^|\/)index\.html$|^\.\.\/?$|\/$/i.test(href) ? 'yaml' : null)
+      || (href.match(/([a-z0-9]+)\.html$/i) || [])[1]
+      || null;
+    if (!targetTool || !activateTool(targetTool)) return; // no matching panel on this page (shouldn't happen) - let the real link navigate
+    e.preventDefault();
+    if (targetPath !== window.location.pathname + window.location.search + window.location.hash) {
+      history.pushState({ tool: targetTool }, '', targetPath);
     }
   });
 });
 window.addEventListener('popstate', (e) => {
   const tool = e.state && e.state.tool;
   if (!tool) return;
-  const targetBtn = document.querySelector(`.tab-btn[data-tool="${tool}"]`);
-  const targetPanel = document.getElementById('panel-' + tool);
-  if (!targetBtn || !targetPanel) return;
-  document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
-  document.querySelectorAll('.tool-panel').forEach((p) => p.classList.remove('active'));
-  targetBtn.classList.add('active');
-  targetPanel.classList.add('active');
+  activateTool(tool);
 });
 // (Categories default to open so every tool is always reachable in one
 // click; each can still be individually collapsed via its <summary> to
