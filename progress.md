@@ -202,6 +202,31 @@ All three sites (this one, abhinaibondada.blogspot.com, theclouddesk.blogspot.co
 
 **Real bug found and fixed in the process**: this site (`abhinai20.github.io`) had no `robots.txt` at the actual domain root — only inside `/devops-toolbox/`, which crawlers don't recognize (robots.txt must be at the true root). Not a blocker (missing robots.txt just means "crawl everything," not blocked), but added a proper root `robots.txt` anyway, pointing at the devops-toolbox sitemap.
 
+## AI Paraphraser replaced with Synonym Rephraser (2026-09-01)
+
+User reported the paraphraser was "one of the worst, not working properly" even after the earlier mode trim (15 → 5). Investigated with a real Playwright test against the live site (not mocked) instead of guessing:
+
+**Confirmed the real bug**: ran "standard" mode on the default demo sentence — input "Our team is currently investigating the **root** cause of the outage and will provide updates as soon as we have more information," output was identical except the word "root" was dropped. That's the entire rewrite, after a 260MB download and 90+ seconds of generation. Not a crash, just a tool that costs a lot and does almost nothing — matches the user's complaint exactly.
+
+**Root cause**: this was the structural ceiling of the approach, not a fixable prompt bug — a 248M-parameter on-device model genuinely cannot do much better than near-identity rewrites on already-clean input, and this had already been the story through 3+ rounds of fixes in this file (77M → 248M upgrade, prompt rewording, sampling removed, 15 → 5 modes). Every fix treated a symptom; the model itself was the limit.
+
+**User showed a QuillBot screenshot** of its synonym-slider feature (click a highlighted word → pick from a list of alternatives → swap in place) and asked to replicate that instead. This is a much better fit for a client-side-only tool than a neural rewrite:
+- Instant — no model download, no generation wait
+- Deterministic — real dictionary synonyms, never hallucinated or a near-no-op
+- Gives the user direct control instead of a black-box rewrite
+
+**Implementation** (`Abhinai20/abhinai20.github.io`, commit `1095181`):
+- Removed the entire `@xenova/transformers` pipeline, the 248M model, and all mode-prompt logic from `assets/app.js`.
+- New client-side tokenizer splits pasted text into words/non-words, marks content words (4+ letters, not a stopword) as clickable spans, renders them highlighted (`.syn-word` CSS).
+- Clicking a word calls **api.datamuse.com** (free, no key, CORS-enabled) with just that single word (`?rel_syn=word`) and shows a popup of alternatives (`.syn-popup`/`.syn-option`); picking one swaps the word in place, preserving capitalization.
+- **Privacy posture changed and disclosed**: the pasted text itself still never leaves the browser, but this is no longer a 100%-offline tool — the single clicked word is sent to Datamuse. Got explicit user sign-off before implementing (asked directly via AskUserQuestion) and updated the tool's on-page description, meta description, and JSON-LD to state this plainly rather than leaving the old "nothing is uploaded anywhere" claim in place.
+- Renamed the tool "AI Paraphraser" → **"Synonym Rephraser"** everywhere: nav label (46 pages + `resources.html`), `<title>`, meta/OG/Twitter tags, JSON-LD `name`/`description`, panel H1. Ran a Python script across all 46 tool pages + `index.html` (same pattern as every prior batch edit in this file) since the block was byte-identical across all of them; verified zero stale references afterward (`grep -rl "AI Paraphraser"` clean except two nav-only files fixed by hand — `resources.html` and `index.html` had a different relative href prefix than the shared block pattern expected).
+- Bumped cache-bust version to `?v=10` for both `style.css` and `app.js` across every page, per this project's own standing lesson about stale cached assets.
+- **Verified with a real (non-mocked) Playwright test against the local file**: "Find Synonyms" correctly identifies clickable words (10 found on the demo sentence), clicking a word fetches and shows real synonyms (e.g. "team" → "squad", "team up"), selecting one swaps it in place correctly, Copy button doesn't throw, zero console/page errors.
+- Tool count unchanged at 46 — this was a rewrite of an existing tool, not an addition/removal.
+
+**Standing lesson for this tool specifically**: don't try to fix output quality with more prompt engineering or a bigger model next time something like this comes up — a small on-device model has a real ceiling, and this file already shows 3+ rounds of chasing that ceiling. If a future request wants genuinely QuillBot-level *rewrite* quality (not just synonym swapping), the honest options are a much bigger model (probably too large for a free client-side download) or a real backend API call, which breaks this site's "no signup, nothing leaves your browser" identity and needs new infrastructure — surface that tradeoff explicitly rather than attempting another prompt-tweak round.
+
 ## How to resume
 
 Open a Claude Code session with working directory `C:\Users\Minfy\Documents\GitHubRootSite` and say "resume the DevOps Toolbox work" — this file has the context needed.
