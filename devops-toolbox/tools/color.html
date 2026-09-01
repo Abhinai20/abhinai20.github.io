@@ -36,7 +36,7 @@
   }
 }
 </script>
-<link rel="stylesheet" href="../assets/style.css?v=15">
+<link rel="stylesheet" href="../assets/style.css?v=17">
 </head>
 <body>
 
@@ -74,7 +74,6 @@
   <details class="nav-group" open>
     <summary class="nav-group-label">Terraform &amp; AWS</summary>
     <a class="tab-btn" data-tool="tf" href="tf.html">TF Plan Formatter</a>
-    <a class="tab-btn" data-tool="arn" href="arn.html">ARN Parser</a>
   </details>
 
   <details class="nav-group" open>
@@ -93,7 +92,6 @@
     <a class="tab-btn" data-tool="curl" href="curl.html">cURL → Code</a>
     <a class="tab-btn" data-tool="xml" href="xml.html">XML Formatter</a>
     <a class="tab-btn active" data-tool="color" href="color.html">Color Converter</a>
-    <a class="tab-btn" data-tool="tokenestimator" href="tokenestimator.html">Token Estimator</a>
     <a class="tab-btn" data-tool="mermaid" href="mermaid.html">Mermaid Diagram Preview</a>
     <a class="tab-btn" data-tool="restmock" href="restmock.html">REST Endpoint Mock Generator</a>
     <a class="tab-btn" data-tool="envparser" href="envparser.html">.env File Validator</a>
@@ -144,7 +142,7 @@
   <!-- SYNONYM REPHRASER -->
   <section class="tool-panel" id="panel-paraphraser">
     <div class="panel-header"><h1>AI Rephraser</h1><button class="clear-btn" data-clear="paraphraser">Clear</button></div>
-    <p class="tool-desc">Paste text and click "Rephrase" for an instant, fluent rewrite that fixes typos and grammar, like QuillBot. Click any word in the result to swap in an alternative or revert it. Unlike every other tool on this site, your full pasted text is sent off-device to rewrite it (via a small proxy, then Google’s Gemini API) — word-swap clicks afterward only ever send the single word clicked.</p>
+    <p class="tool-desc">Paste text and click "Rephrase" for an instant, fluent rewrite that fixes typos and grammar, then click any word in the result to swap in an alternative or revert it. Unlike every other tool on this site, your full pasted text is sent off-device to rewrite it (via a small proxy, then Google’s Gemini API) — word-swap clicks afterward only ever send the single word clicked.</p>
     <div class="mode-btn-row" id="paraphraser-modes" role="tablist">
       <button class="mode-btn active" data-mode="standard">Standard</button>
       <button class="mode-btn" data-mode="fluency">Fluency</button>
@@ -221,7 +219,7 @@ spec:
       <span class="legend-item"><span class="swatch swatch-change"></span> update in-place</span>
       <span class="legend-item"><span class="swatch swatch-replace"></span> replace (destroy + create)</span>
     </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="arn.html">ARN Parser</a></li></ul></div></section>
+  <div class="related-tools"><h2>Related tools</h2><ul></ul></div></section>
 
   <!-- CRON EXPLAINER -->
   <section class="tool-panel" id="panel-cron">
@@ -355,23 +353,6 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
     </div>
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="k8slint.html">K8s Manifest Analyzer</a></li><li><a href="k8squantity.html">K8s Quantity Converter</a></li><li><a href="resourcequota.html">K8s Resource Quota Calculator</a></li></ul></div></section>
 
-  <!-- ARN PARSER -->
-  <section class="tool-panel" id="panel-arn">
-    <div class="panel-header"><h1>AWS ARN Parser</h1><button class="clear-btn" data-clear="arn">Clear</button></div>
-    <p class="tool-desc">Paste an AWS ARN and break it down into its parts.</p>
-    <div class="tool-grid tool-grid-single">
-      <div class="io-col">
-        <label for="arn-input">ARN</label>
-        <input type="text" id="arn-input" spellcheck="false" placeholder="arn:aws:iam::123456789012:role/Admin" value="arn:aws:iam::123456789012:role/Admin">
-        <button id="arn-parse-btn" class="primary-btn">Parse</button>
-      </div>
-      <div class="io-col">
-        <label>Breakdown</label>
-        <div id="arn-result" class="result-box result-idle">Enter an ARN and click "Parse".</div>
-      </div>
-    </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="tf.html">TF Plan Formatter</a></li></ul></div></section>
-
   <!-- JWT DECODER -->
   <section class="tool-panel" id="panel-jwt">
     <div class="panel-header"><h1>JWT Decoder</h1><button class="clear-btn" data-clear="jwt">Clear</button></div>
@@ -408,7 +389,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <div id="regex-result" class="result-box result-idle">Enter a pattern and text, then click "Test".</div>
       </div>
     </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li><li><a href="color.html">Color Converter</a></li><li><a href="tokenestimator.html">Token Estimator</a></li></ul></div></section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li><li><a href="color.html">Color Converter</a></li></ul></div></section>
 
   <!-- BASE64 / URL ENCODE -->
   <section class="tool-panel" id="panel-base64">
@@ -522,7 +503,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <pre id="curl-result" class="result-box result-idle tf-output">Paste a curl command and click "Convert".</pre>
       </div>
     </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="xml.html">XML Formatter</a></li><li><a href="color.html">Color Converter</a></li><li><a href="tokenestimator.html">Token Estimator</a></li></ul></div></section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="xml.html">XML Formatter</a></li><li><a href="color.html">Color Converter</a></li></ul></div></section>
 
   <!-- CIDR CALCULATOR -->
   <section class="tool-panel" id="panel-cidr">
@@ -593,7 +574,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <pre id="xml-result" class="result-box result-idle tf-output">Paste XML and click "Format &amp; Validate".</pre>
       </div>
     </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="color.html">Color Converter</a></li><li><a href="tokenestimator.html">Token Estimator</a></li></ul></div></section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="color.html">Color Converter</a></li></ul></div></section>
 
   <!-- COLOR CONVERTER -->
   <section class="tool-panel active" id="panel-color">
@@ -610,7 +591,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <div id="color-result" class="result-box result-idle">Enter a color and click "Convert".</div>
       </div>
     </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li><li><a href="tokenestimator.html">Token Estimator</a></li></ul></div></section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li></ul></div></section>
 
   <!-- CIDR OVERLAP CHECKER -->
   <section class="tool-panel" id="panel-cidroverlap">
@@ -801,23 +782,6 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
       </div>
     </div>
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="jwt.html">JWT Decoder</a></li><li><a href="hash.html">Hash Generator</a></li><li><a href="base64.html">Base64 / URL Encode</a></li><li><a href="chmod.html">chmod Calculator</a></li></ul></div></section>
-  <!-- TOKEN ESTIMATOR -->
-  <section class="tool-panel" id="panel-tokenestimator">
-    <div class="panel-header"><h1>LLM Token Estimator</h1><button class="clear-btn" data-clear="tokenestimator">Clear</button></div>
-    <p class="tool-desc">Paste text (like a prompt) and get a rough estimate of how many LLM tokens it will consume. Heuristic only — not an exact tokenizer.</p>
-    <div class="tool-grid tool-grid-single">
-      <div class="io-col">
-        <label for="tokenestimator-input">Text</label>
-        <textarea id="tokenestimator-input" spellcheck="false" placeholder="Paste your prompt here"></textarea>
-        <button id="tokenestimator-estimate-btn" class="primary-btn">Estimate</button>
-      </div>
-      <div class="io-col">
-        <label>Estimate</label>
-        <div id="tokenestimator-result" class="result-box result-idle">Paste text and click "Estimate".</div>
-      </div>
-    </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li><li><a href="color.html">Color Converter</a></li></ul></div></section>
-
   <!-- CRON BUILDER -->
   <section class="tool-panel" id="panel-cronbuilder">
     <div class="panel-header"><h1>Cron Builder</h1><button class="clear-btn" data-clear="cronbuilder">Clear</button></div>
@@ -1170,6 +1134,6 @@ NOT_A_VALID_LINE</textarea>
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@18.0.11/lib/marked.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js"></script><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-<script src="../assets/app.js?v=15"></script>
+<script src="../assets/app.js?v=17"></script>
 </body>
 </html>

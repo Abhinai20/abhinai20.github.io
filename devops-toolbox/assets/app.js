@@ -515,46 +515,6 @@ document.getElementById('docker-lint-btn').addEventListener('click', () => {
   }
 });
 
-// ---------- ARN Parser ----------
-function parseArn(arn) {
-  const parts = arn.trim().split(':');
-  if (parts.length < 6 || parts[0] !== 'arn') {
-    throw new Error('Not a valid ARN. Expected format: arn:partition:service:region:account-id:resource');
-  }
-  const [, partition, service, region, account] = parts;
-  const resourcePart = parts.slice(5).join(':');
-  let resourceType = null, resource = resourcePart;
-  if (resourcePart.includes('/')) {
-    const idx = resourcePart.indexOf('/');
-    resourceType = resourcePart.slice(0, idx);
-    resource = resourcePart.slice(idx + 1);
-  } else if (resourcePart.includes(':')) {
-    const idx = resourcePart.indexOf(':');
-    resourceType = resourcePart.slice(0, idx);
-    resource = resourcePart.slice(idx + 1);
-  }
-  return { partition, service, region, account, resourceType, resource };
-}
-document.getElementById('arn-parse-btn').addEventListener('click', () => {
-  const resultEl = document.getElementById('arn-result');
-  try {
-    const r = parseArn(document.getElementById('arn-input').value);
-    const lines = [
-      `Partition:      ${r.partition}`,
-      `Service:        ${r.service}`,
-      `Region:         ${r.region || '(none - global service)'}`,
-      `Account ID:     ${r.account || '(none)'}`,
-      `Resource Type:  ${r.resourceType || '(none)'}`,
-      `Resource:       ${r.resource}`,
-    ];
-    resultEl.className = 'result-box result-success';
-    resultEl.textContent = lines.join('\n');
-  } catch (e) {
-    resultEl.className = 'result-box result-error';
-    resultEl.textContent = e.message;
-  }
-});
-
 // ---------- JWT Decoder ----------
 function base64UrlDecode(str) {
   str = str.replace(/-/g, '+').replace(/_/g, '/');
@@ -1472,31 +1432,6 @@ document.getElementById('secretscanner-scan-btn').addEventListener('click', () =
   }
 });
 
-
-// ---------- LLM Token Estimator ----------
-document.getElementById('tokenestimator-estimate-btn').addEventListener('click', () => {
-  const resultEl = document.getElementById('tokenestimator-result');
-  try {
-    const input = document.getElementById('tokenestimator-input').value;
-    if (!input.trim()) throw new Error('Paste some text first.');
-    const chars = input.length;
-    const words = input.trim().split(/\s+/).filter(Boolean).length;
-    const estByChars = Math.ceil(chars / 4);
-    const estByWords = Math.ceil(words * 1.3);
-    const estimate = Math.round((estByChars + estByWords) / 2);
-    resultEl.className = 'result-box result-success';
-    resultEl.textContent = [
-      `Characters: ${chars.toLocaleString('en-US')}`,
-      `Words:      ${words.toLocaleString('en-US')}`,
-      ``,
-      `Estimated tokens: ~${estimate.toLocaleString('en-US')}`,
-      `(This is a rough heuristic, not an exact tokenizer — real results vary by model and language.)`,
-    ].join('\n');
-  } catch (e) {
-    resultEl.className = 'result-box result-error';
-    resultEl.textContent = e.message;
-  }
-});
 
 // ---------- Cron Builder ----------
 document.getElementById('cronbuilder-build-btn').addEventListener('click', () => {

@@ -2,7 +2,6 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://abhinai20.github.io/devops-toolbox/</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/resources.html</loc><lastmod>2026-08-31</lastmod></url>
-  <url><loc>https://abhinai20.github.io/devops-toolbox/tools/arn.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/base64.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/bsonid.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/changelog.html</loc><lastmod>2026-08-31</lastmod></url>
@@ -42,7 +41,6 @@
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/timestamp.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/timezone.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/tlsdecoder.html</loc><lastmod>2026-08-31</lastmod></url>
-  <url><loc>https://abhinai20.github.io/devops-toolbox/tools/tokenestimator.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/urlanalyzer.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/uuid.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/xml.html</loc><lastmod>2026-08-31</lastmod></url>
