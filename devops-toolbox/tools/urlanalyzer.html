@@ -36,7 +36,7 @@
   }
 }
 </script>
-<link rel="stylesheet" href="../assets/style.css?v=14">
+<link rel="stylesheet" href="../assets/style.css?v=15">
 </head>
 <body>
 
@@ -115,6 +115,12 @@
     <a class="tab-btn" data-tool="cidroverlap" href="cidroverlap.html">CIDR Overlap Checker</a>
     <a class="tab-btn active" data-tool="urlanalyzer" href="urlanalyzer.html">URL Analyzer</a>
     <a class="tab-btn" data-tool="httpstatus" href="httpstatus.html">HTTP Status Explorer</a>
+  </details>
+
+  <details class="nav-group" open>
+    <summary class="nav-group-label">Shell &amp; Files</summary>
+    <a class="tab-btn" data-tool="findbuilder" href="findbuilder.html">find Command Builder</a>
+    <a class="tab-btn" data-tool="sedbuilder" href="sedbuilder.html">sed Command Builder</a>
   </details>
 
   <details class="nav-group" open>
@@ -1053,6 +1059,107 @@ NOT_A_VALID_LINE</textarea>
     </div>
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="cron.html">Cron Explainer</a></li><li><a href="cronbuilder.html">Cron Builder</a></li><li><a href="timestamp.html">Unix Timestamp</a></li><li><a href="timezone.html">Timezone Converter</a></li></ul></div></section>
 
+
+  <!-- FIND COMMAND BUILDER -->
+  <section class="tool-panel" id="panel-findbuilder">
+    <div class="panel-header"><h1>find Command Builder</h1><button class="clear-btn" data-clear="findbuilder">Clear</button></div>
+    <p class="tool-desc">Fill in the filters you need and get a correctly-formed <code>find</code> command — flag order and quoting are easy to get wrong from memory.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="findbuilder-path">Path to search</label>
+        <input type="text" id="findbuilder-path" spellcheck="false" placeholder="." value=".">
+        <label class="second-label" for="findbuilder-name">Name pattern (optional, glob)</label>
+        <input type="text" id="findbuilder-name" spellcheck="false" placeholder="*.log">
+        <label class="second-label"><input type="checkbox" id="findbuilder-iname"> Case-insensitive name match</label>
+        <label class="second-label" for="findbuilder-type">Type</label>
+        <select id="findbuilder-type">
+          <option value="">Any</option>
+          <option value="f">File</option>
+          <option value="d">Directory</option>
+          <option value="l">Symlink</option>
+        </select>
+        <label class="second-label" for="findbuilder-mtime">Modified time (days)</label>
+        <div class="btn-row">
+          <select id="findbuilder-mtime-op" style="max-width:110px;">
+            <option value="">(none)</option>
+            <option value="+">Older than</option>
+            <option value="-">Newer than</option>
+          </select>
+          <input type="text" id="findbuilder-mtime" spellcheck="false" placeholder="7">
+        </div>
+        <label class="second-label" for="findbuilder-size">Size</label>
+        <div class="btn-row">
+          <select id="findbuilder-size-op" style="max-width:110px;">
+            <option value="">(none)</option>
+            <option value="+">Larger than</option>
+            <option value="-">Smaller than</option>
+          </select>
+          <input type="text" id="findbuilder-size" spellcheck="false" placeholder="100">
+          <select id="findbuilder-size-unit" style="max-width:90px;">
+            <option value="c">bytes</option>
+            <option value="k" selected>KB</option>
+            <option value="M">MB</option>
+            <option value="G">GB</option>
+          </select>
+        </div>
+        <label class="second-label" for="findbuilder-perm">Permissions (octal, optional)</label>
+        <input type="text" id="findbuilder-perm" spellcheck="false" placeholder="644">
+        <label class="second-label" for="findbuilder-action">Action</label>
+        <select id="findbuilder-action">
+          <option value="print">Just list matches (default)</option>
+          <option value="delete">Delete matches</option>
+          <option value="exec">Run a command on each match</option>
+        </select>
+        <input type="text" id="findbuilder-execcmd" spellcheck="false" placeholder="chmod +x" style="display:none;margin-top:8px;">
+        <button id="findbuilder-build-btn" class="primary-btn">Build Command</button>
+      </div>
+      <div class="io-col">
+        <label>Command</label>
+        <pre id="findbuilder-result" class="result-box result-idle tf-output">Fill in the filters above and click "Build Command".</pre>
+      </div>
+    </div>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="sedbuilder.html">sed Command Builder</a></li><li><a href="chmod.html">chmod Calculator</a></li></ul></div></section>
+
+  <!-- SED COMMAND BUILDER -->
+  <section class="tool-panel" id="panel-sedbuilder">
+    <div class="panel-header"><h1>sed Command Builder</h1><button class="clear-btn" data-clear="sedbuilder">Clear</button></div>
+    <p class="tool-desc">Build a <code>sed</code> command for substituting, deleting, or printing lines — the delimiter/flag/escaping rules are easy to fumble typing from scratch.</p>
+    <div class="tool-grid tool-grid-single">
+      <div class="io-col">
+        <label for="sedbuilder-mode">Operation</label>
+        <select id="sedbuilder-mode">
+          <option value="substitute">Substitute (find and replace)</option>
+          <option value="delete">Delete matching lines</option>
+          <option value="print">Print only matching lines</option>
+        </select>
+        <div id="sedbuilder-sub-fields">
+          <label class="second-label" for="sedbuilder-pattern">Pattern to match</label>
+          <input type="text" id="sedbuilder-pattern" spellcheck="false" placeholder="foo">
+          <label class="second-label" for="sedbuilder-replacement">Replacement</label>
+          <input type="text" id="sedbuilder-replacement" spellcheck="false" placeholder="bar">
+          <label class="second-label"><input type="checkbox" id="sedbuilder-global" checked> Replace all occurrences per line (g)</label>
+          <label class="second-label"><input type="checkbox" id="sedbuilder-icase"> Case-insensitive (i)</label>
+        </div>
+        <div id="sedbuilder-range-fields" style="display:none;">
+          <label class="second-label" for="sedbuilder-dpattern">Pattern (or leave blank and use a line range below)</label>
+          <input type="text" id="sedbuilder-dpattern" spellcheck="false" placeholder="^#">
+          <label class="second-label" for="sedbuilder-range">Line range (optional, e.g. 2,5 — overrides pattern)</label>
+          <input type="text" id="sedbuilder-range" spellcheck="false" placeholder="2,5">
+        </div>
+        <label class="second-label"><input type="checkbox" id="sedbuilder-inplace"> Edit file in place (-i)</label>
+        <input type="text" id="sedbuilder-backup" spellcheck="false" placeholder="Backup suffix, e.g. .bak (optional)" style="display:none;margin-top:8px;">
+        <label class="second-label" for="sedbuilder-file">File (optional — omit to read from stdin)</label>
+        <input type="text" id="sedbuilder-file" spellcheck="false" placeholder="config.txt">
+        <button id="sedbuilder-build-btn" class="primary-btn">Build Command</button>
+      </div>
+      <div class="io-col">
+        <label>Command</label>
+        <pre id="sedbuilder-result" class="result-box result-idle tf-output">Fill in the fields above and click "Build Command".</pre>
+      </div>
+    </div>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="findbuilder.html">find Command Builder</a></li><li><a href="regex.html">Regex Tester</a></li></ul></div></section>
+
+
 </main>
 </div>
 
@@ -1063,6 +1170,6 @@ NOT_A_VALID_LINE</textarea>
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@18.0.11/lib/marked.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js"></script><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-<script src="../assets/app.js?v=14"></script>
+<script src="../assets/app.js?v=15"></script>
 </body>
 </html>

@@ -2179,3 +2179,106 @@ document.getElementById('paraphraser-result').addEventListener('click', async (e
 document.addEventListener('click', (e) => {
   if (synPopup && !synPopup.contains(e.target) && !e.target.closest('.syn-word')) synClosePopup();
 });
+
+// ---------- find Command Builder ----------
+function buildFindCommand(o) {
+  const parts = ['find', o.path || '.'];
+  if (o.maxdepth) parts.push('-maxdepth', o.maxdepth);
+  if (o.mindepth) parts.push('-mindepth', o.mindepth);
+  if (o.type) parts.push('-type', o.type);
+  if (o.name) parts.push(o.iname ? '-iname' : '-name', `'${o.name}'`);
+  if (o.mtimeOp && o.mtimeDays !== '') parts.push('-mtime', `${o.mtimeOp}${o.mtimeDays}`);
+  if (o.sizeOp && o.sizeNum !== '') parts.push('-size', `${o.sizeOp}${o.sizeNum}${o.sizeUnit || 'k'}`);
+  if (o.perm) parts.push('-perm', o.perm);
+  if (o.action === 'delete') parts.push('-delete');
+  else if (o.action === 'exec' && o.execCmd) parts.push('-exec', o.execCmd, '{}', '\\;');
+  return parts.join(' ');
+}
+document.getElementById('findbuilder-action').addEventListener('change', (e) => {
+  document.getElementById('findbuilder-execcmd').style.display = e.target.value === 'exec' ? '' : 'none';
+});
+document.getElementById('findbuilder-build-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('findbuilder-result');
+  const action = document.getElementById('findbuilder-action').value;
+  if (action === 'exec' && !document.getElementById('findbuilder-execcmd').value.trim()) {
+    resultEl.className = 'result-box result-error tf-output';
+    resultEl.textContent = 'Enter a command to run with -exec.';
+    return;
+  }
+  const cmd = buildFindCommand({
+    path: document.getElementById('findbuilder-path').value.trim(),
+    name: document.getElementById('findbuilder-name').value.trim(),
+    iname: document.getElementById('findbuilder-iname').checked,
+    type: document.getElementById('findbuilder-type').value,
+    mtimeOp: document.getElementById('findbuilder-mtime-op').value,
+    mtimeDays: document.getElementById('findbuilder-mtime').value.trim(),
+    sizeOp: document.getElementById('findbuilder-size-op').value,
+    sizeNum: document.getElementById('findbuilder-size').value.trim(),
+    sizeUnit: document.getElementById('findbuilder-size-unit').value,
+    perm: document.getElementById('findbuilder-perm').value.trim(),
+    action,
+    execCmd: document.getElementById('findbuilder-execcmd').value.trim(),
+  });
+  resultEl.className = 'result-box result-success tf-output';
+  resultEl.textContent = cmd;
+});
+
+// ---------- sed Command Builder ----------
+function buildSedCommand(o) {
+  let script;
+  if (o.mode === 'substitute') {
+    const delim = o.delimiter || '/';
+    const flags = (o.global ? 'g' : '') + (o.ignoreCase ? 'i' : '') + (o.printOnly ? 'p' : '');
+    script = `${o.range || ''}s${delim}${o.pattern}${delim}${o.replacement}${delim}${flags}`;
+  } else if (o.mode === 'delete') {
+    script = `${o.range || `/${o.pattern}/`}d`;
+  } else if (o.mode === 'print') {
+    script = `${o.range || `/${o.pattern}/`}p`;
+  }
+  const parts = ['sed'];
+  if (o.mode === 'print') parts.push('-n');
+  if (o.inPlace) parts.push(o.backupSuffix ? `-i${o.backupSuffix}` : '-i');
+  parts.push(`'${script}'`);
+  if (o.file) parts.push(o.file);
+  return parts.join(' ');
+}
+document.getElementById('sedbuilder-mode').addEventListener('change', (e) => {
+  const isSub = e.target.value === 'substitute';
+  document.getElementById('sedbuilder-sub-fields').style.display = isSub ? '' : 'none';
+  document.getElementById('sedbuilder-range-fields').style.display = isSub ? 'none' : '';
+});
+document.getElementById('sedbuilder-inplace').addEventListener('change', (e) => {
+  document.getElementById('sedbuilder-backup').style.display = e.target.checked ? '' : 'none';
+});
+document.getElementById('sedbuilder-build-btn').addEventListener('click', () => {
+  const resultEl = document.getElementById('sedbuilder-result');
+  const mode = document.getElementById('sedbuilder-mode').value;
+  const pattern = mode === 'substitute'
+    ? document.getElementById('sedbuilder-pattern').value.trim()
+    : document.getElementById('sedbuilder-dpattern').value.trim();
+  const range = mode === 'substitute' ? '' : document.getElementById('sedbuilder-range').value.trim();
+  if (mode === 'substitute' && !pattern) {
+    resultEl.className = 'result-box result-error tf-output';
+    resultEl.textContent = 'Enter a pattern to match.';
+    return;
+  }
+  if (mode !== 'substitute' && !pattern && !range) {
+    resultEl.className = 'result-box result-error tf-output';
+    resultEl.textContent = 'Enter a pattern or a line range.';
+    return;
+  }
+  const cmd = buildSedCommand({
+    mode,
+    pattern,
+    replacement: document.getElementById('sedbuilder-replacement').value,
+    global: document.getElementById('sedbuilder-global').checked,
+    ignoreCase: document.getElementById('sedbuilder-icase').checked,
+    range,
+    inPlace: document.getElementById('sedbuilder-inplace').checked,
+    backupSuffix: document.getElementById('sedbuilder-backup').value.trim(),
+    file: document.getElementById('sedbuilder-file').value.trim(),
+  });
+  resultEl.className = 'result-box result-success tf-output';
+  resultEl.textContent = cmd;
+});
+
