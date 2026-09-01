@@ -139,23 +139,13 @@
   <!-- AI PARAPHRASER -->
   <section class="tool-panel" id="panel-paraphraser">
     <div class="panel-header"><h1>AI Paraphraser</h1><button class="clear-btn" data-clear="paraphraser">Clear</button></div>
-    <p class="tool-desc">Rewrite text in a different tone or style — like QuillBot, but the model runs entirely on your device via WebAssembly. Nothing is uploaded anywhere. Opening this tool starts downloading a small AI model in the background (~260MB, one time only — cached in your browser after that, so later visits are instant). "Expand" and "Creative" modes can add generic-sounding phrasing that wasn't in your original text — always review the output before using it somewhere that needs to be strictly accurate (e.g. a timesheet or status report).</p>
+    <p class="tool-desc">Rewrite text in a different tone or style — like QuillBot, but the model runs entirely on your device via WebAssembly. Nothing is uploaded anywhere. Opening this tool starts downloading a small AI model in the background (~260MB, one time only — cached in your browser after that, so later visits are instant). 5 modes kept, each chosen because this small on-device model handles it reliably; broader tone/persona modes were removed after real-world testing showed inconsistent quality.</p>
     <div class="mode-btn-row" id="paraphraser-modes" role="tablist">
       <button class="mode-btn active" data-mode="standard">Standard</button>
       <button class="mode-btn" data-mode="fluency">Fluency</button>
       <button class="mode-btn" data-mode="formal">Formal</button>
-      <button class="mode-btn" data-mode="academic">Academic</button>
       <button class="mode-btn" data-mode="simple">Simple</button>
-      <button class="mode-btn" data-mode="creative">Creative</button>
-      <button class="mode-btn" data-mode="expand">Expand</button>
       <button class="mode-btn" data-mode="shorten">Shorten</button>
-      <button class="mode-btn" data-mode="diplomatic">Diplomatic</button>
-      <button class="mode-btn" data-mode="casual">Casual</button>
-      <button class="mode-btn" data-mode="confident">Confident</button>
-      <button class="mode-btn" data-mode="friendly">Friendly</button>
-      <button class="mode-btn" data-mode="persuasive">Persuasive</button>
-      <button class="mode-btn" data-mode="news">News</button>
-      <button class="mode-btn" data-mode="anonymize">Anonymize</button>
     </div>
     <div class="tool-grid">
       <div class="io-col">

@@ -1973,22 +1973,21 @@ function getParaphraserPipeline(onProgress) {
 // responding to a question about the text (meta-commentary, echoed labels)
 // instead of actually rewriting it — verified against the real model before
 // picking this phrasing.
+// TRIMMED 2026-09-01: cut from 15 modes to 5. The 248M model only reliably
+// handles mechanically well-defined rewrites (paraphrase, fluency, formality,
+// simplification, compression). Tone/persona modes (casual, confident,
+// friendly, persuasive, diplomatic, anonymize) and genre modes (news) ask a
+// model this small to convincingly perform a subjective style it can't
+// consistently deliver — output was frequently generic, off-target, or barely
+// different from the input. Creative and Expand were already flagged in the
+// tool's own description as adding unfaithful content. Kept only the modes
+// that produce a reliably correct, genuinely different rewrite.
 const PARAPHRASE_PROMPTS = {
   standard: (t) => `Paraphrase this sentence: ${t}`,
   fluency: (t) => `Rewrite this sentence to be more fluent: ${t}`,
   formal: (t) => `Paraphrase this sentence to sound more formal: ${t}`,
-  academic: (t) => `Rewrite this sentence in a formal academic style: ${t}`,
   simple: (t) => `Paraphrase this sentence in simple, plain English: ${t}`,
-  creative: (t) => `Paraphrase this sentence creatively: ${t}`,
-  expand: (t) => `Expand this sentence with more detail: ${t}`,
   shorten: (t) => `Shorten this sentence while keeping the meaning: ${t}`,
-  diplomatic: (t) => `Paraphrase this sentence diplomatically: ${t}`,
-  casual: (t) => `Paraphrase this sentence casually: ${t}`,
-  confident: (t) => `Paraphrase this sentence to sound more confident: ${t}`,
-  friendly: (t) => `Paraphrase this sentence in a friendly tone: ${t}`,
-  persuasive: (t) => `Paraphrase this sentence to sound more persuasive: ${t}`,
-  news: (t) => `Rewrite this sentence as a news headline: ${t}`,
-  anonymize: (t) => `Paraphrase this sentence to remove any distinctive personal writing style: ${t}`,
 };
 // Sampling (do_sample + high temperature) was tried for "creative"-leaning
 // modes to add variety, but caused casual/friendly/persuasive/confident to
