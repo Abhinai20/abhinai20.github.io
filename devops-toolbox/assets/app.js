@@ -1948,115 +1948,105 @@ document.getElementById('cronnext-calc-btn').addEventListener('click', () => {
   }
 });
 
-// ---------- AI Paraphraser ----------
-let paraphraserPipelinePromise = null;
-// Upgraded from the 77M variant after real-world testing showed it silently
-// dropped numbers/facts (e.g. dollar amounts, percentages) on longer or
-// multi-fact sentences in every mode. The 248M variant preserved every
-// number correctly across a stress test of 90 mode/sentence combinations
-// (vs. near-total failure on fact-heavy input with the 77M model) — bigger
-// download, but fidelity matters more than size for a paraphraser.
-const PARAPHRASER_MODEL = 'Xenova/LaMini-Flan-T5-248M';
-function getParaphraserPipeline(onProgress) {
-  if (!paraphraserPipelinePromise) {
-    paraphraserPipelinePromise = import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/transformers.min.js')
-      .then(({ pipeline, env }) => {
-        env.allowLocalModels = false;
-        return pipeline('text2text-generation', PARAPHRASER_MODEL, { progress_callback: onProgress });
-      });
-  }
-  return paraphraserPipelinePromise;
-}
-// NOTE: this small model reliably follows short, single-line "Paraphrase this
-// sentence ...: <text>" prompts. A multi-line "Rewrite the following text
-// ...:\n<text>" phrasing was tried first and made several modes answer as if
-// responding to a question about the text (meta-commentary, echoed labels)
-// instead of actually rewriting it — verified against the real model before
-// picking this phrasing.
-// TRIMMED 2026-09-01: cut from 15 modes to 5. The 248M model only reliably
-// handles mechanically well-defined rewrites (paraphrase, fluency, formality,
-// simplification, compression). Tone/persona modes (casual, confident,
-// friendly, persuasive, diplomatic, anonymize) and genre modes (news) ask a
-// model this small to convincingly perform a subjective style it can't
-// consistently deliver — output was frequently generic, off-target, or barely
-// different from the input. Creative and Expand were already flagged in the
-// tool's own description as adding unfaithful content. Kept only the modes
-// that produce a reliably correct, genuinely different rewrite.
-const PARAPHRASE_PROMPTS = {
-  standard: (t) => `Paraphrase this sentence: ${t}`,
-  fluency: (t) => `Rewrite this sentence to be more fluent: ${t}`,
-  formal: (t) => `Paraphrase this sentence to sound more formal: ${t}`,
-  simple: (t) => `Paraphrase this sentence in simple, plain English: ${t}`,
-  shorten: (t) => `Shorten this sentence while keeping the meaning: ${t}`,
-};
-// Sampling (do_sample + high temperature) was tried for "creative"-leaning
-// modes to add variety, but caused casual/friendly/persuasive/confident to
-// intermittently produce garbled or hallucinated output (verified: ~40-60%
-// failure rate on realistic inputs). Deterministic generation is reliable
-// across every mode on this small model, so all modes use it now — no
-// sampled modes.
-// Start downloading the model as soon as the tool is opened, not when the
-// user clicks "Paraphrase" - hides most of the ~260MB download behind the
-// time it takes to read the description and pick a mode/type input.
-document.querySelector('.tab-btn[data-tool="paraphraser"]').addEventListener('click', () => {
-  const statusEl = document.getElementById('paraphraser-status');
-  const seenFiles = {};
-  getParaphraserPipeline((progress) => {
-    if (progress.status === 'progress' && progress.file) {
-      seenFiles[progress.file] = progress.progress || 0;
-      const pct = Math.round(Object.values(seenFiles).reduce((a, b) => a + b, 0) / Object.keys(seenFiles).length);
-      statusEl.textContent = `Loading AI model… ${pct}% (one-time, then cached in your browser)`;
-    } else if (progress.status === 'ready') {
-      statusEl.textContent = '';
-    }
-  }).catch(() => { /* surfaced again if/when the user actually clicks Paraphrase */ });
-}, { once: true });
-document.querySelectorAll('#paraphraser-modes .mode-btn').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('#paraphraser-modes .mode-btn').forEach((b) => b.classList.remove('active'));
-    btn.classList.add('active');
+// ---------- Synonym Rephraser ----------
+// REPLACED 2026-09-01: the earlier approach (a 248M on-device neural model,
+// ~260MB download, 30-90s per generation) was tested in a real browser and
+// found to barely change its input at all - e.g. a full sentence came back
+// with just one word dropped. Replaced with an instant, deterministic,
+// click-a-word synonym swap (matching QuillBot's synonym-picker UX) backed
+// by the free api.datamuse.com lookup (no key, CORS-enabled). Only the
+// single word the user clicks is ever sent anywhere; the pasted text itself
+// never leaves the browser.
+const SYN_STOPWORDS = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'to', 'of', 'in', 'on', 'at', 'for', 'with',
+  'that', 'this', 'it', 'as', 'be', 'by', 'from', 'will', 'would', 'can', 'could', 'has', 'have', 'had', 'not',
+  'no', 'do', 'does', 'did', 'if', 'then', 'than', 'so', 'we', 'you', 'they', 'he', 'she', 'i', 'our', 'your',
+  'their', 'his', 'her', 'its', 'us', 'them', 'me', 'my', 'is', 'are', 'was', 'were', 'been', 'being', 'am',
+  'these', 'those', 'there', 'here', 'what', 'which', 'who', 'whom', 'when', 'where', 'why', 'how', 'all',
+  'each', 'more', 'most', 'other', 'some', 'such', 'only', 'own', 'same', 'too', 'very', 'just', 'also',
+  'over', 'under', 'again', 'once']);
+let synTokens = null; // array of { text, clickable }
+function synTokenize(text) {
+  return (text.match(/[A-Za-z']+|[^A-Za-z']+/g) || []).map((t) => {
+    const isWord = /^[A-Za-z']+$/.test(t);
+    return { text: t, clickable: isWord && t.length >= 4 && !SYN_STOPWORDS.has(t.toLowerCase()) };
   });
-});
-document.getElementById('paraphraser-run-btn').addEventListener('click', async () => {
+}
+function synRender() {
   const resultEl = document.getElementById('paraphraser-result');
-  const statusEl = document.getElementById('paraphraser-status');
-  const btn = document.getElementById('paraphraser-run-btn');
-  try {
-    const input = document.getElementById('paraphraser-input').value.trim();
-    if (!input) throw new Error('Paste some text first.');
-    const activeModeBtn = document.querySelector('#paraphraser-modes .mode-btn.active');
-    const mode = activeModeBtn ? activeModeBtn.dataset.mode : 'standard';
-    btn.disabled = true;
-    resultEl.className = 'result-box result-idle';
-    resultEl.textContent = 'Loading AI model…';
-    const seenFiles = {};
-    const paraphraser = await getParaphraserPipeline((progress) => {
-      if (progress.status === 'progress' && progress.file) {
-        seenFiles[progress.file] = progress.progress || 0;
-        const pct = Math.round(Object.values(seenFiles).reduce((a, b) => a + b, 0) / Object.keys(seenFiles).length);
-        statusEl.textContent = `Downloading AI model… ${pct}% (one-time, then cached in your browser)`;
-      } else if (progress.status === 'ready') {
-        statusEl.textContent = 'Model ready.';
-      }
-    });
-    statusEl.textContent = 'Generating…';
-    resultEl.textContent = 'Generating…';
-    const prompt = PARAPHRASE_PROMPTS[mode](input);
-    const output = await paraphraser(prompt, { max_new_tokens: 200, do_sample: false });
-    let text = output[0].generated_text.trim();
-    if (/^".*"$/.test(text)) text = text.slice(1, -1).trim();
-    // Occasionally the model echoes part of its instruction before the actual
-    // rewrite (e.g. "The following is a formal academic style: ..."). Strip a
-    // short leading preamble like that if one is present.
-    text = text.replace(/^(the following (is|are)|this (is|sentence)|report)\b[^:]{0,60}:\s*/i, '');
-    resultEl.className = 'result-box result-success';
-    resultEl.textContent = text || '(The model returned an empty result — try rephrasing or shortening the input.)';
-    statusEl.textContent = '';
-  } catch (e) {
-    resultEl.className = 'result-box result-error';
-    resultEl.textContent = 'Could not paraphrase: ' + (e.message || String(e));
-    statusEl.textContent = '';
-  } finally {
-    btn.disabled = false;
+  resultEl.innerHTML = '';
+  synTokens.forEach((tok, i) => {
+    if (tok.clickable) {
+      const span = document.createElement('span');
+      span.className = 'syn-word';
+      span.textContent = tok.text;
+      span.dataset.index = i;
+      resultEl.appendChild(span);
+    } else {
+      resultEl.appendChild(document.createTextNode(tok.text));
+    }
+  });
+}
+document.getElementById('paraphraser-run-btn').addEventListener('click', () => {
+  const input = document.getElementById('paraphraser-input').value;
+  const resultEl = document.getElementById('paraphraser-result');
+  if (!input.trim()) {
+    resultEl.className = 'result-box syn-result result-error';
+    resultEl.textContent = 'Paste some text first.';
+    return;
   }
+  synTokens = synTokenize(input);
+  resultEl.className = 'result-box syn-result result-success';
+  synRender();
+});
+document.getElementById('paraphraser-copy-btn').addEventListener('click', () => {
+  if (!synTokens) return;
+  navigator.clipboard.writeText(synTokens.map((t) => t.text).join('')).catch(() => {});
+});
+let synPopup = null;
+function synClosePopup() {
+  if (synPopup) { synPopup.remove(); synPopup = null; }
+}
+document.getElementById('paraphraser-result').addEventListener('click', async (e) => {
+  const span = e.target.closest('.syn-word');
+  synClosePopup();
+  if (!span) return;
+  const idx = Number(span.dataset.index);
+  const word = span.textContent;
+  const popup = document.createElement('div');
+  popup.className = 'syn-popup';
+  popup.textContent = 'Loading…';
+  document.body.appendChild(popup);
+  synPopup = popup;
+  const rect = span.getBoundingClientRect();
+  popup.style.left = (rect.left + window.scrollX) + 'px';
+  popup.style.top = (rect.bottom + window.scrollY + 4) + 'px';
+  try {
+    const resp = await fetch('https://api.datamuse.com/words?rel_syn=' + encodeURIComponent(word.toLowerCase()) + '&max=8');
+    const data = await resp.json();
+    if (popup !== synPopup) return; // a newer click superseded this one
+    popup.innerHTML = '';
+    if (!data.length) {
+      popup.textContent = 'No synonyms found for "' + word + '".';
+    } else {
+      data.forEach((d) => {
+        const opt = document.createElement('div');
+        opt.className = 'syn-option';
+        opt.textContent = d.word;
+        opt.addEventListener('click', () => {
+          const original = synTokens[idx].text;
+          let replacement = d.word;
+          if (original[0] === original[0].toUpperCase()) replacement = replacement[0].toUpperCase() + replacement.slice(1);
+          synTokens[idx].text = replacement;
+          synRender();
+          synClosePopup();
+        });
+        popup.appendChild(opt);
+      });
+    }
+  } catch (err) {
+    if (popup === synPopup) popup.textContent = 'Could not load synonyms — check your connection.';
+  }
+});
+document.addEventListener('click', (e) => {
+  if (synPopup && !synPopup.contains(e.target) && !e.target.closest('.syn-word')) synClosePopup();
 });
