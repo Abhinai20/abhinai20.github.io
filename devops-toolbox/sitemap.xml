@@ -2,23 +2,19 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://abhinai20.github.io/devops-toolbox/</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/resources.html</loc><lastmod>2026-08-31</lastmod></url>
-  <url><loc>https://abhinai20.github.io/devops-toolbox/tools/base64.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/bsonid.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/changelog.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/chmod.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/cidr.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/cidroverlap.html</loc><lastmod>2026-08-31</lastmod></url>
-  <url><loc>https://abhinai20.github.io/devops-toolbox/tools/color.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/commitvalidator.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/conventionalcommit.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/cron.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/cronbuilder.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/cronnext.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/curl.html</loc><lastmod>2026-08-31</lastmod></url>
-  <url><loc>https://abhinai20.github.io/devops-toolbox/tools/diff.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/dockerlint.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/envparser.html</loc><lastmod>2026-08-31</lastmod></url>
-  <url><loc>https://abhinai20.github.io/devops-toolbox/tools/hash.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/httpstatus.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/incidenttimeline.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/jsonfmt.html</loc><lastmod>2026-08-31</lastmod></url>

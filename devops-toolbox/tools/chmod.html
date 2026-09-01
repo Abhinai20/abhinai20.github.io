@@ -36,7 +36,7 @@
   }
 }
 </script>
-<link rel="stylesheet" href="../assets/style.css?v=17">
+<link rel="stylesheet" href="../assets/style.css?v=18">
 </head>
 <body>
 
@@ -56,7 +56,6 @@
     <a class="tab-btn" data-tool="yaml" href="../index.html">YAML Validator</a>
     <a class="tab-btn" data-tool="jsonyaml" href="jsonyaml.html">JSON ↔ YAML</a>
     <a class="tab-btn" data-tool="jsonfmt" href="jsonfmt.html">JSON Formatter</a>
-    <a class="tab-btn" data-tool="diff" href="diff.html">Diff Viewer</a>
     <a class="tab-btn" data-tool="md2word" href="md2word.html">Markdown → Word</a>
     <a class="tab-btn" data-tool="sqlfmt" href="sqlfmt.html">SQL Formatter</a>
     <a class="tab-btn" data-tool="xmljson" href="xmljson.html">XML ↔ JSON</a>
@@ -79,8 +78,6 @@
   <details class="nav-group" open>
     <summary class="nav-group-label">Security</summary>
     <a class="tab-btn" data-tool="jwt" href="jwt.html">JWT Decoder</a>
-    <a class="tab-btn" data-tool="hash" href="hash.html">Hash Generator</a>
-    <a class="tab-btn" data-tool="base64" href="base64.html">Base64 / URL Encode</a>
     <a class="tab-btn active" data-tool="chmod" href="chmod.html">chmod Calculator</a>
     <a class="tab-btn" data-tool="secretscanner" href="secretscanner.html">Secret Scanner</a>
     <a class="tab-btn" data-tool="tlsdecoder" href="tlsdecoder.html">TLS Certificate Decoder</a>
@@ -91,7 +88,6 @@
     <a class="tab-btn" data-tool="regex" href="regex.html">Regex Tester</a>
     <a class="tab-btn" data-tool="curl" href="curl.html">cURL → Code</a>
     <a class="tab-btn" data-tool="xml" href="xml.html">XML Formatter</a>
-    <a class="tab-btn" data-tool="color" href="color.html">Color Converter</a>
     <a class="tab-btn" data-tool="mermaid" href="mermaid.html">Mermaid Diagram Preview</a>
     <a class="tab-btn" data-tool="restmock" href="restmock.html">REST Endpoint Mock Generator</a>
     <a class="tab-btn" data-tool="envparser" href="envparser.html">.env File Validator</a>
@@ -187,7 +183,7 @@ spec:
         <div id="yaml-result" class="result-box result-idle">Paste YAML and click "Check YAML" to see the result here.</div>
       </div>
     </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="jsonfmt.html">JSON Formatter</a></li><li><a href="diff.html">Diff Viewer</a></li><li><a href="md2word.html">Markdown → Word</a></li></ul></div></section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="jsonfmt.html">JSON Formatter</a></li><li><a href="md2word.html">Markdown → Word</a></li></ul></div></section>
 
   <!-- TERRAFORM PLAN FORMATTER -->
   <section class="tool-panel" id="panel-tf">
@@ -265,7 +261,7 @@ a code block
         <div id="md-preview" class="result-box result-idle md-preview">Paste Markdown and click convert — a preview of the formatted result will appear here, and a .docx file will download automatically.</div>
       </div>
     </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="jsonfmt.html">JSON Formatter</a></li><li><a href="diff.html">Diff Viewer</a></li></ul></div></section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="jsonfmt.html">JSON Formatter</a></li></ul></div></section>
 
   <!-- JSON <-> YAML -->
   <section class="tool-panel" id="panel-jsonyaml">
@@ -285,7 +281,7 @@ a code block
         <pre id="jy-result" class="result-box result-idle tf-output">Paste JSON or YAML, then pick a direction.</pre>
       </div>
     </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="jsonfmt.html">JSON Formatter</a></li><li><a href="diff.html">Diff Viewer</a></li><li><a href="md2word.html">Markdown → Word</a></li></ul></div></section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="jsonfmt.html">JSON Formatter</a></li><li><a href="md2word.html">Markdown → Word</a></li></ul></div></section>
 
   <!-- JSON FORMATTER -->
   <section class="tool-panel" id="panel-jsonfmt">
@@ -306,7 +302,7 @@ a code block
         <pre id="jf-result" class="result-box result-idle tf-output">Paste JSON and pick an action.</pre>
       </div>
     </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="diff.html">Diff Viewer</a></li><li><a href="md2word.html">Markdown → Word</a></li></ul></div></section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="md2word.html">Markdown → Word</a></li></ul></div></section>
   <!-- KUBERNETES MANIFEST ANALYZER -->
   <section class="tool-panel" id="panel-k8slint">
     <div class="panel-header"><h1>Kubernetes Manifest Analyzer</h1><button class="clear-btn" data-clear="k8slint">Clear</button></div>
@@ -368,7 +364,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <pre id="jwt-result" class="result-box result-idle tf-output">Paste a JWT and click "Decode".</pre>
       </div>
     </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="hash.html">Hash Generator</a></li><li><a href="base64.html">Base64 / URL Encode</a></li><li><a href="chmod.html">chmod Calculator</a></li><li><a href="secretscanner.html">Secret Scanner</a></li></ul></div></section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="chmod.html">chmod Calculator</a></li><li><a href="secretscanner.html">Secret Scanner</a></li></ul></div></section>
 
   <!-- REGEX TESTER -->
   <section class="tool-panel" id="panel-regex">
@@ -389,67 +385,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <div id="regex-result" class="result-box result-idle">Enter a pattern and text, then click "Test".</div>
       </div>
     </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li><li><a href="color.html">Color Converter</a></li></ul></div></section>
-
-  <!-- BASE64 / URL ENCODE -->
-  <section class="tool-panel" id="panel-base64">
-    <div class="panel-header"><h1>Base64 / URL Encode &amp; Decode</h1><button class="clear-btn" data-clear="base64">Clear</button></div>
-    <p class="tool-desc">Encode or decode text using Base64 or URL encoding.</p>
-    <div class="tool-grid">
-      <div class="io-col">
-        <label for="b64-input">Input</label>
-        <textarea id="b64-input" spellcheck="false" placeholder="Paste text here"></textarea>
-        <div class="btn-row">
-          <button id="b64-encode-btn" class="primary-btn">Base64 Encode</button>
-          <button id="b64-decode-btn" class="secondary-btn">Base64 Decode</button>
-        </div>
-        <div class="btn-row">
-          <button id="url-encode-btn" class="primary-btn">URL Encode</button>
-          <button id="url-decode-btn" class="secondary-btn">URL Decode</button>
-        </div>
-      </div>
-      <div class="io-col">
-        <label>Output</label>
-        <pre id="b64-result" class="result-box result-idle tf-output">Paste text and pick an action.</pre>
-      </div>
-    </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="jwt.html">JWT Decoder</a></li><li><a href="hash.html">Hash Generator</a></li><li><a href="chmod.html">chmod Calculator</a></li><li><a href="secretscanner.html">Secret Scanner</a></li></ul></div></section>
-
-  <!-- HASH GENERATOR -->
-  <section class="tool-panel" id="panel-hash">
-    <div class="panel-header"><h1>Hash Generator</h1><button class="clear-btn" data-clear="hash">Clear</button></div>
-    <p class="tool-desc">Generate MD5, SHA-1, SHA-256, and SHA-512 hashes of any text.</p>
-    <div class="tool-grid tool-grid-single">
-      <div class="io-col">
-        <label for="hash-input">Text</label>
-        <textarea id="hash-input" spellcheck="false" placeholder="Paste text here"></textarea>
-        <button id="hash-generate-btn" class="primary-btn">Generate Hashes</button>
-      </div>
-      <div class="io-col">
-        <label>Hashes</label>
-        <pre id="hash-result" class="result-box result-idle tf-output">Paste text and click "Generate Hashes".</pre>
-      </div>
-    </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="jwt.html">JWT Decoder</a></li><li><a href="base64.html">Base64 / URL Encode</a></li><li><a href="chmod.html">chmod Calculator</a></li><li><a href="secretscanner.html">Secret Scanner</a></li></ul></div></section>
-
-  <!-- DIFF VIEWER -->
-  <section class="tool-panel" id="panel-diff">
-    <div class="panel-header"><h1>Diff Viewer</h1><button class="clear-btn" data-clear="diff">Clear</button></div>
-    <p class="tool-desc">Paste two blocks of text and see what changed, line by line.</p>
-    <div class="tool-grid">
-      <div class="io-col">
-        <label for="diff-old">Old</label>
-        <textarea id="diff-old" spellcheck="false" placeholder="Original text"></textarea>
-      </div>
-      <div class="io-col">
-        <label for="diff-new">New</label>
-        <textarea id="diff-new" spellcheck="false" placeholder="Changed text"></textarea>
-      </div>
-    </div>
-    <button id="diff-compare-btn" class="primary-btn" style="margin-top:12px;">Compare</button>
-    <label style="margin-top:16px;">Result</label>
-    <pre id="diff-result" class="result-box result-idle tf-output">Paste text in both boxes and click "Compare".</pre>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="jsonfmt.html">JSON Formatter</a></li><li><a href="md2word.html">Markdown → Word</a></li></ul></div></section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li></ul></div></section>
 
   <!-- UNIX TIMESTAMP -->
   <section class="tool-panel" id="panel-timestamp">
@@ -503,7 +439,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <pre id="curl-result" class="result-box result-idle tf-output">Paste a curl command and click "Convert".</pre>
       </div>
     </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="xml.html">XML Formatter</a></li><li><a href="color.html">Color Converter</a></li></ul></div></section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="xml.html">XML Formatter</a></li></ul></div></section>
 
   <!-- CIDR CALCULATOR -->
   <section class="tool-panel" id="panel-cidr">
@@ -557,7 +493,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
     </div>
     <label style="margin-top:16px;">Result</label>
     <div id="chmod-result" class="result-box result-idle">Use either field above.</div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="jwt.html">JWT Decoder</a></li><li><a href="hash.html">Hash Generator</a></li><li><a href="base64.html">Base64 / URL Encode</a></li><li><a href="secretscanner.html">Secret Scanner</a></li></ul></div></section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="jwt.html">JWT Decoder</a></li><li><a href="secretscanner.html">Secret Scanner</a></li></ul></div></section>
 
   <!-- XML FORMATTER -->
   <section class="tool-panel" id="panel-xml">
@@ -574,24 +510,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <pre id="xml-result" class="result-box result-idle tf-output">Paste XML and click "Format &amp; Validate".</pre>
       </div>
     </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="color.html">Color Converter</a></li></ul></div></section>
-
-  <!-- COLOR CONVERTER -->
-  <section class="tool-panel" id="panel-color">
-    <div class="panel-header"><h1>Color Converter</h1><button class="clear-btn" data-clear="color">Clear</button></div>
-    <p class="tool-desc">Paste a color in hex, rgb(), or hsl() format and get all three representations.</p>
-    <div class="tool-grid tool-grid-single">
-      <div class="io-col">
-        <label for="color-input">Color (hex, rgb, or hsl)</label>
-        <input type="text" id="color-input" spellcheck="false" placeholder="#3498db" value="#3498db">
-        <button id="color-convert-btn" class="primary-btn">Convert</button>
-      </div>
-      <div class="io-col">
-        <label>Result</label>
-        <div id="color-result" class="result-box result-idle">Enter a color and click "Convert".</div>
-      </div>
-    </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li></ul></div></section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li></ul></div></section>
 
   <!-- CIDR OVERLAP CHECKER -->
   <section class="tool-panel" id="panel-cidroverlap">
@@ -727,7 +646,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <pre id="sqlfmt-result" class="result-box result-idle tf-output">Paste SQL and click "Format".</pre>
       </div>
     </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="jsonfmt.html">JSON Formatter</a></li><li><a href="diff.html">Diff Viewer</a></li></ul></div></section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="jsonfmt.html">JSON Formatter</a></li></ul></div></section>
 
   <!-- XML <-> JSON -->
   <section class="tool-panel" id="panel-xmljson">
@@ -747,7 +666,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <pre id="xmljson-result" class="result-box result-idle tf-output">Paste XML or JSON and pick a direction.</pre>
       </div>
     </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="jsonfmt.html">JSON Formatter</a></li><li><a href="diff.html">Diff Viewer</a></li></ul></div></section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="jsonfmt.html">JSON Formatter</a></li></ul></div></section>
 
   <!-- JSON SCHEMA GENERATOR -->
   <section class="tool-panel" id="panel-jsonschema">
@@ -764,7 +683,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <pre id="jsonschema-result" class="result-box result-idle tf-output">Paste sample JSON and click "Generate Schema".</pre>
       </div>
     </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="jsonfmt.html">JSON Formatter</a></li><li><a href="diff.html">Diff Viewer</a></li></ul></div></section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="jsonfmt.html">JSON Formatter</a></li></ul></div></section>
 
   <!-- SECRET SCANNER -->
   <section class="tool-panel" id="panel-secretscanner">
@@ -781,7 +700,7 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <div id="secretscanner-result" class="result-box result-idle">Paste some text and click "Scan".</div>
       </div>
     </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="jwt.html">JWT Decoder</a></li><li><a href="hash.html">Hash Generator</a></li><li><a href="base64.html">Base64 / URL Encode</a></li><li><a href="chmod.html">chmod Calculator</a></li></ul></div></section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="jwt.html">JWT Decoder</a></li><li><a href="chmod.html">chmod Calculator</a></li></ul></div></section>
   <!-- CRON BUILDER -->
   <section class="tool-panel" id="panel-cronbuilder">
     <div class="panel-header"><h1>Cron Builder</h1><button class="clear-btn" data-clear="cronbuilder">Clear</button></div>
@@ -877,7 +796,7 @@ chore: update dependencies</textarea>
         <pre id="tlsdecoder-result" class="result-box result-idle tf-output">Paste a PEM certificate and click "Decode".</pre>
       </div>
     </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="jwt.html">JWT Decoder</a></li><li><a href="hash.html">Hash Generator</a></li><li><a href="base64.html">Base64 / URL Encode</a></li><li><a href="chmod.html">chmod Calculator</a></li></ul></div></section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="jwt.html">JWT Decoder</a></li><li><a href="chmod.html">chmod Calculator</a></li></ul></div></section>
 
   <!-- MERMAID DIAGRAM PREVIEW -->
   <section class="tool-panel" id="panel-mermaid">
@@ -900,7 +819,7 @@ chore: update dependencies</textarea>
         <div id="mermaid-result" class="result-box result-idle" style="overflow:auto;">Paste Mermaid syntax and click "Render".</div>
       </div>
     </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li><li><a href="color.html">Color Converter</a></li></ul></div></section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li></ul></div></section>
 
 
   <!-- INCIDENT TIMELINE BUILDER -->
@@ -963,7 +882,7 @@ chore: update dependencies</textarea>
         <pre id="restmock-result" class="result-box result-idle tf-output">Fill in the fields and click "Generate".</pre>
       </div>
     </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li><li><a href="color.html">Color Converter</a></li></ul></div></section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li></ul></div></section>
 
 
   <!-- .ENV FILE VALIDATOR -->
@@ -987,7 +906,7 @@ NOT_A_VALID_LINE</textarea>
         <div id="envparser-result" class="result-box result-idle">Paste a .env file and click "Validate".</div>
       </div>
     </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li><li><a href="color.html">Color Converter</a></li></ul></div></section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li></ul></div></section>
 
   <!-- NGINX CONFIG FORMATTER -->
   <section class="tool-panel" id="panel-nginxfmt">
@@ -1004,7 +923,7 @@ NOT_A_VALID_LINE</textarea>
         <pre id="nginxfmt-result" class="result-box result-idle tf-output">Paste an nginx config and click "Format".</pre>
       </div>
     </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li><li><a href="color.html">Color Converter</a></li></ul></div></section>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li></ul></div></section>
 
   <!-- CRON NEXT RUN CALCULATOR -->
   <section class="tool-panel" id="panel-cronnext">
@@ -1134,6 +1053,6 @@ NOT_A_VALID_LINE</textarea>
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@18.0.11/lib/marked.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js"></script><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-<script src="../assets/app.js?v=17"></script>
+<script src="../assets/app.js?v=18"></script>
 </body>
 </html>
