@@ -285,6 +285,18 @@ Deleted `arn.html`/`tokenestimator.html`, removed their `sitemap.xml` entries an
 
 **Open question from the user, not yet acted on**: asked to review the tool list once more for other "very bad" tools beyond ARN/Token Estimator, without naming which ones. Proposed next-round candidates by the same bar (Color Converter, Hash Generator, Base64/URL Encode, Diff Viewer — all have a simple single CLI-command equivalent, similar to the two already removed) but did not cut anything further without explicit confirmation, consistent with this project's established practice of confirming before a content cut. Ask before removing more if picking this up again.
 
+## Round 5 same day: second removal pass (2026-09-01, 42 tools)
+
+User confirmed all four proposed candidates from the open question above via `AskUserQuestion`. Removed **Color Converter, Hash Generator, Base64/URL Encode, Diff Viewer** — each had a genuinely simple single CLI-command equivalent (base64, md5sum/sha256sum, urlencode one-liners, diff), same weakness as ARN Parser/Token Estimator.
+
+**Used the safe method from the very start this time** — the per-file dynamic marker extraction + sanity-check approach documented after the previous round's near-catastrophic regex bug (block must be under ~35 lines, must contain its own panel id), and checked `git diff --stat` immediately after the panel-removal pass before doing anything further (81 lines/file for 46 files — exactly 4 panels + 4 nav lines, confirming no repeat of the earlier bug). No incidents this round.
+
+Removed cross-links from other tools' Related Tools lists, `resources.html` nav (remembered to include it explicitly this time), `sitemap.xml` entries, and ~200 lines of JS (including the hand-written MD5 implementation and LCS diff algorithm from earlier batches — both genuinely solid engineering, just for tools that didn't clear the bar). Verified zero leftover references and valid JS syntax. Deleted `color.html`/`hash.html`/`base64.html`/`diff.html`. Cache-bust bumped to `?v=18`.
+
+Full Playwright regression: nav no longer lists any of the four, tab count correct (42), five adjacent surviving tools (JWT, Regex, Timestamp, CIDR Overlap, Secret Scanner) all still work, zero real errors.
+
+**Tool count history this session, for reference**: 46 → 48 (added find/sed builders) → 46 (removed ARN/Token Estimator) → 42 (removed Color/Hash/Base64/Diff). Current: **42 tools**.
+
 ## How to resume
 
 Open a Claude Code session with working directory `C:\Users\Minfy\Documents\GitHubRootSite` and say "resume the DevOps Toolbox work" — this file has the context needed.
