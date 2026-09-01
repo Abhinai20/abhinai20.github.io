@@ -1991,11 +1991,21 @@ function synApplyCase(sourceWord, newWord) {
 // `rel_syn` (strict WordNet synonyms - high quality but very sparse; many
 // common words like "outage" or "currently" return few or zero results) and
 // `ml` (means-like - broader semantic-similarity match, much better
-// coverage, a bit noisier). Merging both, rel_syn first, fixes the "No
-// synonyms found" complaint on ordinary words while keeping the cleaner
-// rel_syn matches ranked first when they exist. Falls back to a spelling
-// correction (Datamuse's `sp=`) if even the merged lookup is empty, which
-// handles typos like "immedialtely" -> "immediately".
+// coverage, but includes plain co-occurring/associated words alongside real
+// synonyms, e.g. "team" -> "sled"/"archery"/"yoke" (a completely different,
+// unrelated sense of "team") mixed in with the genuinely correct "squad").
+// Datamuse's own `md=p` metadata tags real dictionary synonyms within `ml`
+// results as "syn" - real quality signal. Strategy: prefer rel_syn + ml's
+// syn-tagged results (real synonyms) always; only fall back to ml's
+// untagged (loosely-related) results when there are ZERO real synonyms at
+// all - a word like "team" only has 2 genuine synonyms (squad, team up),
+// and showing just those 2 is better than padding the list with unrelated
+// senses (sled, archery, yoke - literally a different word sense) just to
+// hit a higher count. Some ordinary words (e.g. "outage", "investigating")
+// have NO syn-tagged matches whatsoever and would otherwise show nothing,
+// which is the one case worth the noisier fallback.
+// Falls back to a spelling correction (Datamuse's `sp=`) if even the merged
+// lookup is empty, which handles typos like "immedialtely" -> "immediately".
 function dedupeWords(words, exclude) {
   const seen = new Set([exclude.toLowerCase()]);
   const out = [];
@@ -2008,10 +2018,16 @@ function dedupeWords(words, exclude) {
 async function fetchAlternatives(word) {
   const [synResp, mlResp] = await Promise.all([
     fetch('https://api.datamuse.com/words?rel_syn=' + encodeURIComponent(word) + '&max=8'),
-    fetch('https://api.datamuse.com/words?ml=' + encodeURIComponent(word) + '&max=8'),
+    fetch('https://api.datamuse.com/words?ml=' + encodeURIComponent(word) + '&md=p&max=10'),
   ]);
   const [synData, mlData] = await Promise.all([synResp.json(), mlResp.json()]);
-  return dedupeWords([...synData.map((d) => d.word), ...mlData.map((d) => d.word)], word).slice(0, 8);
+  const mlSynTagged = mlData.filter((d) => (d.tags || []).includes('syn')).map((d) => d.word);
+  const mlOther = mlData.filter((d) => !(d.tags || []).includes('syn')).map((d) => d.word);
+  let quality = dedupeWords([...synData.map((d) => d.word), ...mlSynTagged], word);
+  if (quality.length === 0) {
+    quality = dedupeWords([...quality, ...mlOther], word);
+  }
+  return quality.slice(0, 8);
 }
 async function synLookup(word) {
   const lower = word.toLowerCase();
@@ -2047,6 +2063,12 @@ function synRender() {
     }
   });
 }
+document.querySelectorAll('#paraphraser-modes .mode-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#paraphraser-modes .mode-btn').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
 document.getElementById('paraphraser-run-btn').addEventListener('click', async () => {
   const input = document.getElementById('paraphraser-input').value;
   const resultEl = document.getElementById('paraphraser-result');
@@ -2056,6 +2078,8 @@ document.getElementById('paraphraser-run-btn').addEventListener('click', async (
     resultEl.textContent = 'Paste some text first.';
     return;
   }
+  const activeModeBtn = document.querySelector('#paraphraser-modes .mode-btn.active');
+  const mode = activeModeBtn ? activeModeBtn.dataset.mode : 'standard';
   resultEl.className = 'result-box syn-result result-idle';
   resultEl.textContent = 'Rephrasing…';
   btn.disabled = true;
@@ -2064,7 +2088,7 @@ document.getElementById('paraphraser-run-btn').addEventListener('click', async (
     const resp = await fetch(REPHRASE_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: input }),
+      body: JSON.stringify({ text: input, mode }),
     });
     const data = await resp.json();
     if (!resp.ok || !data.rewritten) throw new Error(data.error || 'Rephrase failed.');

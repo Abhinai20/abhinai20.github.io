@@ -32,16 +32,30 @@ function jsonResponse(body, status = 200) {
   });
 }
 
-function buildPrompt(text) {
-  return `Rewrite the following text so it reads naturally and fluently, fixing any spelling or grammar mistakes, while keeping the original meaning and roughly the same length. Do not add new facts, opinions, or filler. Respond with ONLY the rewritten text - no quotes, no preamble, no explanation.
+// Mode-specific instructions layered onto the same base rewrite task.
+// "standard" is deliberately the least aggressive - the other modes lean
+// harder into their specific angle, since a user picking a named mode
+// wants to see it actually reflected in the output.
+const MODE_INSTRUCTIONS = {
+  standard: 'Rewrite it so it reads naturally and fluently.',
+  fluency: 'Rewrite it to flow smoothly and read naturally, smoothing over any awkward phrasing.',
+  formal: 'Rewrite it in a more formal, professional register - no contractions, no casual phrasing.',
+  diplomatic: 'Rewrite it more diplomatically and tactfully - soften any blunt, confrontational, or negative phrasing while keeping the actual meaning intact.',
+  simple: 'Rewrite it in simple, plain language - short sentences, common words, easy to read quickly.',
+  shorten: 'Rewrite it to be noticeably shorter while keeping every key point.',
+};
+
+function buildPrompt(text, mode) {
+  const instruction = MODE_INSTRUCTIONS[mode] || MODE_INSTRUCTIONS.standard;
+  return `Rewrite the following text. ${instruction} Fix any spelling or grammar mistakes. Keep the original meaning - do not add new facts, opinions, or filler${mode === 'shorten' ? '' : ', and keep roughly the same length'}. Respond with ONLY the rewritten text - no quotes, no preamble, no explanation.
 
 Text: ${text}`;
 }
 
-async function callGemini(apiKey, text) {
+async function callGemini(apiKey, text, mode) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
   const body = {
-    contents: [{ parts: [{ text: buildPrompt(text) }] }],
+    contents: [{ parts: [{ text: buildPrompt(text, mode) }] }],
     generationConfig: { temperature: 0.7, maxOutputTokens: 512 },
   };
   const resp = await fetch(url, {
@@ -85,9 +99,10 @@ export default {
     if (text.length > MAX_INPUT_CHARS) {
       return jsonResponse({ error: `Text too long — max ${MAX_INPUT_CHARS} characters.` }, 400);
     }
+    const mode = typeof payload.mode === 'string' && MODE_INSTRUCTIONS[payload.mode] ? payload.mode : 'standard';
 
     try {
-      const rewritten = await callGemini(env.GEMINI_API_KEY, text);
+      const rewritten = await callGemini(env.GEMINI_API_KEY, text, mode);
       return jsonResponse({ rewritten });
     } catch (err) {
       return jsonResponse({ error: 'Could not generate a rewrite. Please try again.' }, 502);

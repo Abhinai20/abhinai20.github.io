@@ -37,7 +37,7 @@
   }
 }
 </script>
-<link rel="stylesheet" href="assets/style.css?v=12">
+<link rel="stylesheet" href="assets/style.css?v=14">
 </head>
 <body>
 
@@ -49,7 +49,7 @@
   </div>
   <details class="nav-group" open>
     <summary class="nav-group-label">AI Writing</summary>
-    <a class="tab-btn" data-tool="paraphraser" href="tools/paraphraser.html">Synonym Rephraser</a>
+    <a class="tab-btn" data-tool="paraphraser" href="tools/paraphraser.html">AI Rephraser</a>
   </details>
 
   <details class="nav-group" open>
@@ -138,8 +138,16 @@
 
   <!-- SYNONYM REPHRASER -->
   <section class="tool-panel" id="panel-paraphraser">
-    <div class="panel-header"><h1>Synonym Rephraser</h1><button class="clear-btn" data-clear="paraphraser">Clear</button></div>
+    <div class="panel-header"><h1>AI Rephraser</h1><button class="clear-btn" data-clear="paraphraser">Clear</button></div>
     <p class="tool-desc">Paste text and click "Rephrase" for an instant, fluent rewrite that fixes typos and grammar, like QuillBot. Click any word in the result to swap in an alternative or revert it. Unlike every other tool on this site, your full pasted text is sent off-device to rewrite it (via a small proxy, then Google’s Gemini API) — word-swap clicks afterward only ever send the single word clicked.</p>
+    <div class="mode-btn-row" id="paraphraser-modes" role="tablist">
+      <button class="mode-btn active" data-mode="standard">Standard</button>
+      <button class="mode-btn" data-mode="fluency">Fluency</button>
+      <button class="mode-btn" data-mode="formal">Formal</button>
+      <button class="mode-btn" data-mode="diplomatic">Diplomatic</button>
+      <button class="mode-btn" data-mode="simple">Simple</button>
+      <button class="mode-btn" data-mode="shorten">Shorten</button>
+    </div>
     <div class="tool-grid">
       <div class="io-col">
         <label for="paraphraser-input">Your text</label>
@@ -147,9 +155,9 @@
         <button id="paraphraser-run-btn" class="primary-btn">Rephrase</button>
       </div>
       <div class="io-col">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <label style="margin:0;">Rephrased text (click a highlighted word to change it)</label>
-          <button id="paraphraser-copy-btn" class="secondary-btn" style="padding:4px 12px;font-size:0.8rem;">Copy text</button>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+          <label style="margin:0;">Rephrased text</label>
+          <button id="paraphraser-copy-btn" class="secondary-btn" style="padding:4px 12px;font-size:0.8rem;flex-shrink:0;">Copy text</button>
         </div>
         <div id="paraphraser-result" class="result-box syn-result result-idle">Click "Rephrase" for an instant fluent rewrite — every word in the result will be clickable for alternatives.</div>
       </div>
@@ -1056,6 +1064,6 @@ NOT_A_VALID_LINE</textarea>
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@18.0.11/lib/marked.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js"></script><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-<script src="assets/app.js?v=12"></script>
+<script src="assets/app.js?v=14"></script>
 </body>
 </html>
