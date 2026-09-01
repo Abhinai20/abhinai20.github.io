@@ -348,31 +348,6 @@ document.getElementById('jy-to-json-btn').addEventListener('click', () => {
   }
 });
 
-// ---------- JSON Formatter ----------
-function sortKeysDeep(obj) {
-  if (Array.isArray(obj)) return obj.map(sortKeysDeep);
-  if (obj && typeof obj === 'object') {
-    const sorted = {};
-    Object.keys(obj).sort().forEach((k) => { sorted[k] = sortKeysDeep(obj[k]); });
-    return sorted;
-  }
-  return obj;
-}
-function jsonFmtAction(fn) {
-  const resultEl = document.getElementById('jf-result');
-  try {
-    const data = JSON.parse(document.getElementById('jf-input').value);
-    resultEl.className = 'result-box result-success tf-output';
-    resultEl.textContent = fn(data);
-  } catch (e) {
-    resultEl.className = 'result-box result-error tf-output';
-    resultEl.textContent = 'Invalid JSON: ' + e.message;
-  }
-}
-document.getElementById('jf-pretty-btn').addEventListener('click', () => jsonFmtAction((d) => JSON.stringify(d, null, 2)));
-document.getElementById('jf-minify-btn').addEventListener('click', () => jsonFmtAction((d) => JSON.stringify(d)));
-document.getElementById('jf-sort-btn').addEventListener('click', () => jsonFmtAction((d) => JSON.stringify(sortKeysDeep(d), null, 2)));
-
 // ---------- Kubernetes Manifest Analyzer ----------
 function findContainers(obj, path, out) {
   if (!obj || typeof obj !== 'object') return;
