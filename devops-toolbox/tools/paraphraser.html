@@ -138,7 +138,7 @@
   <!-- SYNONYM REPHRASER -->
   <section class="tool-panel active" id="panel-paraphraser">
     <div class="panel-header"><h1>Synonym Rephraser</h1><button class="clear-btn" data-clear="paraphraser">Clear</button></div>
-    <p class="tool-desc">Paste text and click "Rephrase" — it immediately rephrases eligible words with a better alternative (and fixes obvious typos along the way), just like QuillBot. Click any highlighted word afterward to pick a different alternative or revert it. Your pasted text never leaves the browser; only the single word being looked up is sent (to the free api.datamuse.com lookup, no account or key).</p>
+    <p class="tool-desc">Paste text and click "Rephrase" for an instant, fluent rewrite that fixes typos and grammar, like QuillBot. Click any word in the result to swap in an alternative or revert it. Unlike every other tool on this site, your full pasted text is sent off-device to rewrite it (via a small proxy, then Google’s Gemini API) — word-swap clicks afterward only ever send the single word clicked.</p>
     <div class="tool-grid">
       <div class="io-col">
         <label for="paraphraser-input">Your text</label>
@@ -150,7 +150,7 @@
           <label style="margin:0;">Rephrased text (click a highlighted word to change it)</label>
           <button id="paraphraser-copy-btn" class="secondary-btn" style="padding:4px 12px;font-size:0.8rem;">Copy text</button>
         </div>
-        <div id="paraphraser-result" class="result-box syn-result result-idle">Click "Rephrase" to rephrase — changed words will be highlighted and clickable for other alternatives.</div>
+        <div id="paraphraser-result" class="result-box syn-result result-idle">Click "Rephrase" for an instant fluent rewrite — every word in the result will be clickable for alternatives.</div>
       </div>
     </div>
   </section>
