@@ -313,6 +313,20 @@ User asked for another review without naming a specific tool ("remove unwanted o
 
 Verified via Playwright (3 cards render, correct hrefs/headings, zero console errors) and a full-page screenshot reviewed before shipping — this file isn't part of the shared `devops-toolbox/assets/app.js` system, it's a standalone page, so no cache-bust version bump was needed here.
 
+## DevOps Toolbox visual redesign (2026-09-01)
+
+Same request as the landing page redesign, applied to the actual toolbox site — user asked to make it more attractive with better color/UI and some widgets. This one is much higher-risk: one `assets/style.css` drives all 42 pages, with lots of functional components (buttons, diff-color legends, mode pills, the AI Rephraser's synonym-swap UI) that all had to keep working.
+
+**Approach**: evolved the existing CSS custom-property token system rather than rewriting — same variable names throughout (`--bg`, `--accent`, `--border`, etc.), so zero HTML or JS structural changes were needed. Only risk was picking new color *values* that still read correctly everywhere they're used.
+
+**Palette**: promoted the existing (previously secondary) `--teal` token to primary accent (`#4fd1c5`) instead of the old flat dusty-blue, deliberately checked against the Terraform Plan Formatter's semantic diff colors (green/red/yellow/orange) side by side to confirm no hue collision — a real risk since "accent color" and "this line was changed" both being warm/cool similar tones would be a genuine usability bug, not just aesthetics. Complements rather than matches the landing page's warm amber (sibling properties, related but distinct identity). Added `--bg-glow` and `--accent-glow` tokens, and used the latter to replace two spots that had the *old* accent hardcoded as a raw `rgba()` value instead of a token (would have gone stale/mismatched otherwise).
+
+**Typography**: kept Inter + JetBrains Mono (already loaded via a `<link>` in all 42 pages' `<head>` — changing font families site-wide would have meant editing every single page just for a font link, not worth it) but pushed JetBrains Mono further into headings/logo/badges for a stronger technical identity, consistent with the landing page's mono-driven treatment.
+
+**Widget**: a small pulsing-dot "41 tools" badge under the sidebar tagline, matching the landing page's stat-badge language. Batch-inserted into all 42 pages (byte-identical block), verified 42/42 matched before writing — same safe verify-before-trust pattern used throughout this session's batch edits.
+
+**Verified before shipping**: Playwright + full screenshots on two different tool panels — YAML Validator (plain layout) and Terraform Plan Formatter specifically because it has the diff-color legend, to visually confirm the new accent doesn't get confused with the semantic create/destroy/update colors. Zero real errors, colors confirmed distinct and legible. Cache-bust bumped to `?v=20`.
+
 ## How to resume
 
 Open a Claude Code session with working directory `C:\Users\Minfy\Documents\GitHubRootSite` and say "resume the DevOps Toolbox work" — this file has the context needed.
