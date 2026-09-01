@@ -303,6 +303,16 @@ User asked for another review without naming a specific tool ("remove unwanted o
 
 **Separately answered a user question mid-task**: whether removing tools affects AdSense qualification or the site's ability to earn once traffic arrives. Answer: no impact — Auto ads is site-wide (not per-tool), so any surviving page with traffic serves ads regardless of which tools exist; if anything, cutting thin/low-value pages is mildly *positive* for the content-quality signal AdSense's review looks at. The only real gate to actual earnings is the still-pending site content review (see the "AdSense status check" section above), unrelated to any of today's tool changes.
 
+## Root landing page redesigned (2026-09-01)
+
+`index.html` at the repo root (the bare `abhinai20.github.io` domain) was badly stale — still described the original 4 tools from weeks ago instead of the current 41, and both blogs were buried as plain text links in the footer instead of real project cards. User asked to fix the content and then separately asked for a real visual upgrade ("attractive widgets", "change the color and UI").
+
+**Content**: rewrote the toolbox card's copy to reflect current reality, elevated both blogs (The Cloud Desk, abhinaibondada.blogspot.com) to full project cards matching the toolbox's treatment, updated the meta description.
+
+**Visual design**: gave the page a deliberate identity instead of the generic dark-navy-with-cyan-accent default — warm amber/copper terminal-glow palette (`--bg: #0d0f12`, `--accent: #f0a868`), explicitly chosen to avoid the generic AI-default look (purple gradients, acid-green-on-black). IBM Plex Mono (headings, labels, stat badges) paired with IBM Plex Sans (body) for a genuine engineer-terminal feel tied to the subject. Small deliberate touches: a blinking-cursor eyebrow (`~/abhinai20`), monospace file-path labels above each project card, a stat-badge row (41 tools / 2 blogs / 11+ years), considered hover states (lift + accent glow + arrow shift, not just a border-color swap), a GitHub icon in the footer instead of plain text. Committed to a single dark theme deliberately (a terminal aesthetic doesn't translate to light mode) rather than building both.
+
+Verified via Playwright (3 cards render, correct hrefs/headings, zero console errors) and a full-page screenshot reviewed before shipping — this file isn't part of the shared `devops-toolbox/assets/app.js` system, it's a standalone page, so no cache-bust version bump was needed here.
+
 ## How to resume
 
 Open a Claude Code session with working directory `C:\Users\Minfy\Documents\GitHubRootSite` and say "resume the DevOps Toolbox work" — this file has the context needed.
