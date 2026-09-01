@@ -327,6 +327,16 @@ Same request as the landing page redesign, applied to the actual toolbox site �
 
 **Verified before shipping**: Playwright + full screenshots on two different tool panels — YAML Validator (plain layout) and Terraform Plan Formatter specifically because it has the diff-color legend, to visually confirm the new accent doesn't get confused with the semantic create/destroy/update colors. Zero real errors, colors confirmed distinct and legible. Cache-bust bumped to `?v=20`.
 
+## Real bug: "Recommended Resources" 404'd after SPA navigation (2026-09-01)
+
+User hit a live 404 at `.../devops-toolbox/tools/resources.html`. Root cause: `.nav-static-link` (the Recommended Resources link, deliberately excluded from the SPA router's click interception since there's no matching tool panel for it) had a **relative** href. The router updates the address bar via `pushState` on every tab click without ever reloading the page — so after browsing a few tools in a row, the address bar shows a path deeper than where the physical document actually lives, and the browser resolves the static link's relative href against that faked address instead of reality.
+
+This is the same *class* of bug as the already-documented "URL drift" fix (`progress.md`, 2026-08-28 SEO section) — but that fix only covers links the router intercepts (`.tab-btn`, `.related-tools a`); `.nav-static-link` was never brought under it, precisely because it's supposed to bypass the router entirely.
+
+**Fixed** by making the href absolute (`/devops-toolbox/resources.html`) instead of relative — sidesteps address-bar drift entirely rather than extending the router to cover it, since a real full-page link doesn't need router logic at all.
+
+**Standing lesson, worth remembering**: this bug was **undetectable by every `file://`-based Playwright test run this whole session** (and there were 20+) — `file://` silently blocks `pushState`, so the address bar never actually drifts locally, meaning any bug that depends on real drifted browser state can only be caught by testing against the live HTTPS site. Worth doing a live-site pushState/navigation check occasionally, not just local file tests, for anything touching the SPA router.
+
 ## How to resume
 
 Open a Claude Code session with working directory `C:\Users\Minfy\Documents\GitHubRootSite` and say "resume the DevOps Toolbox work" — this file has the context needed.
