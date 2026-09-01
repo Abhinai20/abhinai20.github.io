@@ -6,49 +6,224 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8946983522733896"
      crossorigin="anonymous"></script>
 <title>Abhinai Bondada — DevOps Projects &amp; Free Tools</title>
-<meta name="description" content="Free browser-based DevOps tools and projects built by Abhinai Bondada, a DevOps engineer with 11+ years across Linux, AWS, and DevOps work.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230f172a'/><text y='.9em' x='50%25' text-anchor='middle' font-size='68' font-family='monospace' fill='%2338bdf8'>&gt;_</text></svg>">
+<meta name="description" content="41 free browser-based DevOps tools, plus real AWS/Kubernetes incident write-ups and honest tech reviews — built by Abhinai Bondada, a DevOps Lead with 11+ years in Linux, AWS, and Kubernetes.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230d0f12'/><text y='.9em' x='50%25' text-anchor='middle' font-size='68' font-family='monospace' fill='%23f0a868'>&gt;_</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0f172a; --panel: #16233a; --border: #2d3f5c;
-    --text: #e2e8f0; --muted: #94a3b8; --accent: #38bdf8; --accent-hover: #7dd3fc;
+    --bg: #0d0f12;
+    --bg-glow: radial-gradient(ellipse 900px 500px at 15% -10%, rgba(240,168,104,0.12), transparent 60%);
+    --panel: #15181d;
+    --panel-hover: #1b1f26;
+    --border: #262a32;
+    --border-hover: #f0a868;
+    --text: #eae7e1;
+    --muted: #8b8d94;
+    --muted-2: #5f636c;
+    --accent: #f0a868;
+    --accent-bright: #ffcb92;
+    --accent-glow: rgba(240, 168, 104, 0.16);
+    --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+    --font-body: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
   * { box-sizing: border-box; }
+  ::selection { background: var(--accent-glow); color: var(--accent-bright); }
   body {
-    margin: 0; background: var(--bg); color: var(--text);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    line-height: 1.6;
+    margin: 0;
+    background: var(--bg-glow), var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
   }
-  main { max-width: 720px; margin: 0 auto; padding: 60px 20px; }
-  h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
-  .subtitle { color: var(--muted); margin-top: 0; margin-bottom: 40px; }
+  main { max-width: 700px; margin: 0 auto; padding: 72px 24px 48px; }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .eyebrow .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 15px;
+    background: var(--accent);
+    animation: blink 1.1s steps(1) infinite;
+  }
+  @media (prefers-reduced-motion: reduce) { .eyebrow .cursor { animation: none; } }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  h1 {
+    font-family: var(--font-mono);
+    font-size: 2.1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0 0 10px;
+    text-wrap: balance;
+  }
+  .subtitle {
+    color: var(--muted);
+    margin: 0 0 28px;
+    max-width: 60ch;
+    font-size: 1.02rem;
+  }
+
+  .stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+  .stat {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--muted);
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 6px 12px;
+  }
+  .stat b { color: var(--accent); font-weight: 600; }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--muted-2);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin: 0 0 12px;
+    padding-top: 4px;
+  }
+
   .project-card {
-    display: block; background: var(--panel); border: 1px solid var(--border);
-    border-radius: 10px; padding: 22px; margin-bottom: 16px; text-decoration: none; color: var(--text);
-    transition: border-color 0.15s ease;
+    display: block;
+    position: relative;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 22px 24px;
+    margin-bottom: 14px;
+    text-decoration: none;
+    color: var(--text);
+    transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
   }
-  .project-card:hover { border-color: var(--accent); }
-  .project-card h2 { margin: 0 0 6px; font-size: 1.2rem; color: var(--accent); }
-  .project-card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
-  footer { margin-top: 40px; color: var(--muted); font-size: 0.85rem; }
-  footer a { color: var(--accent); }
+  .project-card:hover,
+  .project-card:focus-visible {
+    border-color: var(--border-hover);
+    background: var(--panel-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px -12px var(--accent-glow), 0 0 0 1px var(--accent-glow);
+  }
+  .project-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .card-path {
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    color: var(--muted-2);
+    margin-bottom: 8px;
+  }
+  .card-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .project-card h2 {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 1.08rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .project-card:hover h2,
+  .project-card:focus-visible h2 { color: var(--accent-bright); }
+  .card-arrow {
+    font-family: var(--font-mono);
+    color: var(--muted-2);
+    transition: transform 0.18s ease, color 0.18s ease;
+    flex-shrink: 0;
+  }
+  .project-card:hover .card-arrow,
+  .project-card:focus-visible .card-arrow { color: var(--accent); transform: translateX(3px); }
+  .project-card p { margin: 0; color: var(--muted); font-size: 0.94rem; max-width: 56ch; }
+
+  footer {
+    margin-top: 44px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted-2);
+    font-size: 0.85rem;
+    font-family: var(--font-mono);
+  }
+  footer a {
+    color: var(--muted);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.15s ease;
+  }
+  footer a:hover { color: var(--accent); }
+  footer svg { width: 15px; height: 15px; flex-shrink: 0; }
 </style>
 </head>
 <body>
 <main>
+  <p class="eyebrow">~/abhinai20<span class="cursor" aria-hidden="true"></span></p>
   <h1>Abhinai Bondada</h1>
-  <p class="subtitle">DevOps Lead, 11+ years across Linux, AWS, and DevOps. Free tools and projects, built from real practitioner work.</p>
+  <p class="subtitle">DevOps Lead, 11+ years across Linux, AWS, and Kubernetes. Everything below comes out of actual production work, not a content calendar.</p>
+
+  <div class="stats" role="list" aria-label="Quick stats">
+    <span class="stat" role="listitem"><b>41</b> free tools</span>
+    <span class="stat" role="listitem"><b>2</b> active blogs</span>
+    <span class="stat" role="listitem"><b>11+</b> years in production</span>
+  </div>
+
+  <p class="section-label">Projects</p>
 
   <a class="project-card" href="/devops-toolbox/">
-    <h2>DevOps Toolbox →</h2>
-    <p>Free browser-based tools: a YAML validator, a Terraform plan output formatter, a cron expression explainer, and a Markdown-to-Word converter. Nothing you paste ever leaves your browser.</p>
+    <p class="card-path">devops-toolbox/</p>
+    <div class="card-head">
+      <h2>DevOps Toolbox</h2>
+      <span class="card-arrow" aria-hidden="true">→</span>
+    </div>
+    <p>41 free tools for the parts of the job that eat your afternoon — Kubernetes manifest linting, JWT decoding, find/sed command builders, an AI rewrite assistant, and more. No signup, no upload, nothing you paste ever leaves your browser.</p>
+  </a>
+
+  <a class="project-card" href="https://theclouddesk.blogspot.com/">
+    <p class="card-path">theclouddesk.blogspot.com</p>
+    <div class="card-head">
+      <h2>The Cloud Desk</h2>
+      <span class="card-arrow" aria-hidden="true">→</span>
+    </div>
+    <p>Real AWS and Kubernetes incidents, written up properly — what broke, how it was actually diagnosed, and the fix. Root causes, not runbooks copy-pasted from the docs.</p>
+  </a>
+
+  <a class="project-card" href="https://abhinaibondada.blogspot.com/">
+    <p class="card-path">abhinaibondada.blogspot.com</p>
+    <div class="card-head">
+      <h2>AI &amp; Tech, Reviewed Honestly</h2>
+      <span class="card-arrow" aria-hidden="true">→</span>
+    </div>
+    <p>Honest reviews and comparisons across AI and emerging tech — written to actually help you decide, not padded out to hit a word count.</p>
   </a>
 
   <footer>
-    More projects at <a href="https://github.com/Abhinai20">github.com/Abhinai20</a>. Also writing at <a href="https://theclouddesk.blogspot.com/">The Cloud Desk</a> (AWS/Kubernetes/DevOps) and <a href="https://abhinaibondada.blogspot.com/">abhinaibondada.blogspot.com</a> (AI/tech).
+    <a href="https://github.com/Abhinai20">
+      <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+      github.com/Abhinai20
+    </a>
   </footer>
 </main>
 </body>
