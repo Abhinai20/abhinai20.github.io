@@ -1987,28 +1987,50 @@ function synTokenize(text) {
 function synApplyCase(sourceWord, newWord) {
   return sourceWord[0] === sourceWord[0].toUpperCase() ? newWord[0].toUpperCase() + newWord.slice(1) : newWord;
 }
-// Looks up synonyms for one word, correcting spelling first if the direct
-// lookup comes back empty (handles typos like "immedialtely" -> "immediately").
+// Looks up alternatives for one word. Combines two Datamuse relations:
+// `rel_syn` (strict WordNet synonyms - high quality but very sparse; many
+// common words like "outage" or "currently" return few or zero results) and
+// `ml` (means-like - broader semantic-similarity match, much better
+// coverage, a bit noisier). Merging both, rel_syn first, fixes the "No
+// synonyms found" complaint on ordinary words while keeping the cleaner
+// rel_syn matches ranked first when they exist. Falls back to a spelling
+// correction (Datamuse's `sp=`) if even the merged lookup is empty, which
+// handles typos like "immedialtely" -> "immediately".
+function dedupeWords(words, exclude) {
+  const seen = new Set([exclude.toLowerCase()]);
+  const out = [];
+  for (const w of words) {
+    const key = w.toLowerCase();
+    if (!seen.has(key)) { seen.add(key); out.push(w); }
+  }
+  return out;
+}
+async function fetchAlternatives(word) {
+  const [synResp, mlResp] = await Promise.all([
+    fetch('https://api.datamuse.com/words?rel_syn=' + encodeURIComponent(word) + '&max=8'),
+    fetch('https://api.datamuse.com/words?ml=' + encodeURIComponent(word) + '&max=8'),
+  ]);
+  const [synData, mlData] = await Promise.all([synResp.json(), mlResp.json()]);
+  return dedupeWords([...synData.map((d) => d.word), ...mlData.map((d) => d.word)], word).slice(0, 8);
+}
 async function synLookup(word) {
   const lower = word.toLowerCase();
-  let resp = await fetch('https://api.datamuse.com/words?rel_syn=' + encodeURIComponent(lower) + '&max=8');
-  let data = await resp.json();
+  let alternatives = await fetchAlternatives(lower);
   let corrected = null;
-  if (!data.length) {
+  if (!alternatives.length) {
     const spResp = await fetch('https://api.datamuse.com/words?sp=' + encodeURIComponent(lower) + '&max=1');
     const spData = await spResp.json();
     if (spData.length && spData[0].word !== lower) {
       corrected = spData[0].word;
-      resp = await fetch('https://api.datamuse.com/words?rel_syn=' + encodeURIComponent(corrected) + '&max=8');
-      data = await resp.json();
-      if (!data.length) {
-        // The corrected spelling itself has no listed synonyms - still worth
-        // offering as the one available "alternative" so the typo gets fixed.
-        data = [{ word: corrected }];
+      alternatives = await fetchAlternatives(corrected);
+      if (!alternatives.length) {
+        // The corrected spelling itself has no listed alternatives - still
+        // worth offering as the one available option so the typo gets fixed.
+        alternatives = [corrected];
       }
     }
   }
-  return { synonyms: data.map((d) => d.word), corrected };
+  return { synonyms: alternatives, corrected };
 }
 function synRender() {
   const resultEl = document.getElementById('paraphraser-result');
