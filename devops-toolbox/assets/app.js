@@ -1949,14 +1949,26 @@ document.getElementById('cronnext-calc-btn').addEventListener('click', () => {
 });
 
 // ---------- Synonym Rephraser ----------
-// REPLACED 2026-09-01: the earlier approach (a 248M on-device neural model,
-// ~260MB download, 30-90s per generation) was tested in a real browser and
-// found to barely change its input at all - e.g. a full sentence came back
-// with just one word dropped. Replaced with an instant, deterministic,
-// click-a-word synonym swap (matching QuillBot's synonym-picker UX) backed
-// by the free api.datamuse.com lookup (no key, CORS-enabled). Only the
-// single word the user clicks is ever sent anywhere; the pasted text itself
-// never leaves the browser.
+// REPLACED 2026-09-01, twice. First replacement (a 248M on-device neural
+// model) barely changed its input at all. Second replacement (auto-applying
+// raw Datamuse synonyms word-by-word, no grammar awareness) actually made
+// output WORSE - e.g. "it require" -> "it compel" (still wrong conjugation)
+// and "cant" (meant as "can't") -> "vernacular" (a real but unrelated sense
+// of the word "cant"). Word-for-word substitution structurally cannot
+// produce grammatical output; QuillBot doesn't do that either - it runs a
+// real generative rewrite model server-side, with per-word synonym swapping
+// as a secondary refinement layer on top of an already-fluent rewrite.
+// FINAL 2026-09-01: replicates that same two-layer architecture -
+// 1) "Rephrase" sends the full text to a small Cloudflare Worker
+//    (rephraser-worker/, source in this repo, secret key never in it) which
+//    calls Gemini server-side and returns one fluent, typo-corrected rewrite.
+// 2) The rewritten sentence is then tokenized exactly as before, and every
+//    eligible word stays clickable to swap in an alternative via the free
+//    api.datamuse.com lookup - unchanged from the previous version.
+// PRIVACY, meaningfully different from every other tool on this site: your
+// full pasted text is sent to the Worker and on to Gemini for step 1 (only
+// single words for step 2). Every other tool stays 100% client-side.
+const REPHRASE_ENDPOINT = 'https://devops-toolbox-rephraser.abhinaibondada.workers.dev';
 const SYN_STOPWORDS = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'to', 'of', 'in', 'on', 'at', 'for', 'with',
   'that', 'this', 'it', 'as', 'be', 'by', 'from', 'will', 'would', 'can', 'could', 'has', 'have', 'had', 'not',
   'no', 'do', 'does', 'did', 'if', 'then', 'than', 'so', 'we', 'you', 'they', 'he', 'she', 'i', 'our', 'your',
@@ -1964,12 +1976,39 @@ const SYN_STOPWORDS = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'to', 'of',
   'these', 'those', 'there', 'here', 'what', 'which', 'who', 'whom', 'when', 'where', 'why', 'how', 'all',
   'each', 'more', 'most', 'other', 'some', 'such', 'only', 'own', 'same', 'too', 'very', 'just', 'also',
   'over', 'under', 'again', 'once']);
-let synTokens = null; // array of { text, clickable }
+let synTokens = null; // array of { text, clickable, original, changed, alternatives }
 function synTokenize(text) {
   return (text.match(/[A-Za-z']+|[^A-Za-z']+/g) || []).map((t) => {
     const isWord = /^[A-Za-z']+$/.test(t);
-    return { text: t, clickable: isWord && t.length >= 4 && !SYN_STOPWORDS.has(t.toLowerCase()) };
+    const clickable = isWord && t.length >= 4 && !SYN_STOPWORDS.has(t.toLowerCase());
+    return { text: t, clickable, original: t, changed: false, alternatives: null };
   });
+}
+function synApplyCase(sourceWord, newWord) {
+  return sourceWord[0] === sourceWord[0].toUpperCase() ? newWord[0].toUpperCase() + newWord.slice(1) : newWord;
+}
+// Looks up synonyms for one word, correcting spelling first if the direct
+// lookup comes back empty (handles typos like "immedialtely" -> "immediately").
+async function synLookup(word) {
+  const lower = word.toLowerCase();
+  let resp = await fetch('https://api.datamuse.com/words?rel_syn=' + encodeURIComponent(lower) + '&max=8');
+  let data = await resp.json();
+  let corrected = null;
+  if (!data.length) {
+    const spResp = await fetch('https://api.datamuse.com/words?sp=' + encodeURIComponent(lower) + '&max=1');
+    const spData = await spResp.json();
+    if (spData.length && spData[0].word !== lower) {
+      corrected = spData[0].word;
+      resp = await fetch('https://api.datamuse.com/words?rel_syn=' + encodeURIComponent(corrected) + '&max=8');
+      data = await resp.json();
+      if (!data.length) {
+        // The corrected spelling itself has no listed synonyms - still worth
+        // offering as the one available "alternative" so the typo gets fixed.
+        data = [{ word: corrected }];
+      }
+    }
+  }
+  return { synonyms: data.map((d) => d.word), corrected };
 }
 function synRender() {
   const resultEl = document.getElementById('paraphraser-result');
@@ -1977,7 +2016,7 @@ function synRender() {
   synTokens.forEach((tok, i) => {
     if (tok.clickable) {
       const span = document.createElement('span');
-      span.className = 'syn-word';
+      span.className = tok.changed ? 'syn-word syn-changed' : 'syn-word';
       span.textContent = tok.text;
       span.dataset.index = i;
       resultEl.appendChild(span);
@@ -1986,17 +2025,38 @@ function synRender() {
     }
   });
 }
-document.getElementById('paraphraser-run-btn').addEventListener('click', () => {
+document.getElementById('paraphraser-run-btn').addEventListener('click', async () => {
   const input = document.getElementById('paraphraser-input').value;
   const resultEl = document.getElementById('paraphraser-result');
+  const btn = document.getElementById('paraphraser-run-btn');
   if (!input.trim()) {
     resultEl.className = 'result-box syn-result result-error';
     resultEl.textContent = 'Paste some text first.';
     return;
   }
-  synTokens = synTokenize(input);
+  resultEl.className = 'result-box syn-result result-idle';
+  resultEl.textContent = 'Rephrasing…';
+  btn.disabled = true;
+  let rewritten;
+  try {
+    const resp = await fetch(REPHRASE_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: input }),
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.rewritten) throw new Error(data.error || 'Rephrase failed.');
+    rewritten = data.rewritten;
+  } catch (err) {
+    resultEl.className = 'result-box syn-result result-error';
+    resultEl.textContent = 'Could not rephrase — ' + (err.message || 'check your connection and try again.');
+    btn.disabled = false;
+    return;
+  }
+  synTokens = synTokenize(rewritten);
   resultEl.className = 'result-box syn-result result-success';
   synRender();
+  btn.disabled = false;
 });
 document.getElementById('paraphraser-copy-btn').addEventListener('click', () => {
   if (!synTokens) return;
@@ -2011,40 +2071,63 @@ document.getElementById('paraphraser-result').addEventListener('click', async (e
   synClosePopup();
   if (!span) return;
   const idx = Number(span.dataset.index);
-  const word = span.textContent;
+  const tok = synTokens[idx];
   const popup = document.createElement('div');
   popup.className = 'syn-popup';
-  popup.textContent = 'Loading…';
   document.body.appendChild(popup);
   synPopup = popup;
   const rect = span.getBoundingClientRect();
   popup.style.left = (rect.left + window.scrollX) + 'px';
   popup.style.top = (rect.bottom + window.scrollY + 4) + 'px';
-  try {
-    const resp = await fetch('https://api.datamuse.com/words?rel_syn=' + encodeURIComponent(word.toLowerCase()) + '&max=8');
-    const data = await resp.json();
-    if (popup !== synPopup) return; // a newer click superseded this one
+
+  function renderOptions() {
     popup.innerHTML = '';
-    if (!data.length) {
-      popup.textContent = 'No synonyms found for "' + word + '".';
+    if (tok.changed) {
+      const revert = document.createElement('div');
+      revert.className = 'syn-option syn-revert';
+      revert.textContent = 'Revert to "' + tok.original + '"';
+      revert.addEventListener('click', () => {
+        tok.text = tok.original;
+        tok.changed = false;
+        synRender();
+        synClosePopup();
+      });
+      popup.appendChild(revert);
+    }
+    const alts = (tok.alternatives || []).filter((w) => w.toLowerCase() !== tok.text.toLowerCase());
+    if (!alts.length) {
+      const none = document.createElement('div');
+      none.className = 'syn-popup-empty';
+      none.textContent = tok.alternatives ? 'No other synonyms found.' : 'No synonyms found for "' + tok.original + '".';
+      popup.appendChild(none);
     } else {
-      data.forEach((d) => {
+      alts.forEach((word) => {
         const opt = document.createElement('div');
         opt.className = 'syn-option';
-        opt.textContent = d.word;
+        opt.textContent = word;
         opt.addEventListener('click', () => {
-          const original = synTokens[idx].text;
-          let replacement = d.word;
-          if (original[0] === original[0].toUpperCase()) replacement = replacement[0].toUpperCase() + replacement.slice(1);
-          synTokens[idx].text = replacement;
+          tok.text = synApplyCase(tok.original, word);
+          tok.changed = tok.text.toLowerCase() !== tok.original.toLowerCase();
           synRender();
           synClosePopup();
         });
         popup.appendChild(opt);
       });
     }
-  } catch (err) {
-    if (popup === synPopup) popup.textContent = 'Could not load synonyms — check your connection.';
+  }
+
+  if (tok.alternatives !== null) {
+    renderOptions();
+  } else {
+    popup.textContent = 'Loading…';
+    try {
+      const { synonyms } = await synLookup(tok.original);
+      if (popup !== synPopup) return; // a newer click superseded this one
+      tok.alternatives = synonyms;
+      renderOptions();
+    } catch (err) {
+      if (popup === synPopup) popup.textContent = 'Could not load synonyms — check your connection.';
+    }
   }
 });
 document.addEventListener('click', (e) => {
