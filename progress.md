@@ -295,7 +295,13 @@ Removed cross-links from other tools' Related Tools lists, `resources.html` nav 
 
 Full Playwright regression: nav no longer lists any of the four, tab count correct (42), five adjacent surviving tools (JWT, Regex, Timestamp, CIDR Overlap, Secret Scanner) all still work, zero real errors.
 
-**Tool count history this session, for reference**: 46 → 48 (added find/sed builders) → 46 (removed ARN/Token Estimator) → 42 (removed Color/Hash/Base64/Diff). Current: **42 tools**.
+**Tool count history this session, for reference**: 46 → 48 (added find/sed builders) → 46 (removed ARN/Token Estimator) → 42 (removed Color/Hash/Base64/Diff) → 41 (removed JSON Formatter, see below). Current: **41 tools**.
+
+## Round 6 same day: third removal pass, one more tool (2026-09-01, 41 tools)
+
+User asked for another review without naming a specific tool ("remove unwanted ones if you feel it"). Re-reviewed all 42 with fresh eyes against the same bar. Most held up (the cron trio, CIDR/URL/HTTP group, and commit-message trio were all re-confirmed as genuinely distinct, not redundant). One clear candidate remained: **JSON Formatter** — `jq .`/`jq -c`/`jq -S` cover pretty-print/minify/sort-keys in one command, and `jq` is close to universally pre-installed specifically for this DevOps/Kubernetes audience, a stronger single-command case than anything else left. Removed it using the same safe method (verified 21 lines/file removed, matching one panel + one nav line, before proceeding further). Full regression: 4 adjacent JSON-family tools (JSON↔YAML, K8s Manifest Analyzer, XML↔JSON, JSON Schema Generator) all still work, zero errors.
+
+**Separately answered a user question mid-task**: whether removing tools affects AdSense qualification or the site's ability to earn once traffic arrives. Answer: no impact — Auto ads is site-wide (not per-tool), so any surviving page with traffic serves ads regardless of which tools exist; if anything, cutting thin/low-value pages is mildly *positive* for the content-quality signal AdSense's review looks at. The only real gate to actual earnings is the still-pending site content review (see the "AdSense status check" section above), unrelated to any of today's tool changes.
 
 ## How to resume
 
