@@ -36,7 +36,7 @@
   }
 }
 </script>
-<link rel="stylesheet" href="../assets/style.css?v=21">
+<link rel="stylesheet" href="../assets/style.css?v=22">
 </head>
 <body>
 
@@ -45,7 +45,7 @@
   <div class="nav-brand">
     <a href="../index.html" class="logo">DevOps<span>Toolbox</span></a>
     <p class="tagline">Free tools that run entirely in your browser — nothing you paste is ever sent anywhere.</p>
-    <span class="nav-badge"><span class="dot"></span><b>41</b>&nbsp;tools</span>
+    <span class="nav-badge"><span class="dot"></span><b>34</b>&nbsp;tools</span>
   </div>
   <details class="nav-group" open>
     <summary class="nav-group-label">AI Writing</summary>
@@ -117,16 +117,6 @@
     <a class="tab-btn active" data-tool="sedbuilder" href="sedbuilder.html">sed Command Builder</a>
   </details>
 
-  <details class="nav-group" open>
-    <summary class="nav-group-label">Git &amp; IDs</summary>
-    <a class="tab-btn" data-tool="uuid" href="uuid.html">UUID Inspector</a>
-    <a class="tab-btn" data-tool="snowflake" href="snowflake.html">Snowflake ID Decoder</a>
-    <a class="tab-btn" data-tool="conventionalcommit" href="conventionalcommit.html">Conventional Commit</a>
-    <a class="tab-btn" data-tool="commitvalidator" href="commitvalidator.html">Commit Message Validator</a>
-    <a class="tab-btn" data-tool="changelog" href="changelog.html">Changelog Generator</a>
-    <a class="tab-btn" data-tool="bsonid" href="bsonid.html">BSON/ObjectId Decoder</a>
-    <a class="tab-btn" data-tool="incidenttimeline" href="incidenttimeline.html">Incident Timeline Builder</a>
-  </details>
   <div class="nav-group">
     <span class="nav-group-label">More</span>
     <a href="/devops-toolbox/resources.html" class="nav-static-link">Recommended Resources</a>
@@ -547,70 +537,6 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
     </div>
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="cidr.html">CIDR Calculator</a></li><li><a href="cidroverlap.html">CIDR Overlap Checker</a></li><li><a href="urlanalyzer.html">URL Analyzer</a></li></ul></div></section>
 
-  <!-- UUID INSPECTOR -->
-  <section class="tool-panel" id="panel-uuid">
-    <div class="panel-header"><h1>UUID Inspector</h1><button class="clear-btn" data-clear="uuid">Clear</button></div>
-    <p class="tool-desc">Paste a UUID and see its version, variant, and (for v1/v7) the embedded timestamp.</p>
-    <div class="tool-grid tool-grid-single">
-      <div class="io-col">
-        <label for="uuid-input">UUID</label>
-        <input type="text" id="uuid-input" spellcheck="false" placeholder="017f22e2-79b0-7cc3-98c4-dc0c0c07398f" value="017f22e2-79b0-7cc3-98c4-dc0c0c07398f">
-        <button id="uuid-inspect-btn" class="primary-btn">Inspect</button>
-      </div>
-      <div class="io-col">
-        <label>Result</label>
-        <div id="uuid-result" class="result-box result-idle">Enter a UUID and click "Inspect".</div>
-      </div>
-    </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="snowflake.html">Snowflake ID Decoder</a></li><li><a href="conventionalcommit.html">Conventional Commit</a></li><li><a href="commitvalidator.html">Commit Message Validator</a></li><li><a href="changelog.html">Changelog Generator</a></li></ul></div></section>
-
-  <!-- SNOWFLAKE ID DECODER -->
-  <section class="tool-panel" id="panel-snowflake">
-    <div class="panel-header"><h1>Snowflake ID Decoder</h1><button class="clear-btn" data-clear="snowflake">Clear</button></div>
-    <p class="tool-desc">Decode a Discord or Twitter/X snowflake ID to extract its embedded timestamp.</p>
-    <div class="tool-grid tool-grid-single">
-      <div class="io-col">
-        <label for="snowflake-input">Snowflake ID</label>
-        <input type="text" id="snowflake-input" spellcheck="false" placeholder="175928847299117063" value="175928847299117063">
-        <label class="second-label">Platform</label>
-        <select id="snowflake-platform">
-          <option value="discord">Discord (epoch 2015-01-01)</option>
-          <option value="twitter">Twitter/X (epoch 2010-11-04)</option>
-        </select>
-        <button id="snowflake-decode-btn" class="primary-btn">Decode</button>
-      </div>
-      <div class="io-col">
-        <label>Result</label>
-        <div id="snowflake-result" class="result-box result-idle">Enter a snowflake ID and click "Decode".</div>
-      </div>
-    </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="uuid.html">UUID Inspector</a></li><li><a href="conventionalcommit.html">Conventional Commit</a></li><li><a href="commitvalidator.html">Commit Message Validator</a></li><li><a href="changelog.html">Changelog Generator</a></li></ul></div></section>
-  <!-- CONVENTIONAL COMMIT GENERATOR -->
-  <section class="tool-panel" id="panel-conventionalcommit">
-    <div class="panel-header"><h1>Conventional Commit Generator</h1><button class="clear-btn" data-clear="conventionalcommit">Clear</button></div>
-    <p class="tool-desc">Fill in the parts and get a properly formatted <a href="https://www.conventionalcommits.org/" target="_blank" rel="nofollow">Conventional Commit</a> message.</p>
-    <div class="tool-grid tool-grid-single">
-      <div class="io-col">
-        <label for="cc-type">Type</label>
-        <select id="cc-type">
-          <option>feat</option><option>fix</option><option>docs</option><option>style</option>
-          <option>refactor</option><option>perf</option><option>test</option><option>chore</option>
-        </select>
-        <label class="second-label">Scope (optional)</label>
-        <input type="text" id="cc-scope" spellcheck="false" placeholder="auth">
-        <label class="second-label">Description</label>
-        <input type="text" id="cc-description" spellcheck="false" placeholder="add login API">
-        <label class="second-label"><input type="checkbox" id="cc-breaking"> Breaking change</label>
-        <button id="cc-generate-btn" class="primary-btn">Generate</button>
-      </div>
-      <div class="io-col">
-        <label>Commit message</label>
-        <div id="cc-result" class="result-box result-idle">Fill in the fields and click "Generate".</div>
-      </div>
-    </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="uuid.html">UUID Inspector</a></li><li><a href="snowflake.html">Snowflake ID Decoder</a></li><li><a href="commitvalidator.html">Commit Message Validator</a></li><li><a href="changelog.html">Changelog Generator</a></li></ul></div></section>
-
-
   <!-- SQL FORMATTER -->
   <section class="tool-panel" id="panel-sqlfmt">
     <div class="panel-header"><h1>SQL Formatter</h1><button class="clear-btn" data-clear="sqlfmt">Clear</button></div>
@@ -706,61 +632,6 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
     </div>
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="cron.html">Cron Explainer</a></li><li><a href="timestamp.html">Unix Timestamp</a></li><li><a href="timezone.html">Timezone Converter</a></li><li><a href="cronnext.html">Cron Next Run Calculator</a></li></ul></div></section>
 
-  <!-- COMMIT MESSAGE VALIDATOR -->
-  <section class="tool-panel" id="panel-commitvalidator">
-    <div class="panel-header"><h1>Commit Message Validator</h1><button class="clear-btn" data-clear="commitvalidator">Clear</button></div>
-    <p class="tool-desc">Paste a commit message and check it against the <a href="https://www.conventionalcommits.org/" target="_blank" rel="nofollow">Conventional Commits</a> format.</p>
-    <div class="tool-grid tool-grid-single">
-      <div class="io-col">
-        <label for="commitvalidator-input">Commit message</label>
-        <textarea id="commitvalidator-input" spellcheck="false" placeholder="feat(auth): add login endpoint">feat(auth): add login endpoint</textarea>
-        <button id="commitvalidator-check-btn" class="primary-btn">Validate</button>
-      </div>
-      <div class="io-col">
-        <label>Result</label>
-        <div id="commitvalidator-result" class="result-box result-idle">Paste a commit message and click "Validate".</div>
-      </div>
-    </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="uuid.html">UUID Inspector</a></li><li><a href="snowflake.html">Snowflake ID Decoder</a></li><li><a href="conventionalcommit.html">Conventional Commit</a></li><li><a href="changelog.html">Changelog Generator</a></li></ul></div></section>
-
-  <!-- CHANGELOG GENERATOR -->
-  <section class="tool-panel" id="panel-changelog">
-    <div class="panel-header"><h1>Changelog Generator</h1><button class="clear-btn" data-clear="changelog">Clear</button></div>
-    <p class="tool-desc">Paste a list of Conventional Commit messages (one per line, e.g. from <code>git log --oneline</code>) and get a grouped Markdown changelog.</p>
-    <div class="tool-grid">
-      <div class="io-col">
-        <label for="changelog-input">Commit messages (one per line)</label>
-        <textarea id="changelog-input" spellcheck="false" placeholder="feat(auth): add login endpoint
-fix(api): handle null response
-chore: update dependencies">feat(auth): add login endpoint
-fix(api): handle null response
-docs: update README
-chore: update dependencies</textarea>
-        <button id="changelog-generate-btn" class="primary-btn">Generate Changelog</button>
-      </div>
-      <div class="io-col">
-        <label>Changelog (Markdown)</label>
-        <pre id="changelog-result" class="result-box result-idle tf-output">Paste commit messages and click "Generate Changelog".</pre>
-      </div>
-    </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="uuid.html">UUID Inspector</a></li><li><a href="snowflake.html">Snowflake ID Decoder</a></li><li><a href="conventionalcommit.html">Conventional Commit</a></li><li><a href="commitvalidator.html">Commit Message Validator</a></li></ul></div></section>
-
-  <!-- BSON/OBJECTID DECODER -->
-  <section class="tool-panel" id="panel-bsonid">
-    <div class="panel-header"><h1>BSON/ObjectId Decoder</h1><button class="clear-btn" data-clear="bsonid">Clear</button></div>
-    <p class="tool-desc">Decode a MongoDB ObjectId (24 hex characters) to extract its embedded creation timestamp.</p>
-    <div class="tool-grid tool-grid-single">
-      <div class="io-col">
-        <label for="bsonid-input">ObjectId</label>
-        <input type="text" id="bsonid-input" spellcheck="false" placeholder="507f1f77bcf86cd799439011" value="507f1f77bcf86cd799439011">
-        <button id="bsonid-decode-btn" class="primary-btn">Decode</button>
-      </div>
-      <div class="io-col">
-        <label>Result</label>
-        <div id="bsonid-result" class="result-box result-idle">Enter an ObjectId and click "Decode".</div>
-      </div>
-    </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="uuid.html">UUID Inspector</a></li><li><a href="snowflake.html">Snowflake ID Decoder</a></li><li><a href="conventionalcommit.html">Conventional Commit</a></li><li><a href="commitvalidator.html">Commit Message Validator</a></li></ul></div></section>
   <!-- TLS CERTIFICATE DECODER -->
   <section class="tool-panel" id="panel-tlsdecoder">
     <div class="panel-header"><h1>TLS Certificate Decoder</h1><button class="clear-btn" data-clear="tlsdecoder">Clear</button></div>
@@ -800,28 +671,7 @@ chore: update dependencies</textarea>
       </div>
     </div>
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li></ul></div></section>
-
-
-  <!-- INCIDENT TIMELINE BUILDER -->
-  <section class="tool-panel" id="panel-incidenttimeline">
-    <div class="panel-header"><h1>Incident Timeline Builder</h1><button class="clear-btn" data-clear="incidenttimeline">Clear</button></div>
-    <p class="tool-desc">Paste timestamped events (one per line, ISO timestamp or HH:MM:SS first) and get them sorted chronologically with time deltas between each — handy for post-incident writeups.</p>
-    <div class="tool-grid">
-      <div class="io-col">
-        <label for="incidenttimeline-input">Events</label>
-        <textarea id="incidenttimeline-input" spellcheck="false" placeholder="2026-08-28T10:05:00Z: alert fired
-2026-08-28T10:00:00Z: deploy started
-2026-08-28T10:07:30Z: rollback complete">2026-08-28T10:05:00Z: alert fired
-2026-08-28T10:00:00Z: deploy started
-2026-08-28T10:07:30Z: rollback complete</textarea>
-        <button id="incidenttimeline-build-btn" class="primary-btn">Build Timeline</button>
-      </div>
-      <div class="io-col">
-        <label>Timeline</label>
-        <pre id="incidenttimeline-result" class="result-box result-idle tf-output">Paste timestamped events and click "Build Timeline".</pre>
-      </div>
-    </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="uuid.html">UUID Inspector</a></li><li><a href="snowflake.html">Snowflake ID Decoder</a></li><li><a href="conventionalcommit.html">Conventional Commit</a></li><li><a href="commitvalidator.html">Commit Message Validator</a></li></ul></div></section>  <!-- K8S RESOURCE QUOTA CALCULATOR -->
+  <!-- K8S RESOURCE QUOTA CALCULATOR -->
   <section class="tool-panel" id="panel-resourcequota">
     <div class="panel-header"><h1>Kubernetes Resource Quota Calculator</h1><button class="clear-btn" data-clear="resourcequota">Clear</button></div>
     <p class="tool-desc">Paste CPU or memory quantities (one per line, e.g. from each container's <code>resources.requests</code>) and get the total.</p>
@@ -1033,6 +883,6 @@ NOT_A_VALID_LINE</textarea>
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@18.0.11/lib/marked.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js"></script><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-<script src="../assets/app.js?v=21"></script>
+<script src="../assets/app.js?v=22"></script>
 </body>
 </html>

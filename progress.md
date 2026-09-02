@@ -337,6 +337,25 @@ This is the same *class* of bug as the already-documented "URL drift" fix (`prog
 
 **Standing lesson, worth remembering**: this bug was **undetectable by every `file://`-based Playwright test run this whole session** (and there were 20+) — `file://` silently blocks `pushState`, so the address bar never actually drifts locally, meaning any bug that depends on real drifted browser state can only be caught by testing against the live HTTPS site. Worth doing a live-site pushState/navigation check occasionally, not just local file tests, for anything touching the SPA router.
 
+## Round 7: "Git & IDs" category removed entirely (2026-09-02, 41 → 34 tools)
+
+User explicitly asked to remove the whole "Git & IDs" nav category, judging its 7 tools not good enough. Removed: UUID Inspector, Snowflake ID Decoder, Conventional Commit Generator, Commit Message Validator, Changelog Generator, BSON/ObjectId Decoder, Incident Timeline Builder.
+
+Removed across all 42 pages (`index.html` + `tools/*.html` + `resources.html`), using the established safe per-file marker-extraction method (never a DOTALL regex spanning comments), with a sanity check (block size + own panel id) before each deletion, and a `git diff --stat` check after each stage:
+
+1. The `<details class="nav-group">…Git &amp; IDs…</details>` wrapper (7 `<a class="tab-btn">` entries) — removed from all 42 pages, 421 deletions, ~10 lines/file, consistent.
+2. The 7 tool `<section class="tool-panel">` blocks from every page. 6 of 7 removed cleanly via marker-pair extraction. The 7th (Incident Timeline Builder) failed the sanity check because its closing `</section>` was concatenated on the same line as the *next* tool's opening comment (`...</section>  <!-- K8S RESOURCE QUOTA CALCULATOR -->`) — the "next standalone comment line" heuristic skipped past it. Fixed with a targeted substring-based removal (find start marker → find nearest `</section>` → verify `panel-incidenttimeline` appears in between → splice), then cleaned up a leftover blank-line/indent artifact from the splice.
+3. Cross-link check: no other surviving tool's "Related tools" list linked to any of the 7 (confirmed via repo-wide grep) — no cross-link cleanup needed.
+4. Deleted the 7 standalone files (`tools/uuid.html`, `snowflake.html`, `conventionalcommit.html`, `commitvalidator.html`, `changelog.html`, `bsonid.html`, `incidenttimeline.html`).
+5. Removed the 7 corresponding `<url>` entries from `sitemap.xml`.
+6. Removed the 7 corresponding JS logic blocks from `assets/app.js` (marker-pair extraction again; one sanity-check false alarm — Conventional Commit's block uses `cc-` element IDs, not the string "conventionalcommit", so the hint substring needed adjusting, not the deletion range). Verified `node -c app.js` still parses.
+7. Bumped cache-bust `?v=21` → `?v=22` across all pages (35 files referenced it).
+8. Updated the "41 tools" badge/counts to "34" everywhere: both `devops-toolbox` nav badges (all 42 pages), and the root landing page's stat, meta description, and body copy.
+
+**Verified** via Playwright against the local file build: nav no longer mentions "Git & IDs" or any of the 7 removed tools, badge reads 34, and two tools that were physically adjacent to removed panels in the source (SQL Formatter, K8s Resource Quota Calculator) still activate correctly on click — confirming the splice didn't corrupt neighboring panels. (One unrelated `pushState` console error is the known `file://`-protocol limitation, not a regression — see the 2026-09-01 "Recommended Resources 404" entry above.)
+
+Net diff: 45 files changed, 141 insertions(+), 12723 deletions(-), 7 files deleted. Not yet committed/pushed as of writing this entry — see immediate next step below.
+
 ## How to resume
 
 Open a Claude Code session with working directory `C:\Users\Minfy\Documents\GitHubRootSite` and say "resume the DevOps Toolbox work" — this file has the context needed.

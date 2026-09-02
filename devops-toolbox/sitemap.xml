@@ -2,13 +2,9 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://abhinai20.github.io/devops-toolbox/</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/resources.html</loc><lastmod>2026-08-31</lastmod></url>
-  <url><loc>https://abhinai20.github.io/devops-toolbox/tools/bsonid.html</loc><lastmod>2026-08-31</lastmod></url>
-  <url><loc>https://abhinai20.github.io/devops-toolbox/tools/changelog.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/chmod.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/cidr.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/cidroverlap.html</loc><lastmod>2026-08-31</lastmod></url>
-  <url><loc>https://abhinai20.github.io/devops-toolbox/tools/commitvalidator.html</loc><lastmod>2026-08-31</lastmod></url>
-  <url><loc>https://abhinai20.github.io/devops-toolbox/tools/conventionalcommit.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/cron.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/cronbuilder.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/cronnext.html</loc><lastmod>2026-08-31</lastmod></url>
@@ -16,7 +12,6 @@
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/dockerlint.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/envparser.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/httpstatus.html</loc><lastmod>2026-08-31</lastmod></url>
-  <url><loc>https://abhinai20.github.io/devops-toolbox/tools/incidenttimeline.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/jsonschema.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/jsonyaml.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/jwt.html</loc><lastmod>2026-08-31</lastmod></url>
@@ -30,14 +25,12 @@
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/resourcequota.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/restmock.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/secretscanner.html</loc><lastmod>2026-08-31</lastmod></url>
-  <url><loc>https://abhinai20.github.io/devops-toolbox/tools/snowflake.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/sqlfmt.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/tf.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/timestamp.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/timezone.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/tlsdecoder.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/urlanalyzer.html</loc><lastmod>2026-08-31</lastmod></url>
-  <url><loc>https://abhinai20.github.io/devops-toolbox/tools/uuid.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/xml.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/xmljson.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/findbuilder.html</loc><lastmod>2026-09-01</lastmod></url>
