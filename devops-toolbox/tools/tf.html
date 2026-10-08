@@ -36,7 +36,7 @@
   }
 }
 </script>
-<link rel="stylesheet" href="../assets/style.css?v=24">
+<link rel="stylesheet" href="../assets/style.css?v=25">
 </head>
 <body>
 
@@ -45,87 +45,90 @@
   <div class="nav-brand">
     <a href="../index.html" class="logo">DevOps<span>Toolbox</span></a>
     <p class="tagline">Free tools that run entirely in your browser — nothing you paste is ever sent anywhere.</p>
-    <span class="nav-badge"><span class="dot"></span><b>34</b>&nbsp;tools</span>
+    <span class="nav-badge"><span class="dot"></span><b>36</b>&nbsp;tools</span>
+    <div class="nav-tools-row">
+      <input type="search" id="nav-filter" class="nav-filter" placeholder="Filter tools…" aria-label="Filter tools" autocomplete="off">
+      <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Switch between light and dark theme" title="Switch theme">◐</button>
+    </div>
   </div>
   <details class="nav-group" open>
     <summary class="nav-group-label">AI Writing</summary>
-    <a class="tab-btn" data-tool="paraphraser" href="paraphraser.html">AI Rephraser</a>
+    <a class="tab-btn" data-tool="paraphraser" data-kw="rewrite text ai" href="paraphraser.html">AI Rephraser</a>
   </details>
 
   <details class="nav-group" open>
     <summary class="nav-group-label">Format &amp; Validate</summary>
-    <a class="tab-btn" data-tool="yaml" href="../index.html">YAML Validator</a>
-    <a class="tab-btn" data-tool="jsonyaml" href="jsonyaml.html">JSON ↔ YAML</a>
-    <a class="tab-btn" data-tool="md2word" href="md2word.html">Markdown → Word</a>
-    <a class="tab-btn" data-tool="xmljson" href="xmljson.html">XML ↔ JSON</a>
-    <a class="tab-btn" data-tool="jsonschema" href="jsonschema.html">JSON Schema Generator</a>
+    <a class="tab-btn" data-tool="yaml" data-kw="yaml validate lint" href="../index.html">YAML Validator</a>
+    <a class="tab-btn" data-tool="jsonyaml" data-kw="convert yaml json" href="jsonyaml.html">JSON ↔ YAML</a>
+    <a class="tab-btn" data-tool="md2word" data-kw="markdown docx document" href="md2word.html">Markdown → Word</a>
+    <a class="tab-btn" data-tool="xmljson" data-kw="convert xml json" href="xmljson.html">XML ↔ JSON</a>
+    <a class="tab-btn" data-tool="jsonschema" data-kw="json schema" href="jsonschema.html">JSON Schema Generator</a>
+    <a class="tab-btn" data-tool="structdiff" data-kw="diff compare yaml json config" href="structdiff.html">Config Diff (JSON/YAML)</a>
   </details>
 
   <details class="nav-group" open>
     <summary class="nav-group-label">Kubernetes &amp; Docker</summary>
-    <a class="tab-btn" data-tool="k8slint" href="k8slint.html">K8s Manifest Analyzer</a>
-    <a class="tab-btn" data-tool="dockerlint" href="dockerlint.html">Dockerfile Checker</a>
-    <a class="tab-btn" data-tool="k8squantity" href="k8squantity.html">K8s Quantity Converter</a>
-    <a class="tab-btn" data-tool="resourcequota" href="resourcequota.html">K8s Resource Quota Calculator</a>
-    <a class="tab-btn" data-tool="jsonpath" href="jsonpath.html">kubectl JSONPath Tester</a>
-    <a class="tab-btn" data-tool="k8sgen" href="k8sgen.html">K8s Manifest Generator</a>
+    <a class="tab-btn" data-tool="k8slint" data-kw="kubernetes k8s manifest lint" href="k8slint.html">K8s Manifest Analyzer</a>
+    <a class="tab-btn" data-tool="dockerlint" data-kw="docker container image" href="dockerlint.html">Dockerfile Checker</a>
+    <a class="tab-btn" data-tool="k8squantity" data-kw="kubernetes k8s memory cpu" href="k8squantity.html">K8s Quantity Converter</a>
+    <a class="tab-btn" data-tool="resourcequota" data-kw="kubernetes k8s quota limits" href="resourcequota.html">K8s Resource Quota Calculator</a>
+    <a class="tab-btn" data-tool="jsonpath" data-kw="kubernetes k8s kubectl query" href="jsonpath.html">kubectl JSONPath Tester</a>
+    <a class="tab-btn" data-tool="k8sgen" data-kw="kubernetes k8s deployment service ingress yaml generator" href="k8sgen.html">K8s Manifest Generator</a>
   </details>
 
   <details class="nav-group" open>
     <summary class="nav-group-label">Reliability</summary>
-    <a class="tab-btn" data-tool="slo" href="slo.html">SLO / Error Budget Calculator</a>
+    <a class="tab-btn" data-tool="slo" data-kw="sre error budget uptime downtime availability" href="slo.html">SLO / Error Budget Calculator</a>
   </details>
 
   <details class="nav-group" open>
     <summary class="nav-group-label">Terraform &amp; AWS</summary>
-    <a class="tab-btn active" data-tool="tf" href="tf.html">TF Plan Formatter</a>
-    <a class="tab-btn" data-tool="iampolicy" href="iampolicy.html">IAM Policy Analyzer</a>
-    <a class="tab-btn" data-tool="semver" href="semver.html">Version Constraint Checker</a>
+    <a class="tab-btn active" data-tool="tf" data-kw="terraform hcl plan" href="tf.html">TF Plan Formatter</a>
+    <a class="tab-btn" data-tool="iampolicy" data-kw="aws iam security policy permissions" href="iampolicy.html">IAM Policy Analyzer</a>
+    <a class="tab-btn" data-tool="semver" data-kw="terraform npm version range constraint" href="semver.html">Version Constraint Checker</a>
   </details>
 
   <details class="nav-group" open>
     <summary class="nav-group-label">Security</summary>
-    <a class="tab-btn" data-tool="jwt" href="jwt.html">JWT Decoder</a>
-    <a class="tab-btn" data-tool="chmod" href="chmod.html">chmod Calculator</a>
-    <a class="tab-btn" data-tool="secretscanner" href="secretscanner.html">Secret Scanner</a>
-    <a class="tab-btn" data-tool="tlsdecoder" href="tlsdecoder.html">TLS Certificate Decoder</a>
+    <a class="tab-btn" data-tool="jwt" data-kw="token auth decode security" href="jwt.html">JWT Decoder</a>
+    <a class="tab-btn" data-tool="chmod" data-kw="linux unix permissions octal" href="chmod.html">chmod Calculator</a>
+    <a class="tab-btn" data-tool="secretscanner" data-kw="security credentials leak scan" href="secretscanner.html">Secret Scanner</a>
+    <a class="tab-btn" data-tool="tlsdecoder" data-kw="ssl certificate security x509" href="tlsdecoder.html">TLS Certificate Decoder</a>
   </details>
 
   <details class="nav-group" open>
     <summary class="nav-group-label">Text &amp; Code</summary>
-    <a class="tab-btn" data-tool="regex" href="regex.html">Regex Tester</a>
-    <a class="tab-btn" data-tool="curl" href="curl.html">cURL → Code</a>
-    <a class="tab-btn" data-tool="mermaid" href="mermaid.html">Mermaid Diagram Preview</a>
-    <a class="tab-btn" data-tool="restmock" href="restmock.html">REST Endpoint Mock Generator</a>
-    <a class="tab-btn" data-tool="envparser" href="envparser.html">.env File Validator</a>
-    <a class="tab-btn" data-tool="nginxfmt" href="nginxfmt.html">Nginx Config Formatter</a>
+    <a class="tab-btn" data-tool="regex" data-kw="regular expression pattern" href="regex.html">Regex Tester</a>
+    <a class="tab-btn" data-tool="curl" data-kw="http request api client" href="curl.html">cURL → Code</a>
+    <a class="tab-btn" data-tool="mermaid" data-kw="diagram chart" href="mermaid.html">Mermaid Diagram Preview</a>
+    <a class="tab-btn" data-tool="restmock" data-kw="api mock http endpoint" href="restmock.html">REST Endpoint Mock Generator</a>
+    <a class="tab-btn" data-tool="envparser" data-kw="dotenv environment variables" href="envparser.html">.env File Validator</a>
+    <a class="tab-btn" data-tool="nginxfmt" data-kw="nginx webserver config" href="nginxfmt.html">Nginx Config Formatter</a>
   </details>
 
   <details class="nav-group" open>
     <summary class="nav-group-label">Time</summary>
-    <a class="tab-btn" data-tool="cron" href="cron.html">Cron Explainer</a>
-    <a class="tab-btn" data-tool="cronbuilder" href="cronbuilder.html">Cron Builder</a>
-    <a class="tab-btn" data-tool="timestamp" href="timestamp.html">Unix Timestamp</a>
-    <a class="tab-btn" data-tool="timezone" href="timezone.html">Timezone Converter</a>
-    <a class="tab-btn" data-tool="cronnext" href="cronnext.html">Cron Next Run Calculator</a>
+    <a class="tab-btn" data-tool="cron" data-kw="crontab schedule" href="cron.html">Cron Explainer</a>
+    <a class="tab-btn" data-tool="cronbuilder" data-kw="crontab schedule" href="cronbuilder.html">Cron Builder</a>
+    <a class="tab-btn" data-tool="timestamp" data-kw="unix epoch date time" href="timestamp.html">Unix Timestamp</a>
+    <a class="tab-btn" data-tool="timezone" data-kw="utc time date convert" href="timezone.html">Timezone Converter</a>
+    <a class="tab-btn" data-tool="cronnext" data-kw="crontab schedule next run" href="cronnext.html">Cron Next Run Calculator</a>
   </details>
 
   <details class="nav-group" open>
     <summary class="nav-group-label">Networking</summary>
-    <a class="tab-btn" data-tool="cidr" href="cidr.html">CIDR Calculator</a>
-    <a class="tab-btn" data-tool="cidroverlap" href="cidroverlap.html">CIDR Overlap Checker</a>
+    <a class="tab-btn" data-tool="cidr" data-kw="network ip subnet mask" href="cidr.html">CIDR Calculator</a>
+    <a class="tab-btn" data-tool="cidroverlap" data-kw="network ip subnet overlap" href="cidroverlap.html">CIDR Overlap Checker</a>
+    <a class="tab-btn" data-tool="subnetplanner" data-kw="aws vpc network subnet cidr ip" href="subnetplanner.html">VPC Subnet Planner</a>
   </details>
 
   <details class="nav-group" open>
     <summary class="nav-group-label">Shell &amp; Files</summary>
-    <a class="tab-btn" data-tool="findbuilder" href="findbuilder.html">find Command Builder</a>
-    <a class="tab-btn" data-tool="sedbuilder" href="sedbuilder.html">sed Command Builder</a>
+    <a class="tab-btn" data-tool="findbuilder" data-kw="linux unix shell find" href="findbuilder.html">find Command Builder</a>
+    <a class="tab-btn" data-tool="sedbuilder" data-kw="linux unix shell sed" href="sedbuilder.html">sed Command Builder</a>
   </details>
 
-  <div class="nav-group">
-    <span class="nav-group-label">More</span>
-    <a href="/devops-toolbox/resources.html" class="nav-static-link">Recommended Resources</a>
-  </div>
+
 </nav>
 
 <main>
@@ -271,6 +274,6 @@
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@18.0.11/lib/marked.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js"></script><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-<script src="../assets/app.js?v=24"></script>
+<script src="../assets/app.js?v=25"></script>
 </body>
 </html>

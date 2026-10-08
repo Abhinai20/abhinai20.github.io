@@ -5,28 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8946983522733896"
      crossorigin="anonymous"></script>
-<title>TLS Certificate Decoder — Free Online Tool | DevOps Toolbox</title>
-<meta name="description" content="Paste a PEM-encoded X.509 certificate (-----BEGIN CERTIFICATE-----) and see its subject, issuer, validity dates, and serial number. Parsed entirely in...">
+<title>Config Diff (JSON / YAML) — Free Online Tool | DevOps Toolbox</title>
+<meta name="description" content="Structurally compare two JSON or YAML documents. Ignores key order and formatting and reports the exact paths that were added, removed or changed.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230A2540'/><text y='.9em' x='50%25' text-anchor='middle' font-size='68' font-family='monospace' fill='%23E85D26'>&gt;_</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="canonical" href="https://abhinai20.github.io/devops-toolbox/tools/tlsdecoder.html">
+<link rel="canonical" href="https://abhinai20.github.io/devops-toolbox/tools/structdiff.html">
 <meta property="og:type" content="website">
-<meta property="og:title" content="TLS Certificate Decoder — Free Online Tool | DevOps Toolbox">
-<meta property="og:description" content="Paste a PEM-encoded X.509 certificate (-----BEGIN CERTIFICATE-----) and see its subject, issuer, validity dates, and serial number. Parsed entirely in...">
-<meta property="og:url" content="https://abhinai20.github.io/devops-toolbox/tools/tlsdecoder.html">
+<meta property="og:title" content="Config Diff (JSON / YAML) — Free Online Tool | DevOps Toolbox">
+<meta property="og:description" content="Structurally compare two JSON or YAML documents. Ignores key order and formatting and reports the exact paths that were added, removed or changed.">
+<meta property="og:url" content="https://abhinai20.github.io/devops-toolbox/tools/structdiff.html">
 <meta property="og:site_name" content="DevOps Toolbox">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="TLS Certificate Decoder — Free Online Tool | DevOps Toolbox">
-<meta name="twitter:description" content="Paste a PEM-encoded X.509 certificate (-----BEGIN CERTIFICATE-----) and see its subject, issuer, validity dates, and serial number. Parsed entirely in...">
+<meta name="twitter:title" content="Config Diff (JSON / YAML) — Free Online Tool | DevOps Toolbox">
+<meta name="twitter:description" content="Structurally compare two JSON or YAML documents. Ignores key order and formatting and reports the exact paths that were added, removed or changed.">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "TLS Certificate Decoder",
-  "url": "https://abhinai20.github.io/devops-toolbox/tools/tlsdecoder.html",
-  "description": "Paste a PEM-encoded X.509 certificate (-----BEGIN CERTIFICATE-----) and see its subject, issuer, validity dates, and serial number. Parsed entirely in...",
+  "name": "Config Diff (JSON / YAML)",
+  "url": "https://abhinai20.github.io/devops-toolbox/tools/structdiff.html",
+  "description": "Structurally compare two JSON or YAML documents. Ignores key order and formatting and reports the exact paths that were added, removed or changed.",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "Any",
   "offers": {
@@ -63,7 +63,7 @@
     <a class="tab-btn" data-tool="md2word" data-kw="markdown docx document" href="md2word.html">Markdown → Word</a>
     <a class="tab-btn" data-tool="xmljson" data-kw="convert xml json" href="xmljson.html">XML ↔ JSON</a>
     <a class="tab-btn" data-tool="jsonschema" data-kw="json schema" href="jsonschema.html">JSON Schema Generator</a>
-    <a class="tab-btn" data-tool="structdiff" data-kw="diff compare yaml json config" href="structdiff.html">Config Diff (JSON/YAML)</a>
+    <a class="tab-btn active" data-tool="structdiff" data-kw="diff compare yaml json config" href="structdiff.html">Config Diff (JSON/YAML)</a>
   </details>
 
   <details class="nav-group" open>
@@ -93,7 +93,7 @@
     <a class="tab-btn" data-tool="jwt" data-kw="token auth decode security" href="jwt.html">JWT Decoder</a>
     <a class="tab-btn" data-tool="chmod" data-kw="linux unix permissions octal" href="chmod.html">chmod Calculator</a>
     <a class="tab-btn" data-tool="secretscanner" data-kw="security credentials leak scan" href="secretscanner.html">Secret Scanner</a>
-    <a class="tab-btn active" data-tool="tlsdecoder" data-kw="ssl certificate security x509" href="tlsdecoder.html">TLS Certificate Decoder</a>
+    <a class="tab-btn" data-tool="tlsdecoder" data-kw="ssl certificate security x509" href="tlsdecoder.html">TLS Certificate Decoder</a>
   </details>
 
   <details class="nav-group" open>
@@ -176,7 +176,23 @@
 
 
   <!-- K8S QUANTITY CONVERTER -->
-
+  <section class="tool-panel active" id="panel-structdiff">
+    <div class="panel-header"><h1>Config Diff (JSON / YAML)</h1><button class="clear-btn" data-clear="structdiff">Clear</button></div>
+    <p class="tool-desc">A line-based diff is a one-liner. A <em>structural</em> diff is not: this ignores key order and formatting and reports the exact paths that differ — which is what you want when comparing two manifests or two <code>values.yaml</code> files.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="structdiff-left">Left document (JSON or YAML)</label>
+        <textarea id="structdiff-left" spellcheck="false">{"replicas":2,"image":"app:1.2.0","env":{"LOG_LEVEL":"info"}}</textarea>
+        <label for="structdiff-right">Right document</label>
+        <textarea id="structdiff-right" spellcheck="false">{"image":"app:1.3.0","replicas":3,"env":{"LOG_LEVEL":"debug","DEBUG":"1"}}</textarea>
+        <button id="structdiff-run-btn" class="primary-btn">Compare</button>
+      </div>
+      <div class="io-col">
+        <label>Differences</label>
+        <div id="structdiff-result" class="result-box result-idle tf-output">Paste both sides and click "Compare".</div>
+      </div>
+    </div>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="k8slint.html">K8s Manifest Analyzer</a></li><li><a href="jsonschema.html">JSON Schema Generator</a></li></ul></div></section>
 
   <!-- CHMOD CALCULATOR -->
 
@@ -208,21 +224,7 @@
 
 
   <!-- TLS CERTIFICATE DECODER -->
-  <section class="tool-panel active" id="panel-tlsdecoder">
-    <div class="panel-header"><h1>TLS Certificate Decoder</h1><button class="clear-btn" data-clear="tlsdecoder">Clear</button></div>
-    <p class="tool-desc">Paste a PEM-encoded X.509 certificate (<code>-----BEGIN CERTIFICATE-----</code>) and see its subject, issuer, validity dates, and serial number. Parsed entirely in your browser with no server round-trip.</p>
-    <div class="tool-grid">
-      <div class="io-col">
-        <label for="tlsdecoder-input">PEM certificate</label>
-        <textarea id="tlsdecoder-input" spellcheck="false" placeholder="-----BEGIN CERTIFICATE-----&#10;MIIC...&#10;-----END CERTIFICATE-----"></textarea>
-        <button id="tlsdecoder-decode-btn" class="primary-btn">Decode</button>
-      </div>
-      <div class="io-col">
-        <label>Result</label>
-        <pre id="tlsdecoder-result" class="result-box result-idle tf-output">Paste a PEM certificate and click "Decode".</pre>
-      </div>
-    </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="jwt.html">JWT Decoder</a></li><li><a href="chmod.html">chmod Calculator</a></li></ul></div></section>
+
 
   <!-- MERMAID DIAGRAM PREVIEW -->
 

@@ -2170,3 +2170,184 @@ bind('k8sgen-generate-btn', 'click', () => {
   resultEl.className = 'result-box result-success';
   resultEl.textContent = out.join('\n');
 });
+
+
+// ---------- Config Diff (JSON / YAML) ----------
+// A generic line-based diff is a one-liner. A STRUCTURAL diff is not: it
+// ignores key order and formatting and reports paths, which is what you
+// actually want when comparing two manifests or two values.yaml files.
+function sdType(v) {
+  if (v === null) return 'null';
+  if (Array.isArray(v)) return 'array';
+  return typeof v;
+}
+function sdFormat(v) {
+  if (typeof v === 'object' && v !== null) return JSON.stringify(v);
+  return String(v);
+}
+function structDiff(a, b, path, out) {
+  const ta = sdType(a), tb = sdType(b);
+  if (ta !== tb) { out.push(['~', path, sdFormat(a) + '  ->  ' + sdFormat(b)]); return; }
+  if (ta === 'object') {
+    const keys = [...new Set([...Object.keys(a), ...Object.keys(b)])].sort();
+    for (const k of keys) {
+      const p = path ? path + '.' + k : k;
+      if (!(k in a)) out.push(['+', p, sdFormat(b[k])]);
+      else if (!(k in b)) out.push(['-', p, sdFormat(a[k])]);
+      else structDiff(a[k], b[k], p, out);
+    }
+    return;
+  }
+  if (ta === 'array') {
+    const max = Math.max(a.length, b.length);
+    for (let i = 0; i < max; i++) {
+      const p = path + '[' + i + ']';
+      if (i >= a.length) out.push(['+', p, sdFormat(b[i])]);
+      else if (i >= b.length) out.push(['-', p, sdFormat(a[i])]);
+      else structDiff(a[i], b[i], p, out);
+    }
+    return;
+  }
+  if (a !== b) out.push(['~', path, sdFormat(a) + '  ->  ' + sdFormat(b)]);
+}
+
+bind('structdiff-run-btn', 'click', () => {
+  const resultEl = document.getElementById('structdiff-result');
+  const leftRaw = document.getElementById('structdiff-left').value.trim();
+  const rightRaw = document.getElementById('structdiff-right').value.trim();
+  if (!leftRaw || !rightRaw) {
+    resultEl.className = 'result-box result-idle';
+    resultEl.textContent = 'Paste a document into both sides.';
+    return;
+  }
+  let left, right;
+  try { left = parseAsJsonOrYaml(leftRaw).data; }
+  catch (e) { resultEl.className = 'result-box result-error'; resultEl.textContent = 'Left side: ' + e.message; return; }
+  try { right = parseAsJsonOrYaml(rightRaw).data; }
+  catch (e) { resultEl.className = 'result-box result-error'; resultEl.textContent = 'Right side: ' + e.message; return; }
+
+  const out = [];
+  structDiff(left, right, '', out);
+  if (!out.length) {
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = 'Structurally identical. Key order and formatting were ignored.';
+    return;
+  }
+  const added = out.filter((d) => d[0] === '+').length;
+  const removed = out.filter((d) => d[0] === '-').length;
+  const changed = out.filter((d) => d[0] === '~').length;
+  const lines = [`${out.length} difference(s): ${added} added, ${removed} removed, ${changed} changed.`, ''];
+  for (const [sign, p, detail] of out) lines.push(sign + ' ' + (p || '(root)') + ': ' + detail);
+  resultEl.className = 'result-box result-success tf-output';
+  resultEl.textContent = lines.join('\n');
+});
+
+// ---------- VPC Subnet Planner ----------
+// Splitting a VPC CIDR into per-AZ subnets, and remembering that AWS takes
+// five addresses out of every subnet, is a recurring design chore with no
+// CLI equivalent.
+function spIpToInt(ip) {
+  const parts = ip.split('.').map(Number);
+  if (parts.length !== 4 || parts.some((p) => !isFinite(p) || p < 0 || p > 255)) throw new Error('Invalid IPv4 address: ' + ip);
+  return ((parts[0] << 24) >>> 0) + (parts[1] << 16) + (parts[2] << 8) + parts[3];
+}
+function spIntToIp(n) {
+  return [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].join('.');
+}
+
+bind('subnetplanner-plan-btn', 'click', () => {
+  const resultEl = document.getElementById('subnetplanner-result');
+  const cidr = document.getElementById('subnetplanner-cidr').value.trim();
+  const newPrefix = parseInt(document.getElementById('subnetplanner-prefix').value, 10);
+  const cloud = document.getElementById('subnetplanner-cloud').value;
+
+  const m = cidr.match(/^(\d+\.\d+\.\d+\.\d+)\/(\d+)$/);
+  if (!m) { resultEl.className = 'result-box result-error'; resultEl.textContent = 'Enter a CIDR block like 10.0.0.0/16'; return; }
+  const basePrefix = parseInt(m[2], 10);
+  if (basePrefix < 0 || basePrefix > 32) { resultEl.className = 'result-box result-error'; resultEl.textContent = 'Base prefix must be 0-32.'; return; }
+  if (!isFinite(newPrefix) || newPrefix < basePrefix || newPrefix > 32) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = 'Subnet prefix must be between the base prefix (/' + basePrefix + ') and /32.';
+    return;
+  }
+  let baseInt;
+  try { baseInt = spIpToInt(m[1]); } catch (e) { resultEl.className = 'result-box result-error'; resultEl.textContent = e.message; return; }
+
+  const count = Math.pow(2, newPrefix - basePrefix);
+  if (count > 256) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = 'That split produces ' + count.toLocaleString() + ' subnets. Narrow the range (max 256 shown).';
+    return;
+  }
+  const size = Math.pow(2, 32 - newPrefix);
+  const maskInt = count === 1 ? baseInt : (baseInt & (((-1) << (32 - basePrefix)) >>> 0)) >>> 0;
+  const reserved = cloud === 'aws' ? 5 : cloud === 'azure' ? 5 : 2;
+  const usable = Math.max(0, size - reserved);
+
+  const lines = [];
+  lines.push(cidr + ' split into ' + count + ' x /' + newPrefix + ' subnet(s)');
+  lines.push(cloud === 'plain'
+    ? 'Plain IPv4: network + broadcast reserved, so ' + usable.toLocaleString() + ' usable host(s) each.'
+    : (cloud === 'aws' ? 'AWS' : 'Azure') + ' reserves 5 addresses per subnet, so ' + usable.toLocaleString() + ' usable host(s) each.');
+  lines.push('');
+  lines.push('#    CIDR'.padEnd(26) + 'Range'.padEnd(34) + 'Usable');
+  for (let i = 0; i < count; i++) {
+    const net = (maskInt + i * size) >>> 0;
+    const last = (net + size - 1) >>> 0;
+    const label = String(i + 1).padEnd(5);
+    const c = (spIntToIp(net) + '/' + newPrefix).padEnd(21);
+    const range = (spIntToIp(net) + ' - ' + spIntToIp(last)).padEnd(34);
+    lines.push(label + c + range + usable.toLocaleString());
+  }
+  resultEl.className = 'result-box result-success tf-output';
+  resultEl.textContent = lines.join('\n');
+});
+
+
+// ---------- Nav filter ----------
+// 36 tools in one sidebar is a wall of text; this narrows it as you type and
+// hides any category left with nothing in it.
+bind('nav-filter', 'input', (e) => {
+  const q = e.target.value.trim().toLowerCase();
+  let shown = 0;
+  document.querySelectorAll('.nav-group').forEach((group) => {
+    let groupHas = false;
+    group.querySelectorAll('.tab-btn').forEach((btn) => {
+      const hay = (btn.textContent + ' ' + (btn.dataset.kw || '')).toLowerCase();
+      const hit = !q || hay.includes(q);
+      btn.hidden = !hit;
+      if (hit) { groupHas = true; shown++; }
+    });
+    group.hidden = !groupHas;
+    if (q && groupHas) group.open = true;
+  });
+  let empty = document.getElementById('nav-empty');
+  if (!shown) {
+    if (!empty) {
+      empty = document.createElement('p');
+      empty.id = 'nav-empty';
+      empty.className = 'nav-empty';
+      document.getElementById('tool-nav').appendChild(empty);
+    }
+    empty.textContent = 'No tool matches "' + e.target.value.trim() + '".';
+    empty.hidden = false;
+  } else if (empty) {
+    empty.hidden = true;
+  }
+});
+
+// ---------- Theme toggle ----------
+// Dark by default; the choice is remembered per browser. Both themes use the
+// same brand palette, only the ground changes.
+(function () {
+  let stored = null;
+  try { stored = localStorage.getItem('toolbox-theme'); } catch (err) { /* private mode */ }
+  if (stored === 'light' || stored === 'dark') document.documentElement.setAttribute('data-theme', stored);
+  bind('theme-toggle', 'click', () => {
+    const current = document.documentElement.getAttribute('data-theme')
+      || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    const next = current === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('toolbox-theme', next); } catch (err) { /* private mode */ }
+  });
+})();

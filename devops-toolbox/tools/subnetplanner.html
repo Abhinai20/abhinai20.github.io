@@ -5,28 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8946983522733896"
      crossorigin="anonymous"></script>
-<title>TLS Certificate Decoder — Free Online Tool | DevOps Toolbox</title>
-<meta name="description" content="Paste a PEM-encoded X.509 certificate (-----BEGIN CERTIFICATE-----) and see its subject, issuer, validity dates, and serial number. Parsed entirely in...">
+<title>VPC Subnet Planner — Free Online Tool | DevOps Toolbox</title>
+<meta name="description" content="Split a VPC CIDR into evenly sized subnets and see each range plus the real usable host count, accounting for the five addresses AWS reserves in every subnet.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230A2540'/><text y='.9em' x='50%25' text-anchor='middle' font-size='68' font-family='monospace' fill='%23E85D26'>&gt;_</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="canonical" href="https://abhinai20.github.io/devops-toolbox/tools/tlsdecoder.html">
+<link rel="canonical" href="https://abhinai20.github.io/devops-toolbox/tools/subnetplanner.html">
 <meta property="og:type" content="website">
-<meta property="og:title" content="TLS Certificate Decoder — Free Online Tool | DevOps Toolbox">
-<meta property="og:description" content="Paste a PEM-encoded X.509 certificate (-----BEGIN CERTIFICATE-----) and see its subject, issuer, validity dates, and serial number. Parsed entirely in...">
-<meta property="og:url" content="https://abhinai20.github.io/devops-toolbox/tools/tlsdecoder.html">
+<meta property="og:title" content="VPC Subnet Planner — Free Online Tool | DevOps Toolbox">
+<meta property="og:description" content="Split a VPC CIDR into evenly sized subnets and see each range plus the real usable host count, accounting for the five addresses AWS reserves in every subnet.">
+<meta property="og:url" content="https://abhinai20.github.io/devops-toolbox/tools/subnetplanner.html">
 <meta property="og:site_name" content="DevOps Toolbox">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="TLS Certificate Decoder — Free Online Tool | DevOps Toolbox">
-<meta name="twitter:description" content="Paste a PEM-encoded X.509 certificate (-----BEGIN CERTIFICATE-----) and see its subject, issuer, validity dates, and serial number. Parsed entirely in...">
+<meta name="twitter:title" content="VPC Subnet Planner — Free Online Tool | DevOps Toolbox">
+<meta name="twitter:description" content="Split a VPC CIDR into evenly sized subnets and see each range plus the real usable host count, accounting for the five addresses AWS reserves in every subnet.">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "TLS Certificate Decoder",
-  "url": "https://abhinai20.github.io/devops-toolbox/tools/tlsdecoder.html",
-  "description": "Paste a PEM-encoded X.509 certificate (-----BEGIN CERTIFICATE-----) and see its subject, issuer, validity dates, and serial number. Parsed entirely in...",
+  "name": "VPC Subnet Planner",
+  "url": "https://abhinai20.github.io/devops-toolbox/tools/subnetplanner.html",
+  "description": "Split a VPC CIDR into evenly sized subnets and see each range plus the real usable host count, accounting for the five addresses AWS reserves in every subnet.",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "Any",
   "offers": {
@@ -93,7 +93,7 @@
     <a class="tab-btn" data-tool="jwt" data-kw="token auth decode security" href="jwt.html">JWT Decoder</a>
     <a class="tab-btn" data-tool="chmod" data-kw="linux unix permissions octal" href="chmod.html">chmod Calculator</a>
     <a class="tab-btn" data-tool="secretscanner" data-kw="security credentials leak scan" href="secretscanner.html">Secret Scanner</a>
-    <a class="tab-btn active" data-tool="tlsdecoder" data-kw="ssl certificate security x509" href="tlsdecoder.html">TLS Certificate Decoder</a>
+    <a class="tab-btn" data-tool="tlsdecoder" data-kw="ssl certificate security x509" href="tlsdecoder.html">TLS Certificate Decoder</a>
   </details>
 
   <details class="nav-group" open>
@@ -119,7 +119,7 @@
     <summary class="nav-group-label">Networking</summary>
     <a class="tab-btn" data-tool="cidr" data-kw="network ip subnet mask" href="cidr.html">CIDR Calculator</a>
     <a class="tab-btn" data-tool="cidroverlap" data-kw="network ip subnet overlap" href="cidroverlap.html">CIDR Overlap Checker</a>
-    <a class="tab-btn" data-tool="subnetplanner" data-kw="aws vpc network subnet cidr ip" href="subnetplanner.html">VPC Subnet Planner</a>
+    <a class="tab-btn active" data-tool="subnetplanner" data-kw="aws vpc network subnet cidr ip" href="subnetplanner.html">VPC Subnet Planner</a>
   </details>
 
   <details class="nav-group" open>
@@ -176,7 +176,29 @@
 
 
   <!-- K8S QUANTITY CONVERTER -->
-
+  <section class="tool-panel active" id="panel-subnetplanner">
+    <div class="panel-header"><h1>VPC Subnet Planner</h1><button class="clear-btn" data-clear="subnetplanner">Clear</button></div>
+    <p class="tool-desc">Split a VPC CIDR into evenly sized per-AZ subnets. Shows each range and the <em>real</em> usable host count — AWS and Azure both take five addresses out of every subnet, which is the part that catches people out.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="subnetplanner-cidr">Base CIDR</label>
+        <input type="text" id="subnetplanner-cidr" spellcheck="false" placeholder="10.0.0.0/16" value="10.0.0.0/16">
+        <label for="subnetplanner-prefix">Split into /</label>
+        <input type="text" id="subnetplanner-prefix" spellcheck="false" placeholder="24" value="20">
+        <label for="subnetplanner-cloud">Reserved-address model</label>
+        <select id="subnetplanner-cloud">
+          <option value="aws">AWS (5 reserved)</option>
+          <option value="azure">Azure (5 reserved)</option>
+          <option value="plain">Plain IPv4 (2 reserved)</option>
+        </select>
+        <button id="subnetplanner-plan-btn" class="primary-btn">Plan subnets</button>
+      </div>
+      <div class="io-col">
+        <label>Subnets</label>
+        <div id="subnetplanner-result" class="result-box result-idle tf-output">Enter a CIDR and click "Plan subnets".</div>
+      </div>
+    </div>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="cidr.html">CIDR Calculator</a></li><li><a href="cidroverlap.html">CIDR Overlap Checker</a></li><li><a href="k8sgen.html">K8s Manifest Generator</a></li></ul></div></section>
 
   <!-- CHMOD CALCULATOR -->
 
@@ -208,21 +230,7 @@
 
 
   <!-- TLS CERTIFICATE DECODER -->
-  <section class="tool-panel active" id="panel-tlsdecoder">
-    <div class="panel-header"><h1>TLS Certificate Decoder</h1><button class="clear-btn" data-clear="tlsdecoder">Clear</button></div>
-    <p class="tool-desc">Paste a PEM-encoded X.509 certificate (<code>-----BEGIN CERTIFICATE-----</code>) and see its subject, issuer, validity dates, and serial number. Parsed entirely in your browser with no server round-trip.</p>
-    <div class="tool-grid">
-      <div class="io-col">
-        <label for="tlsdecoder-input">PEM certificate</label>
-        <textarea id="tlsdecoder-input" spellcheck="false" placeholder="-----BEGIN CERTIFICATE-----&#10;MIIC...&#10;-----END CERTIFICATE-----"></textarea>
-        <button id="tlsdecoder-decode-btn" class="primary-btn">Decode</button>
-      </div>
-      <div class="io-col">
-        <label>Result</label>
-        <pre id="tlsdecoder-result" class="result-box result-idle tf-output">Paste a PEM certificate and click "Decode".</pre>
-      </div>
-    </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="jwt.html">JWT Decoder</a></li><li><a href="chmod.html">chmod Calculator</a></li></ul></div></section>
+
 
   <!-- MERMAID DIAGRAM PREVIEW -->
 
