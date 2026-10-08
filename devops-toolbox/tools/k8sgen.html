@@ -177,7 +177,7 @@
 
   <!-- K8S QUANTITY CONVERTER -->
   <section class="tool-panel active" id="panel-k8sgen">
-    <div class="panel-header"><h1>Kubernetes Manifest Generator</h1><span class="view-count" id="view-count" hidden></span><button class="clear-btn" data-clear="k8sgen">Clear</button></div>
+    <div class="panel-header"><h1>Kubernetes Manifest Generator</h1><button class="clear-btn" data-clear="k8sgen">Clear</button></div>
     <p class="tool-desc"><code>kubectl create deployment --dry-run</code> gives you a Deployment and nothing else; stitching a matching Service and Ingress by hand is the actual chore. This emits all three, with resource requests, a readiness probe and a non-root <code>securityContext</code> already in place.</p>
     <div class="tool-grid">
       <div class="io-col">

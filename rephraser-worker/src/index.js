@@ -20,7 +20,7 @@ const GEMINI_MODEL = 'gemini-3.5-flash-lite'; // same model already used by this
 function corsHeaders() {
   return {
     'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
   };
 }
@@ -80,23 +80,6 @@ export default {
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: corsHeaders() });
     }
-    // ---- View counter -------------------------------------------------
-    // GET /views?p=/devops-toolbox/tools/jwt.html -> { views: n }
-    // Counts page loads in a KV namespace. Only the path is sent: no pasted
-    // content, no identifiers. Returns 501 until the VIEWS binding exists, so
-    // the badge simply stays hidden rather than breaking the page.
-    const url = new URL(request.url);
-    if (url.pathname === '/views') {
-      if (!env.VIEWS) return jsonResponse({ error: 'Counter not configured.' }, 501);
-      const raw = url.searchParams.get('p') || '/';
-      // Bound and sanitise: this key is attacker-controlled.
-      const path = raw.replace(/[^A-Za-z0-9/._-]/g, '').slice(0, 120) || '/';
-      const key = 'v:' + path;
-      const next = parseInt((await env.VIEWS.get(key)) || '0', 10) + 1;
-      await env.VIEWS.put(key, String(next));
-      return jsonResponse({ views: next });
-    }
-
     if (request.method !== 'POST') {
       return jsonResponse({ error: 'Only POST is supported.' }, 405);
     }
