@@ -1,9 +1,9 @@
 :root {
   --bg: #0A2540;
   --bg-glow: radial-gradient(ellipse 760px 380px at 100% -18%, rgba(232, 93, 38, 0.05), transparent 62%);
-  --bg-panel: #0F2E4D;
+  --bg-panel: #0E3050;
   --bg-panel-hover: #1A3A5C;
-  --border: #1F4468;
+  --border: #1C4164;
   --border-hover: #2F5E8A;
   --text: #F5F5F5;
   --text-muted: #9BB0C6;
@@ -11,7 +11,7 @@
   --accent-hover: #FF7646;
   --accent-glow: rgba(232, 93, 38, 0.18);
   --teal: #f0b86e;
-  --code-bg: #06182B;
+  --code-bg: #04121F;
   --add: #6ee7a0;
   --remove: #f28b82;
   --change: #f2c14e;
@@ -221,8 +221,8 @@ main {
 }
 
 .tool-panel h1 {
-  font-family: var(--font-mono);
-  font-size: 1.7rem;
+  font-family: var(--font-body);
+  font-size: 1.45rem;
   font-weight: 700;
   margin: 0;
   letter-spacing: -0.01em;
@@ -282,7 +282,15 @@ main {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
+  align-items: stretch;
 }
+.io-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+/* The result well fills its column instead of floating at a fixed height. */
+.io-col > .result-box { flex: 1; }
 .tool-grid-single { grid-template-columns: 1fr; }
 
 @media (max-width: 720px) {
@@ -293,10 +301,26 @@ main {
   display: block;
   font-size: 0.8rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
   color: var(--text-muted);
-  margin-bottom: 8px;
+  margin: 0 0 6px;
+}
+.io-col label:not(:first-child) { margin-top: 14px; }
+
+select {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  padding: 10px 12px;
+  border-radius: 8px;
+  min-width: 200px;
+  cursor: pointer;
+}
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
 textarea, input[type="text"] {
@@ -306,11 +330,11 @@ textarea, input[type="text"] {
   color: var(--text);
   font-family: var(--font-mono);
   font-size: 0.9rem;
-  padding: 14px;
+  padding: 10px 12px;
   border-radius: 8px;
   resize: vertical;
 }
-textarea { min-height: 220px; }
+textarea { min-height: 170px; }
 textarea, input[type="text"] { transition: border-color 0.15s ease, box-shadow 0.15s ease; }
 textarea:focus, input[type="text"]:focus {
   outline: none;
@@ -319,7 +343,8 @@ textarea:focus, input[type="text"]:focus {
 }
 
 .primary-btn {
-  margin-top: 12px;
+  align-self: flex-start;
+  margin-top: 16px;
   background: var(--accent);
   color: #0A2540;
   border: none;
@@ -459,9 +484,7 @@ textarea:focus, input[type="text"]:focus {
 }
 .related-tools h2 {
   font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-weight: 600;
   color: var(--text-muted);
   margin: 0 0 10px;
 }
@@ -475,9 +498,9 @@ textarea:focus, input[type="text"]:focus {
 }
 .related-tools a {
   display: inline-block;
-  background: var(--code-bg);
+  background: transparent;
   border: 1px solid var(--border);
-  color: var(--accent);
+  color: var(--text-muted);
   padding: 6px 12px;
   border-radius: 999px;
   font-size: 0.82rem;
@@ -486,8 +509,8 @@ textarea:focus, input[type="text"]:focus {
   transition: all 0.15s ease;
 }
 .related-tools a:hover {
-  border-color: var(--accent);
-  color: var(--accent-hover);
+  border-color: var(--border-hover);
+  color: var(--text);
 }
 
 /* Synonym Rephraser */
@@ -599,31 +622,11 @@ textarea:focus, input[type="text"]:focus {
   --change: #8a6100;
   --replace: #a85218;
 }
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]):not([data-theme="light"]) {
-    --bg: #F5F5F5;
-    --bg-glow: radial-gradient(ellipse 760px 380px at 100% -18%, rgba(232, 93, 38, 0.07), transparent 62%);
-    --bg-panel: #FFFFFF;
-    --bg-panel-hover: #EDF1F5;
-    --border: #D7DEE6;
-    --border-hover: #B6C2CF;
-    --text: #0A2540;
-    --text-muted: #5B6B7C;
-    --accent: #C94A17;
-    --accent-hover: #E85D26;
-    --accent-glow: rgba(232, 93, 38, 0.12);
-    --code-bg: #F0F2F5;
-    --add: #1a7f45;
-    --remove: #b3261e;
-    --change: #8a6100;
-    --replace: #a85218;
-  }
-}
 
 /* On a phone the nav used to dump all 36 links above the tool. */
 @media (max-width: 860px) {
   .tool-nav {
-    max-height: 48vh;
+    max-height: 32vh;
     overflow-y: auto;
   }
 }
