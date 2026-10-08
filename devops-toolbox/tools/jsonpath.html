@@ -5,28 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8946983522733896"
      crossorigin="anonymous"></script>
-<title>REST Endpoint Mock Generator — Free Online Tool | DevOps Toolbox</title>
-<meta name="description" content="Paste a sample JSON response and get a ready-to-run Express.js mock server for that endpoint.">
+<title>kubectl JSONPath Tester — Free Online Tool | DevOps Toolbox</title>
+<meta name="description" content="Test kubectl -o jsonpath= expressions against pasted JSON, without a live cluster. Supports dot paths, [*], indices, slices and recursive descent.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230A2540'/><text y='.9em' x='50%25' text-anchor='middle' font-size='68' font-family='monospace' fill='%23E85D26'>&gt;_</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="canonical" href="https://abhinai20.github.io/devops-toolbox/tools/restmock.html">
+<link rel="canonical" href="https://abhinai20.github.io/devops-toolbox/tools/jsonpath.html">
 <meta property="og:type" content="website">
-<meta property="og:title" content="REST Endpoint Mock Generator — Free Online Tool | DevOps Toolbox">
-<meta property="og:description" content="Paste a sample JSON response and get a ready-to-run Express.js mock server for that endpoint.">
-<meta property="og:url" content="https://abhinai20.github.io/devops-toolbox/tools/restmock.html">
+<meta property="og:title" content="kubectl JSONPath Tester — Free Online Tool | DevOps Toolbox">
+<meta property="og:description" content="Test kubectl -o jsonpath= expressions against pasted JSON, without a live cluster. Supports dot paths, [*], indices, slices and recursive descent.">
+<meta property="og:url" content="https://abhinai20.github.io/devops-toolbox/tools/jsonpath.html">
 <meta property="og:site_name" content="DevOps Toolbox">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="REST Endpoint Mock Generator — Free Online Tool | DevOps Toolbox">
-<meta name="twitter:description" content="Paste a sample JSON response and get a ready-to-run Express.js mock server for that endpoint.">
+<meta name="twitter:title" content="kubectl JSONPath Tester — Free Online Tool | DevOps Toolbox">
+<meta name="twitter:description" content="Test kubectl -o jsonpath= expressions against pasted JSON, without a live cluster. Supports dot paths, [*], indices, slices and recursive descent.">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "REST Endpoint Mock Generator",
-  "url": "https://abhinai20.github.io/devops-toolbox/tools/restmock.html",
-  "description": "Paste a sample JSON response and get a ready-to-run Express.js mock server for that endpoint.",
+  "name": "kubectl JSONPath Tester",
+  "url": "https://abhinai20.github.io/devops-toolbox/tools/jsonpath.html",
+  "description": "Test kubectl -o jsonpath= expressions against pasted JSON, without a live cluster. Supports dot paths, [*], indices, slices and recursive descent.",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "Any",
   "offers": {
@@ -68,7 +68,7 @@
     <a class="tab-btn" data-tool="dockerlint" href="dockerlint.html">Dockerfile Checker</a>
     <a class="tab-btn" data-tool="k8squantity" href="k8squantity.html">K8s Quantity Converter</a>
     <a class="tab-btn" data-tool="resourcequota" href="resourcequota.html">K8s Resource Quota Calculator</a>
-    <a class="tab-btn" data-tool="jsonpath" href="jsonpath.html">kubectl JSONPath Tester</a>
+    <a class="tab-btn active" data-tool="jsonpath" href="jsonpath.html">kubectl JSONPath Tester</a>
   </details>
 
   <details class="nav-group" open>
@@ -92,7 +92,7 @@
     <a class="tab-btn" data-tool="curl" href="curl.html">cURL → Code</a>
     <a class="tab-btn" data-tool="xml" href="xml.html">XML Formatter</a>
     <a class="tab-btn" data-tool="mermaid" href="mermaid.html">Mermaid Diagram Preview</a>
-    <a class="tab-btn active" data-tool="restmock" href="restmock.html">REST Endpoint Mock Generator</a>
+    <a class="tab-btn" data-tool="restmock" href="restmock.html">REST Endpoint Mock Generator</a>
     <a class="tab-btn" data-tool="envparser" href="envparser.html">.env File Validator</a>
     <a class="tab-btn" data-tool="nginxfmt" href="nginxfmt.html">Nginx Config Formatter</a>
   </details>
@@ -171,7 +171,23 @@
 
 
   <!-- K8S QUANTITY CONVERTER -->
-
+  <section class="tool-panel active" id="panel-jsonpath">
+    <div class="panel-header"><h1>kubectl JSONPath Tester</h1><button class="clear-btn" data-clear="jsonpath">Clear</button></div>
+    <p class="tool-desc">Iterate on a <code>kubectl -o jsonpath=</code> expression against real output, without a cluster. Supports dot paths, <code>[*]</code>, indices, <code>[a:b]</code> slices and <code>..</code> descent.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="jsonpath-input">JSON (e.g. <code>kubectl get pods -o json</code>)</label>
+        <textarea id="jsonpath-input" spellcheck="false" placeholder='{"items":[...]}'>{"items":[{"metadata":{"name":"web-1","labels":{"app":"web"}},"status":{"phase":"Running"}},{"metadata":{"name":"db-0","labels":{"app":"db"}},"status":{"phase":"Pending"}}]}</textarea>
+        <label for="jsonpath-expr">JSONPath expression</label>
+        <input type="text" id="jsonpath-expr" spellcheck="false" placeholder="{.items[*].metadata.name}" value="{.items[*].metadata.name}">
+        <button id="jsonpath-run-btn" class="primary-btn">Evaluate</button>
+      </div>
+      <div class="io-col">
+        <label>Matches</label>
+        <div id="jsonpath-result" class="result-box result-idle">Enter an expression and click "Evaluate".</div>
+      </div>
+    </div>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="k8slint.html">K8s Manifest Analyzer</a></li><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="jsonschema.html">JSON Schema Generator</a></li></ul></div></section>
 
   <!-- CHMOD CALCULATOR -->
 
@@ -210,27 +226,7 @@
   <!-- K8S RESOURCE QUOTA CALCULATOR -->
 
   <!-- REST ENDPOINT MOCK GENERATOR -->
-  <section class="tool-panel active" id="panel-restmock">
-    <div class="panel-header"><h1>REST Endpoint Mock Generator</h1><button class="clear-btn" data-clear="restmock">Clear</button></div>
-    <p class="tool-desc">Paste a sample JSON response and get a ready-to-run Express.js mock server for that endpoint.</p>
-    <div class="tool-grid">
-      <div class="io-col">
-        <label for="restmock-method">Method</label>
-        <select id="restmock-method">
-          <option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option><option>PATCH</option>
-        </select>
-        <label class="second-label">Path</label>
-        <input type="text" id="restmock-path" spellcheck="false" placeholder="/api/users/:id" value="/api/users/:id">
-        <label class="second-label">Sample JSON response</label>
-        <textarea id="restmock-json" spellcheck="false" placeholder='{"id": 1, "name": "Bob"}'>{"id": 1, "name": "Bob"}</textarea>
-        <button id="restmock-generate-btn" class="primary-btn">Generate</button>
-      </div>
-      <div class="io-col">
-        <label>Express.js mock server</label>
-        <pre id="restmock-result" class="result-box result-idle tf-output">Fill in the fields and click "Generate".</pre>
-      </div>
-    </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li></ul></div></section>
+
 
 
   <!-- .ENV FILE VALIDATOR -->

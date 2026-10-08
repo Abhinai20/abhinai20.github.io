@@ -35,4 +35,13 @@
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/xmljson.html</loc><lastmod>2026-08-31</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/findbuilder.html</loc><lastmod>2026-09-01</lastmod></url>
   <url><loc>https://abhinai20.github.io/devops-toolbox/tools/sedbuilder.html</loc><lastmod>2026-09-01</lastmod></url>
+  <url>
+    <loc>https://abhinai20.github.io/devops-toolbox/tools/jsonpath.html</loc>
+  </url>
+  <url>
+    <loc>https://abhinai20.github.io/devops-toolbox/tools/iampolicy.html</loc>
+  </url>
+  <url>
+    <loc>https://abhinai20.github.io/devops-toolbox/tools/semver.html</loc>
+  </url>
 </urlset>

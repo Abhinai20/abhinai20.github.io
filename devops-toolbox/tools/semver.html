@@ -5,28 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8946983522733896"
      crossorigin="anonymous"></script>
-<title>REST Endpoint Mock Generator — Free Online Tool | DevOps Toolbox</title>
-<meta name="description" content="Paste a sample JSON response and get a ready-to-run Express.js mock server for that endpoint.">
+<title>Version Constraint Checker — Free Online Tool | DevOps Toolbox</title>
+<meta name="description" content="Check which versions satisfy a constraint. Handles npm semver (^, ~, ranges) and Terraform’s pessimistic ~> operator, which behaves differently from npm’s tilde.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230A2540'/><text y='.9em' x='50%25' text-anchor='middle' font-size='68' font-family='monospace' fill='%23E85D26'>&gt;_</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="canonical" href="https://abhinai20.github.io/devops-toolbox/tools/restmock.html">
+<link rel="canonical" href="https://abhinai20.github.io/devops-toolbox/tools/semver.html">
 <meta property="og:type" content="website">
-<meta property="og:title" content="REST Endpoint Mock Generator — Free Online Tool | DevOps Toolbox">
-<meta property="og:description" content="Paste a sample JSON response and get a ready-to-run Express.js mock server for that endpoint.">
-<meta property="og:url" content="https://abhinai20.github.io/devops-toolbox/tools/restmock.html">
+<meta property="og:title" content="Version Constraint Checker — Free Online Tool | DevOps Toolbox">
+<meta property="og:description" content="Check which versions satisfy a constraint. Handles npm semver (^, ~, ranges) and Terraform’s pessimistic ~> operator, which behaves differently from npm’s tilde.">
+<meta property="og:url" content="https://abhinai20.github.io/devops-toolbox/tools/semver.html">
 <meta property="og:site_name" content="DevOps Toolbox">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="REST Endpoint Mock Generator — Free Online Tool | DevOps Toolbox">
-<meta name="twitter:description" content="Paste a sample JSON response and get a ready-to-run Express.js mock server for that endpoint.">
+<meta name="twitter:title" content="Version Constraint Checker — Free Online Tool | DevOps Toolbox">
+<meta name="twitter:description" content="Check which versions satisfy a constraint. Handles npm semver (^, ~, ranges) and Terraform’s pessimistic ~> operator, which behaves differently from npm’s tilde.">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "REST Endpoint Mock Generator",
-  "url": "https://abhinai20.github.io/devops-toolbox/tools/restmock.html",
-  "description": "Paste a sample JSON response and get a ready-to-run Express.js mock server for that endpoint.",
+  "name": "Version Constraint Checker",
+  "url": "https://abhinai20.github.io/devops-toolbox/tools/semver.html",
+  "description": "Check which versions satisfy a constraint. Handles npm semver (^, ~, ranges) and Terraform’s pessimistic ~> operator, which behaves differently from npm’s tilde.",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "Any",
   "offers": {
@@ -75,7 +75,7 @@
     <summary class="nav-group-label">Terraform &amp; AWS</summary>
     <a class="tab-btn" data-tool="tf" href="tf.html">TF Plan Formatter</a>
     <a class="tab-btn" data-tool="iampolicy" href="iampolicy.html">IAM Policy Analyzer</a>
-    <a class="tab-btn" data-tool="semver" href="semver.html">Version Constraint Checker</a>
+    <a class="tab-btn active" data-tool="semver" href="semver.html">Version Constraint Checker</a>
   </details>
 
   <details class="nav-group" open>
@@ -92,7 +92,7 @@
     <a class="tab-btn" data-tool="curl" href="curl.html">cURL → Code</a>
     <a class="tab-btn" data-tool="xml" href="xml.html">XML Formatter</a>
     <a class="tab-btn" data-tool="mermaid" href="mermaid.html">Mermaid Diagram Preview</a>
-    <a class="tab-btn active" data-tool="restmock" href="restmock.html">REST Endpoint Mock Generator</a>
+    <a class="tab-btn" data-tool="restmock" href="restmock.html">REST Endpoint Mock Generator</a>
     <a class="tab-btn" data-tool="envparser" href="envparser.html">.env File Validator</a>
     <a class="tab-btn" data-tool="nginxfmt" href="nginxfmt.html">Nginx Config Formatter</a>
   </details>
@@ -171,7 +171,23 @@
 
 
   <!-- K8S QUANTITY CONVERTER -->
-
+  <section class="tool-panel active" id="panel-semver">
+    <div class="panel-header"><h1>Version Constraint Checker</h1><button class="clear-btn" data-clear="semver">Clear</button></div>
+    <p class="tool-desc">Check which versions actually satisfy a constraint. Handles npm semver (<code>^</code>, <code>~</code>, ranges) <em>and</em> Terraform’s pessimistic <code>~&gt;</code>, which is not the same as npm’s tilde — <code>~&gt; 1.5</code> allows 1.6 but <code>~&gt; 1.5.0</code> does not.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="semver-constraint">Constraint (e.g. <code>~&gt; 1.5</code>, <code>^1.2.3</code>, <code>&gt;=1.0 &lt;2.0</code>)</label>
+        <input type="text" id="semver-constraint" spellcheck="false" placeholder="~> 1.5" value="~> 1.5">
+        <label for="semver-versions">Versions to test (space, comma or newline separated)</label>
+        <textarea id="semver-versions" spellcheck="false" placeholder="1.4.0 1.5.0 1.6.3 2.0.0">1.4.0 1.5.0 1.5.9 1.6.3 2.0.0</textarea>
+        <button id="semver-check-btn" class="primary-btn">Check</button>
+      </div>
+      <div class="io-col">
+        <label>Result</label>
+        <div id="semver-result" class="result-box result-idle">Enter a constraint and click "Check".</div>
+      </div>
+    </div>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="tf.html">TF Plan Formatter</a></li><li><a href="iampolicy.html">IAM Policy Analyzer</a></li><li><a href="k8squantity.html">K8s Quantity Converter</a></li></ul></div></section>
 
   <!-- CHMOD CALCULATOR -->
 
@@ -210,27 +226,7 @@
   <!-- K8S RESOURCE QUOTA CALCULATOR -->
 
   <!-- REST ENDPOINT MOCK GENERATOR -->
-  <section class="tool-panel active" id="panel-restmock">
-    <div class="panel-header"><h1>REST Endpoint Mock Generator</h1><button class="clear-btn" data-clear="restmock">Clear</button></div>
-    <p class="tool-desc">Paste a sample JSON response and get a ready-to-run Express.js mock server for that endpoint.</p>
-    <div class="tool-grid">
-      <div class="io-col">
-        <label for="restmock-method">Method</label>
-        <select id="restmock-method">
-          <option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option><option>PATCH</option>
-        </select>
-        <label class="second-label">Path</label>
-        <input type="text" id="restmock-path" spellcheck="false" placeholder="/api/users/:id" value="/api/users/:id">
-        <label class="second-label">Sample JSON response</label>
-        <textarea id="restmock-json" spellcheck="false" placeholder='{"id": 1, "name": "Bob"}'>{"id": 1, "name": "Bob"}</textarea>
-        <button id="restmock-generate-btn" class="primary-btn">Generate</button>
-      </div>
-      <div class="io-col">
-        <label>Express.js mock server</label>
-        <pre id="restmock-result" class="result-box result-idle tf-output">Fill in the fields and click "Generate".</pre>
-      </div>
-    </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li><li><a href="xml.html">XML Formatter</a></li></ul></div></section>
+
 
 
   <!-- .ENV FILE VALIDATOR -->

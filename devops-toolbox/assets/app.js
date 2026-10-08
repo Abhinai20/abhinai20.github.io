@@ -1805,3 +1805,299 @@ bind('sedbuilder-build-btn', 'click', () => {
   resultEl.textContent = cmd;
 });
 
+
+
+// ---------- kubectl JSONPath Tester ----------
+// kubectl's -o jsonpath= is notoriously fiddly and normally can only be
+// iterated against a live cluster. This evaluates the same common subset
+// against pasted JSON: dot paths, [*], [n], [a:b] slices and .. descent.
+function jpTokenize(expr) {
+  // kubectl wraps expressions in {...}; accept with or without.
+  let e = expr.trim();
+  if (e.startsWith('{') && e.endsWith('}')) e = e.slice(1, -1).trim();
+  if (e.startsWith('$')) e = e.slice(1);
+  const tokens = [];
+  let i = 0;
+  while (i < e.length) {
+    const c = e[i];
+    if (c === '.') {
+      if (e[i + 1] === '.') { tokens.push({ t: 'descend' }); i += 2; continue; }
+      i++; continue;
+    }
+    if (c === '[') {
+      const close = e.indexOf(']', i);
+      if (close === -1) throw new Error('unclosed [ at position ' + i);
+      const inner = e.slice(i + 1, close).trim();
+      i = close + 1;
+      if (inner === '*') { tokens.push({ t: 'wild' }); continue; }
+      if (inner.includes(':')) {
+        const [a, b] = inner.split(':');
+        tokens.push({ t: 'slice', from: a === '' ? null : Number(a), to: b === '' ? null : Number(b) });
+        continue;
+      }
+      const unquoted = inner.replace(/^['"]|['"]$/g, '');
+      if (unquoted !== inner) { tokens.push({ t: 'key', k: unquoted }); continue; }
+      tokens.push({ t: 'index', n: Number(inner) });
+      continue;
+    }
+    if (c === '*') { tokens.push({ t: 'wild' }); i++; continue; }
+    const m = e.slice(i).match(/^[A-Za-z0-9_$@-]+/);
+    if (!m) throw new Error('unexpected character "' + c + '" at position ' + i);
+    tokens.push({ t: 'key', k: m[0] });
+    i += m[0].length;
+  }
+  return tokens;
+}
+
+function jpEval(data, tokens) {
+  let cur = [data];
+  for (const tok of tokens) {
+    const next = [];
+    for (const node of cur) {
+      if (node === null || node === undefined) continue;
+      if (tok.t === 'key') {
+        if (typeof node === 'object' && !Array.isArray(node) && tok.k in node) next.push(node[tok.k]);
+      } else if (tok.t === 'index') {
+        if (Array.isArray(node)) {
+          const idx = tok.n < 0 ? node.length + tok.n : tok.n;
+          if (idx >= 0 && idx < node.length) next.push(node[idx]);
+        }
+      } else if (tok.t === 'slice') {
+        if (Array.isArray(node)) {
+          const from = tok.from === null ? 0 : tok.from;
+          const to = tok.to === null ? node.length : tok.to;
+          next.push(...node.slice(from, to));
+        }
+      } else if (tok.t === 'wild') {
+        if (Array.isArray(node)) next.push(...node);
+        else if (typeof node === 'object') next.push(...Object.values(node));
+      } else if (tok.t === 'descend') {
+        const stack = [node];
+        while (stack.length) {
+          const n = stack.pop();
+          if (n && typeof n === 'object') {
+            next.push(n);
+            stack.push(...(Array.isArray(n) ? n : Object.values(n)));
+          }
+        }
+      }
+    }
+    cur = next;
+  }
+  return cur;
+}
+
+bind('jsonpath-run-btn', 'click', () => {
+  const resultEl = document.getElementById('jsonpath-result');
+  const raw = document.getElementById('jsonpath-input').value.trim();
+  const expr = document.getElementById('jsonpath-expr').value.trim();
+  if (!raw) { resultEl.className = 'result-box result-idle'; resultEl.textContent = 'Paste some JSON first.'; return; }
+  if (!expr) { resultEl.className = 'result-box result-idle'; resultEl.textContent = 'Enter a JSONPath expression.'; return; }
+  let data;
+  try {
+    data = parseAsJsonOrYaml(raw).data;
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = e.message;
+    return;
+  }
+  let matches;
+  try {
+    matches = jpEval(data, jpTokenize(expr));
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = 'Could not parse the expression: ' + e.message;
+    return;
+  }
+  if (!matches.length) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = 'No matches. kubectl would print an empty result here.';
+    return;
+  }
+  // kubectl joins scalar results with spaces; show that plus the structured list.
+  const scalars = matches.every((m) => m === null || typeof m !== 'object');
+  const lines = [];
+  lines.push(matches.length + ' match(es).');
+  lines.push('');
+  if (scalars) {
+    lines.push('kubectl would print:');
+    lines.push(matches.map((m) => String(m)).join(' '));
+    lines.push('');
+  }
+  matches.forEach((m, i) => {
+    lines.push('[' + i + '] ' + (typeof m === 'object' && m !== null ? JSON.stringify(m, null, 2) : String(m)));
+  });
+  resultEl.className = 'result-box result-success';
+  resultEl.textContent = lines.join('\n');
+});
+
+// ---------- IAM Policy Analyzer ----------
+// aws accessanalyzer validate-policy needs credentials and the CLI; this is
+// the same class of check on a pasted document, offline.
+const IAM_SENSITIVE = [
+  'iam:', 'sts:assumerole', 'kms:', 'secretsmanager:', 'ec2:terminateinstances',
+  's3:deletebucket', 'organizations:', 'cloudtrail:stoplogging', 'lambda:invokefunction',
+];
+
+function iamFindings(policy) {
+  const out = [];
+  const statements = [].concat(policy.Statement || []);
+  if (!statements.length) out.push(['high', 'No Statement array found — this does not look like an IAM policy document.']);
+
+  statements.forEach((st, idx) => {
+    const label = 'Statement ' + (st.Sid ? '"' + st.Sid + '"' : '#' + (idx + 1));
+    const effect = st.Effect;
+    const actions = [].concat(st.Action || st.NotAction || []).map((a) => String(a).toLowerCase());
+    const resources = [].concat(st.Resource || st.NotResource || []).map((r) => String(r));
+    const hasCondition = !!st.Condition && Object.keys(st.Condition).length > 0;
+
+    if (effect !== 'Allow' && effect !== 'Deny') out.push(['high', label + ': Effect is "' + effect + '" — must be exactly "Allow" or "Deny".']);
+    if (st.NotAction) out.push(['medium', label + ': uses NotAction, which grants everything except the listed actions. Easy to widen accidentally — prefer an explicit Action list.']);
+    if (st.NotResource) out.push(['medium', label + ': uses NotResource, same inversion risk as NotAction.']);
+
+    if (effect === 'Allow') {
+      const starAction = actions.includes('*');
+      const starResource = resources.includes('*');
+      if (starAction && starResource) {
+        out.push(['high', label + ': Action "*" on Resource "*" — this is full administrator access.']);
+      } else {
+        if (starAction) out.push(['high', label + ': Action "*" grants every API call on the listed resources.']);
+        if (starResource) out.push(['medium', label + ': Resource "*" — the listed actions apply to every resource in the account.']);
+      }
+      actions.filter((a) => a.endsWith(':*')).forEach((a) => {
+        out.push(['medium', label + ': "' + a + '" grants every action in that service.']);
+      });
+      const sensitive = actions.filter((a) => IAM_SENSITIVE.some((s) => a.startsWith(s)));
+      if (sensitive.length && !hasCondition) {
+        out.push(['medium', label + ': sensitive action(s) ' + sensitive.join(', ') + ' with no Condition block. Consider scoping by source IP, MFA, or tag.']);
+      }
+      const principal = st.Principal;
+      if (principal === '*' || (principal && principal.AWS === '*')) {
+        out.push(['high', label + ': Principal "*" — this is world-readable unless a Condition restricts it.' + (hasCondition ? ' A Condition is present; verify it actually narrows the principal.' : '')]);
+      }
+    }
+    if (!st.Action && !st.NotAction) out.push(['high', label + ': no Action or NotAction key.']);
+    if (!st.Resource && !st.NotResource && !st.Principal) out.push(['medium', label + ': no Resource key (valid only for identity-based policies attached where resource is implied).']);
+  });
+  return out;
+}
+
+bind('iampolicy-check-btn', 'click', () => {
+  const resultEl = document.getElementById('iampolicy-result');
+  const raw = document.getElementById('iampolicy-input').value.trim();
+  if (!raw) { resultEl.className = 'result-box result-idle'; resultEl.textContent = 'Paste an IAM policy document first.'; return; }
+  let policy;
+  try {
+    policy = JSON.parse(raw);
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = 'Not valid JSON: ' + e.message;
+    return;
+  }
+  let findings;
+  try {
+    findings = iamFindings(policy);
+  } catch (e) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = 'Could not analyze: ' + e.message;
+    return;
+  }
+  if (!findings.length) {
+    resultEl.className = 'result-box result-success';
+    resultEl.textContent = 'No issues found against these checks. That is not a proof of least privilege — it only means none of the common over-permission patterns matched.';
+    return;
+  }
+  const high = findings.filter((f) => f[0] === 'high').length;
+  const lines = [findings.length + ' finding(s), ' + high + ' high severity:', ''];
+  findings.forEach((f) => lines.push((f[0] === 'high' ? '[HIGH]   ' : '[MEDIUM] ') + f[1]));
+  resultEl.className = high ? 'result-box result-error' : 'result-box result-success';
+  resultEl.textContent = lines.join('\n');
+});
+
+// ---------- Version Constraint Checker ----------
+// Handles npm/semver ranges AND Terraform's pessimistic "~>" operator, which
+// behaves differently from npm's "~" and is a common source of surprise.
+function vParse(v) {
+  const m = String(v).trim().replace(/^v/, '').match(/^(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:[-+](.*))?$/);
+  if (!m) return null;
+  return { major: +m[1], minor: +(m[2] || 0), patch: +(m[3] || 0), pre: m[4] || '', parts: [m[2], m[3]] };
+}
+function vCmp(a, b) {
+  if (a.major !== b.major) return a.major - b.major;
+  if (a.minor !== b.minor) return a.minor - b.minor;
+  if (a.patch !== b.patch) return a.patch - b.patch;
+  if (a.pre && !b.pre) return -1;
+  if (!a.pre && b.pre) return 1;
+  return a.pre < b.pre ? -1 : a.pre > b.pre ? 1 : 0;
+}
+function vSatisfiesOne(ver, clause) {
+  const c = clause.trim();
+  if (!c || c === '*') return true;
+  const m = c.match(/^(~>|>=|<=|!=|=|>|<|\^|~)?\s*(.+)$/);
+  if (!m) return false;
+  const op = m[1] || '=';
+  const target = vParse(m[2]);
+  if (!target) return false;
+  const cmp = vCmp(ver, target);
+  if (op === '=') return cmp === 0;
+  if (op === '!=') return cmp !== 0;
+  if (op === '>') return cmp > 0;
+  if (op === '<') return cmp < 0;
+  if (op === '>=') return cmp >= 0;
+  if (op === '<=') return cmp <= 0;
+  if (op === '^') {
+    // npm caret: allow changes that do not modify the leftmost non-zero part.
+    if (cmp < 0) return false;
+    if (target.major > 0) return ver.major === target.major;
+    if (target.minor > 0) return ver.major === 0 && ver.minor === target.minor;
+    return ver.major === 0 && ver.minor === 0 && ver.patch === target.patch;
+  }
+  if (op === '~') {
+    // npm tilde: allow patch-level changes if a minor is specified.
+    if (cmp < 0) return false;
+    if (target.parts[0] === undefined) return ver.major === target.major;
+    return ver.major === target.major && ver.minor === target.minor;
+  }
+  if (op === '~>') {
+    // Terraform pessimistic: the RIGHTMOST specified component may increment.
+    if (cmp < 0) return false;
+    if (target.parts[1] !== undefined) return ver.major === target.major && ver.minor === target.minor;
+    if (target.parts[0] !== undefined) return ver.major === target.major;
+    return ver.major === target.major;
+  }
+  return false;
+}
+function vSatisfies(ver, constraint) {
+  // Comma- or space-separated clauses are ANDed (both npm and Terraform style).
+  // Match operator+version as one unit so "~> 1.5" survives its internal space;
+  // longest operators first so "~>" beats "~" and ">=" beats ">".
+  const clauses = String(constraint).match(/(?:~>|[~^]|[<>!]=|[<>=])?\s*v?\d[A-Za-z0-9.+-]*/g);
+  if (!clauses) return false;
+  return clauses.every((clause) => vSatisfiesOne(ver, clause));
+}
+
+bind('semver-check-btn', 'click', () => {
+  const resultEl = document.getElementById('semver-result');
+  const constraint = document.getElementById('semver-constraint').value.trim();
+  const raw = document.getElementById('semver-versions').value.trim();
+  if (!constraint) { resultEl.className = 'result-box result-idle'; resultEl.textContent = 'Enter a constraint first.'; return; }
+  if (!raw) { resultEl.className = 'result-box result-idle'; resultEl.textContent = 'Enter one or more versions to test.'; return; }
+  const versions = raw.split(/[\s,]+/).filter(Boolean);
+  const lines = [];
+  let matched = 0, bad = 0;
+  versions.forEach((v) => {
+    const parsed = vParse(v);
+    if (!parsed) { lines.push('  ?  ' + v + '  (not a parseable version)'); bad++; return; }
+    let ok = false;
+    try { ok = vSatisfies(parsed, constraint); } catch (e) { ok = false; }
+    if (ok) matched++;
+    lines.push((ok ? '  YES  ' : '  no   ') + v);
+  });
+  const head = matched + ' of ' + versions.length + ' version(s) satisfy "' + constraint + '"'
+    + (bad ? ', ' + bad + ' unparseable' : '') + ':';
+  const note = constraint.includes('~>')
+    ? '\n\nNote: "~>" is Terraform’s pessimistic operator — the rightmost specified component may increment. "~> 1.5" allows 1.6 but not 2.0; "~> 1.5.0" allows 1.5.9 but not 1.6.0.'
+    : '';
+  resultEl.className = matched ? 'result-box result-success' : 'result-box result-error';
+  resultEl.textContent = head + '\n\n' + lines.join('\n') + note;
+});
