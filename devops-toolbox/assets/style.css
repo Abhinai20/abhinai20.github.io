@@ -630,3 +630,14 @@ textarea:focus, input[type="text"]:focus {
     overflow-y: auto;
   }
 }
+
+/* Small view count in the tool header, left of Clear. Hidden until the
+   counter endpoint answers, so it never shows a placeholder or a zero. */
+.view-count {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  margin-right: 2px;
+}
+.view-count[hidden] { display: none; }

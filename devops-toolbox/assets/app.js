@@ -2351,3 +2351,23 @@ bind('nav-filter', 'input', (e) => {
     try { localStorage.setItem('toolbox-theme', next); } catch (err) { /* private mode */ }
   });
 })();
+
+// ---------- View counter ----------
+// GitHub Pages is static, so the count comes from the same Cloudflare Worker
+// that backs the rephraser. Only the page path is sent — no pasted content.
+// If the endpoint is unreachable or the KV binding isn't set up yet it returns
+// 501 and the badge simply stays hidden, so the header is never left showing
+// a placeholder or a misleading zero.
+(function () {
+  const el = document.getElementById('view-count');
+  if (!el || typeof fetch !== 'function') return;
+  const endpoint = 'https://devops-toolbox-rephraser.abhinaibondada.workers.dev/views';
+  fetch(endpoint + '?p=' + encodeURIComponent(location.pathname), { method: 'GET' })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((data) => {
+      if (!data || typeof data.views !== 'number') return;
+      el.textContent = data.views.toLocaleString() + (data.views === 1 ? ' view' : ' views');
+      el.hidden = false;
+    })
+    .catch(() => { /* offline or blocked - leave the badge hidden */ });
+})();

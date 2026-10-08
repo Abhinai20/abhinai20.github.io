@@ -177,7 +177,7 @@
 
   <!-- K8S QUANTITY CONVERTER -->
   <section class="tool-panel active" id="panel-semver">
-    <div class="panel-header"><h1>Version Constraint Checker</h1><button class="clear-btn" data-clear="semver">Clear</button></div>
+    <div class="panel-header"><h1>Version Constraint Checker</h1><span class="view-count" id="view-count" hidden></span><button class="clear-btn" data-clear="semver">Clear</button></div>
     <p class="tool-desc">Check which versions actually satisfy a constraint. Handles npm semver (<code>^</code>, <code>~</code>, ranges) <em>and</em> Terraform’s pessimistic <code>~&gt;</code>, which is not the same as npm’s tilde — <code>~&gt; 1.5</code> allows 1.6 but <code>~&gt; 1.5.0</code> does not.</p>
     <div class="tool-grid">
       <div class="io-col">

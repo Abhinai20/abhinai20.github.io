@@ -4,3 +4,12 @@ compatibility_date = "2026-08-01"
 
 # GEMINI_API_KEY is set as a secret, never in this file:
 #   npx wrangler secret put GEMINI_API_KEY
+
+# View counter storage. Create the namespace once, then paste its id here:
+#   npx wrangler kv namespace create VIEWS
+#   npx wrangler deploy
+# Until this binding exists the /views endpoint returns 501 and the badge
+# stays hidden, so the site is unaffected.
+# [[kv_namespaces]]
+# binding = "VIEWS"
+# id = "PASTE_NAMESPACE_ID_HERE"
