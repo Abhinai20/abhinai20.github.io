@@ -858,7 +858,9 @@ bind('chmod-to-symbolic-btn', 'click', () => {
   }
 });
 
-// ---------- XML Formatter & Validator ----------
+// ---------- Shared: XML pretty-printer ----------
+// The standalone XML Formatter tool was removed; formatXml() stays because
+// the XML <-> JSON Converter below still pretty-prints its output with it.
 function formatXml(xml) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(xml, 'application/xml');
@@ -877,18 +879,6 @@ function formatXml(xml) {
   }
   return indented.join('\n');
 }
-bind('xml-format-btn', 'click', () => {
-  const resultEl = document.getElementById('xml-result');
-  try {
-    const input = document.getElementById('xml-input').value;
-    if (!input.trim()) throw new Error('Paste some XML first.');
-    resultEl.className = 'result-box result-success tf-output';
-    resultEl.textContent = formatXml(input);
-  } catch (e) {
-    resultEl.className = 'result-box result-error tf-output';
-    resultEl.textContent = e.message;
-  }
-});
 
 // ---------- CIDR Overlap Checker ----------
 function cidrRange(cidr) {
@@ -922,102 +912,6 @@ bind('cidroverlap-check-btn', 'click', () => {
       : `No overlaps found among ${ranges.length} CIDR blocks.`;
   } catch (e) {
     resultEl.className = 'result-box result-error';
-    resultEl.textContent = e.message;
-  }
-});
-
-// ---------- URL Analyzer ----------
-bind('urlanalyzer-analyze-btn', 'click', () => {
-  const resultEl = document.getElementById('urlanalyzer-result');
-  try {
-    const raw = document.getElementById('urlanalyzer-input').value.trim();
-    if (!raw) throw new Error('Enter a URL.');
-    const url = new URL(raw);
-    const lines = [
-      `Protocol:   ${url.protocol}`,
-      `Hostname:   ${url.hostname}`,
-      `Port:       ${url.port || '(default)'}`,
-      `Pathname:   ${url.pathname || '/'}`,
-      `Search:     ${url.search || '(none)'}`,
-      `Hash:       ${url.hash || '(none)'}`,
-      `Username:   ${url.username || '(none)'}`,
-      `Password:   ${url.password ? '(present)' : '(none)'}`,
-      `Origin:     ${url.origin}`,
-    ];
-    if (url.search) {
-      lines.push('', 'Query parameters:');
-      for (const [k, v] of url.searchParams.entries()) lines.push(`  ${k} = ${v}`);
-    }
-    resultEl.className = 'result-box result-success';
-    resultEl.textContent = lines.join('\n');
-  } catch (e) {
-    resultEl.className = 'result-box result-error';
-    resultEl.textContent = 'Invalid URL: ' + e.message;
-  }
-});
-
-// ---------- HTTP Status Explorer ----------
-const HTTP_STATUSES = {
-  200: ['OK', 'The request succeeded.'],
-  201: ['Created', 'The request succeeded and a new resource was created.'],
-  204: ['No Content', 'The request succeeded but there is no content to return.'],
-  301: ['Moved Permanently', 'The resource has permanently moved to a new URL.'],
-  302: ['Found', 'The resource temporarily resides at a different URL.'],
-  304: ['Not Modified', 'The cached version is still valid; no need to re-download.'],
-  400: ['Bad Request', 'The server could not understand the request due to invalid syntax.'],
-  401: ['Unauthorized', 'Authentication is required and has failed or not been provided.'],
-  403: ['Forbidden', 'The server understood the request but refuses to authorize it.'],
-  404: ['Not Found', "The server can't find the requested resource."],
-  405: ['Method Not Allowed', 'The request method is not supported for this resource.'],
-  408: ['Request Timeout', 'The server timed out waiting for the request.'],
-  409: ['Conflict', 'The request conflicts with the current state of the resource.'],
-  413: ['Payload Too Large', 'The request body is larger than the server is willing to process.'],
-  418: ["I'm a teapot", 'A joke status from RFC 2324 — the server refuses to brew coffee in a teapot.'],
-  429: ['Too Many Requests', 'The user has sent too many requests in a given time ("rate limited").'],
-  500: ['Internal Server Error', 'The server encountered an unexpected condition. Common causes: unhandled exceptions, misconfiguration.'],
-  502: ['Bad Gateway', 'A gateway/proxy server got an invalid response from an upstream server. Common causes: upstream crashed, wrong upstream address, upstream still starting up.'],
-  503: ['Service Unavailable', 'The server is not ready to handle the request. Common causes: overloaded, in maintenance, health check failing.'],
-  504: ['Gateway Timeout', "A gateway/proxy server didn't get a response from the upstream server in time. Common causes: slow backend, network partition, deadlock."],
-};
-bind('httpstatus-lookup-btn', 'click', () => {
-  const resultEl = document.getElementById('httpstatus-result');
-  try {
-    const raw = document.getElementById('httpstatus-input').value.trim();
-    const code = Number(raw);
-    if (!raw || Number.isNaN(code) || code < 100 || code > 599) throw new Error('Enter a valid HTTP status code (100-599).');
-    const known = HTTP_STATUSES[code];
-    const category = code < 200 ? 'Informational' : code < 300 ? 'Success' : code < 400 ? 'Redirection' : code < 500 ? 'Client Error' : 'Server Error';
-    resultEl.className = 'result-box result-success';
-    resultEl.textContent = known
-      ? `${code} ${known[0]}\nCategory: ${category}\n\n${known[1]}`
-      : `${code}\nCategory: ${category}\n\nNo detailed description on file for this specific code, but it falls in the ${category} range.`;
-  } catch (e) {
-    resultEl.className = 'result-box result-error';
-    resultEl.textContent = e.message;
-  }
-});
-
-// ---------- SQL Formatter ----------
-function formatSql(sql) {
-  const keywords = ['SELECT', 'FROM', 'WHERE', 'LEFT JOIN', 'RIGHT JOIN', 'INNER JOIN', 'JOIN', 'GROUP BY', 'ORDER BY', 'HAVING', 'LIMIT', 'INSERT INTO', 'VALUES', 'UPDATE', 'SET', 'DELETE FROM', 'AND', 'OR'];
-  const sorted = [...keywords].sort((a, b) => b.length - a.length);
-  let formatted = sql.replace(/\s+/g, ' ').trim();
-  for (const kw of sorted) {
-    const pattern = kw.split(' ').join('\\s+');
-    const re = new RegExp('\\b' + pattern + '\\b', 'gi');
-    formatted = formatted.replace(re, '\n' + kw);
-  }
-  return formatted.split('\n').map((l) => l.trim()).filter(Boolean).join('\n');
-}
-bind('sqlfmt-format-btn', 'click', () => {
-  const resultEl = document.getElementById('sqlfmt-result');
-  try {
-    const input = document.getElementById('sqlfmt-input').value;
-    if (!input.trim()) throw new Error('Paste a SQL query first.');
-    resultEl.className = 'result-box result-success tf-output';
-    resultEl.textContent = formatSql(input);
-  } catch (e) {
-    resultEl.className = 'result-box result-error tf-output';
     resultEl.textContent = e.message;
   }
 });
@@ -2100,4 +1994,179 @@ bind('semver-check-btn', 'click', () => {
     : '';
   resultEl.className = matched ? 'result-box result-success' : 'result-box result-error';
   resultEl.textContent = head + '\n\n' + lines.join('\n') + note;
+});
+
+
+// ---------- SLO / Error Budget Calculator ----------
+// The classic SRE question ("how much downtime does 99.9% actually buy me?")
+// is pure arithmetic with units nobody keeps in their head, and there is no
+// CLI for it at all.
+const SLO_WINDOWS = { '1': 'day', '7': 'week', '28': '28 days', '30': '30 days', '90': 'quarter (90d)', '365': 'year' };
+
+function fmtDuration(seconds) {
+  if (seconds < 1) return (seconds * 1000).toFixed(0) + ' ms';
+  if (seconds < 60) return seconds.toFixed(1) + ' s';
+  const d = Math.floor(seconds / 86400);
+  const h = Math.floor((seconds % 86400) / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.round(seconds % 60);
+  const parts = [];
+  if (d) parts.push(d + 'd');
+  if (h) parts.push(h + 'h');
+  if (m) parts.push(m + 'm');
+  if (s && !d) parts.push(s + 's');
+  return parts.join(' ') || '0s';
+}
+
+bind('slo-calc-btn', 'click', () => {
+  const resultEl = document.getElementById('slo-result');
+  const target = parseFloat(document.getElementById('slo-target').value);
+  const days = parseFloat(document.getElementById('slo-window').value);
+  const observedRaw = document.getElementById('slo-observed').value.trim();
+
+  if (!isFinite(target) || target <= 0 || target >= 100) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = 'Enter an SLO target between 0 and 100 (exclusive), e.g. 99.9';
+    return;
+  }
+  const windowSeconds = days * 86400;
+  const budgetFraction = (100 - target) / 100;
+  const budgetSeconds = windowSeconds * budgetFraction;
+
+  const lines = [];
+  lines.push(target + '% over ' + (SLO_WINDOWS[String(days)] || days + ' days') + ' allows:');
+  lines.push('');
+  lines.push('  Error budget   ' + fmtDuration(budgetSeconds));
+  lines.push('  Per day        ' + fmtDuration(86400 * budgetFraction));
+  lines.push('  Per week       ' + fmtDuration(604800 * budgetFraction));
+  lines.push('  Per 30 days    ' + fmtDuration(2592000 * budgetFraction));
+
+  if (observedRaw) {
+    const observed = parseFloat(observedRaw);
+    if (!isFinite(observed) || observed < 0 || observed > 100) {
+      resultEl.className = 'result-box result-error';
+      resultEl.textContent = 'Observed availability must be between 0 and 100.';
+      return;
+    }
+    const usedSeconds = windowSeconds * ((100 - observed) / 100);
+    const remaining = budgetSeconds - usedSeconds;
+    const pctUsed = budgetSeconds === 0 ? 100 : (usedSeconds / budgetSeconds) * 100;
+    lines.push('');
+    lines.push('Observed ' + observed + '%:');
+    lines.push('  Budget spent   ' + fmtDuration(usedSeconds) + '  (' + pctUsed.toFixed(1) + '% of budget)');
+    if (remaining >= 0) {
+      lines.push('  Remaining      ' + fmtDuration(remaining));
+      lines.push('');
+      lines.push('  Within SLO. ' + (pctUsed > 75 ? 'Budget is more than three-quarters spent - treat further risk as expensive.' : 'Room to take deliberate risk.'));
+    } else {
+      lines.push('  Overspent by   ' + fmtDuration(-remaining));
+      lines.push('');
+      lines.push('  SLO breached. The usual policy response is to freeze feature risk and spend the cycle on reliability.');
+    }
+  }
+  resultEl.className = 'result-box result-success';
+  resultEl.textContent = lines.join('\n');
+});
+
+// ---------- Kubernetes Manifest Generator ----------
+// kubectl create deployment --dry-run gets you a Deployment and nothing else;
+// stitching a matching Service and Ingress by hand is the actual chore.
+function yamlQuote(v) {
+  return /^[A-Za-z0-9._/-]+$/.test(v) ? v : JSON.stringify(v);
+}
+
+bind('k8sgen-generate-btn', 'click', () => {
+  const resultEl = document.getElementById('k8sgen-result');
+  const name = document.getElementById('k8sgen-name').value.trim();
+  const image = document.getElementById('k8sgen-image').value.trim();
+  const port = parseInt(document.getElementById('k8sgen-port').value, 10);
+  const replicas = parseInt(document.getElementById('k8sgen-replicas').value, 10);
+  const svcType = document.getElementById('k8sgen-svctype').value;
+  const host = document.getElementById('k8sgen-host').value.trim();
+
+  if (!name) { resultEl.className = 'result-box result-error'; resultEl.textContent = 'App name is required.'; return; }
+  if (!/^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/.test(name)) {
+    resultEl.className = 'result-box result-error';
+    resultEl.textContent = 'App name must be a valid RFC 1123 label: lowercase alphanumerics and "-", starting and ending alphanumeric.';
+    return;
+  }
+  if (!image) { resultEl.className = 'result-box result-error'; resultEl.textContent = 'Container image is required.'; return; }
+  if (!isFinite(port) || port < 1 || port > 65535) { resultEl.className = 'result-box result-error'; resultEl.textContent = 'Container port must be 1-65535.'; return; }
+  const reps = isFinite(replicas) && replicas > 0 ? replicas : 1;
+
+  const warn = [];
+  if (!image.includes(':') || image.endsWith(':latest')) warn.push('# WARNING: image has no tag or uses :latest - pin a digest or version for reproducible rollouts.');
+
+  const out = [];
+  if (warn.length) { out.push(warn.join('\n')); out.push(''); }
+  out.push('apiVersion: apps/v1');
+  out.push('kind: Deployment');
+  out.push('metadata:');
+  out.push('  name: ' + name);
+  out.push('  labels:');
+  out.push('    app: ' + name);
+  out.push('spec:');
+  out.push('  replicas: ' + reps);
+  out.push('  selector:');
+  out.push('    matchLabels:');
+  out.push('      app: ' + name);
+  out.push('  template:');
+  out.push('    metadata:');
+  out.push('      labels:');
+  out.push('        app: ' + name);
+  out.push('    spec:');
+  out.push('      containers:');
+  out.push('        - name: ' + name);
+  out.push('          image: ' + yamlQuote(image));
+  out.push('          ports:');
+  out.push('            - containerPort: ' + port);
+  out.push('          resources:');
+  out.push('            requests:');
+  out.push('              cpu: 100m');
+  out.push('              memory: 128Mi');
+  out.push('            limits:');
+  out.push('              memory: 256Mi');
+  out.push('          readinessProbe:');
+  out.push('            httpGet:');
+  out.push('              path: /healthz');
+  out.push('              port: ' + port);
+  out.push('          securityContext:');
+  out.push('            allowPrivilegeEscalation: false');
+  out.push('            runAsNonRoot: true');
+  out.push('            capabilities:');
+  out.push('              drop: ["ALL"]');
+  out.push('---');
+  out.push('apiVersion: v1');
+  out.push('kind: Service');
+  out.push('metadata:');
+  out.push('  name: ' + name);
+  out.push('spec:');
+  out.push('  type: ' + svcType);
+  out.push('  selector:');
+  out.push('    app: ' + name);
+  out.push('  ports:');
+  out.push('    - port: 80');
+  out.push('      targetPort: ' + port);
+  out.push('      protocol: TCP');
+  if (host) {
+    out.push('---');
+    out.push('apiVersion: networking.k8s.io/v1');
+    out.push('kind: Ingress');
+    out.push('metadata:');
+    out.push('  name: ' + name);
+    out.push('spec:');
+    out.push('  rules:');
+    out.push('    - host: ' + yamlQuote(host));
+    out.push('      http:');
+    out.push('        paths:');
+    out.push('          - path: /');
+    out.push('            pathType: Prefix');
+    out.push('            backend:');
+    out.push('              service:');
+    out.push('                name: ' + name);
+    out.push('                port:');
+    out.push('                  number: 80');
+  }
+  resultEl.className = 'result-box result-success';
+  resultEl.textContent = out.join('\n');
 });

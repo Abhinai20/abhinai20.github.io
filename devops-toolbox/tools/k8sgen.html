@@ -5,28 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8946983522733896"
      crossorigin="anonymous"></script>
-<title>URL Analyzer — Free Online Tool | DevOps Toolbox</title>
-<meta name="description" content="Paste a URL and see every component broken down.">
+<title>Kubernetes Manifest Generator — Free Online Tool | DevOps Toolbox</title>
+<meta name="description" content="Generate a matching Deployment, Service and Ingress from an image, port and hostname - with resource requests, a readiness probe and a hardened securityContext already filled in.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230A2540'/><text y='.9em' x='50%25' text-anchor='middle' font-size='68' font-family='monospace' fill='%23E85D26'>&gt;_</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="canonical" href="https://abhinai20.github.io/devops-toolbox/tools/urlanalyzer.html">
+<link rel="canonical" href="https://abhinai20.github.io/devops-toolbox/tools/k8sgen.html">
 <meta property="og:type" content="website">
-<meta property="og:title" content="URL Analyzer — Free Online Tool | DevOps Toolbox">
-<meta property="og:description" content="Paste a URL and see every component broken down.">
-<meta property="og:url" content="https://abhinai20.github.io/devops-toolbox/tools/urlanalyzer.html">
+<meta property="og:title" content="Kubernetes Manifest Generator — Free Online Tool | DevOps Toolbox">
+<meta property="og:description" content="Generate a matching Deployment, Service and Ingress from an image, port and hostname - with resource requests, a readiness probe and a hardened securityContext already filled in.">
+<meta property="og:url" content="https://abhinai20.github.io/devops-toolbox/tools/k8sgen.html">
 <meta property="og:site_name" content="DevOps Toolbox">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="URL Analyzer — Free Online Tool | DevOps Toolbox">
-<meta name="twitter:description" content="Paste a URL and see every component broken down.">
+<meta name="twitter:title" content="Kubernetes Manifest Generator — Free Online Tool | DevOps Toolbox">
+<meta name="twitter:description" content="Generate a matching Deployment, Service and Ingress from an image, port and hostname - with resource requests, a readiness probe and a hardened securityContext already filled in.">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "URL Analyzer",
-  "url": "https://abhinai20.github.io/devops-toolbox/tools/urlanalyzer.html",
-  "description": "Paste a URL and see every component broken down.",
+  "name": "Kubernetes Manifest Generator",
+  "url": "https://abhinai20.github.io/devops-toolbox/tools/k8sgen.html",
+  "description": "Generate a matching Deployment, Service and Ingress from an image, port and hostname - with resource requests, a readiness probe and a hardened securityContext already filled in.",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "Any",
   "offers": {
@@ -36,7 +36,7 @@
   }
 }
 </script>
-<link rel="stylesheet" href="../assets/style.css?v=23">
+<link rel="stylesheet" href="../assets/style.css?v=24">
 </head>
 <body>
 
@@ -57,7 +57,6 @@
     <a class="tab-btn" data-tool="yaml" href="../index.html">YAML Validator</a>
     <a class="tab-btn" data-tool="jsonyaml" href="jsonyaml.html">JSON ↔ YAML</a>
     <a class="tab-btn" data-tool="md2word" href="md2word.html">Markdown → Word</a>
-    <a class="tab-btn" data-tool="sqlfmt" href="sqlfmt.html">SQL Formatter</a>
     <a class="tab-btn" data-tool="xmljson" href="xmljson.html">XML ↔ JSON</a>
     <a class="tab-btn" data-tool="jsonschema" href="jsonschema.html">JSON Schema Generator</a>
   </details>
@@ -69,6 +68,12 @@
     <a class="tab-btn" data-tool="k8squantity" href="k8squantity.html">K8s Quantity Converter</a>
     <a class="tab-btn" data-tool="resourcequota" href="resourcequota.html">K8s Resource Quota Calculator</a>
     <a class="tab-btn" data-tool="jsonpath" href="jsonpath.html">kubectl JSONPath Tester</a>
+    <a class="tab-btn active" data-tool="k8sgen" href="k8sgen.html">K8s Manifest Generator</a>
+  </details>
+
+  <details class="nav-group" open>
+    <summary class="nav-group-label">Reliability</summary>
+    <a class="tab-btn" data-tool="slo" href="slo.html">SLO / Error Budget Calculator</a>
   </details>
 
   <details class="nav-group" open>
@@ -90,7 +95,6 @@
     <summary class="nav-group-label">Text &amp; Code</summary>
     <a class="tab-btn" data-tool="regex" href="regex.html">Regex Tester</a>
     <a class="tab-btn" data-tool="curl" href="curl.html">cURL → Code</a>
-    <a class="tab-btn" data-tool="xml" href="xml.html">XML Formatter</a>
     <a class="tab-btn" data-tool="mermaid" href="mermaid.html">Mermaid Diagram Preview</a>
     <a class="tab-btn" data-tool="restmock" href="restmock.html">REST Endpoint Mock Generator</a>
     <a class="tab-btn" data-tool="envparser" href="envparser.html">.env File Validator</a>
@@ -110,8 +114,6 @@
     <summary class="nav-group-label">Networking</summary>
     <a class="tab-btn" data-tool="cidr" href="cidr.html">CIDR Calculator</a>
     <a class="tab-btn" data-tool="cidroverlap" href="cidroverlap.html">CIDR Overlap Checker</a>
-    <a class="tab-btn active" data-tool="urlanalyzer" href="urlanalyzer.html">URL Analyzer</a>
-    <a class="tab-btn" data-tool="httpstatus" href="httpstatus.html">HTTP Status Explorer</a>
   </details>
 
   <details class="nav-group" open>
@@ -171,7 +173,35 @@
 
 
   <!-- K8S QUANTITY CONVERTER -->
-
+  <section class="tool-panel active" id="panel-k8sgen">
+    <div class="panel-header"><h1>Kubernetes Manifest Generator</h1><button class="clear-btn" data-clear="k8sgen">Clear</button></div>
+    <p class="tool-desc"><code>kubectl create deployment --dry-run</code> gives you a Deployment and nothing else; stitching a matching Service and Ingress by hand is the actual chore. This emits all three, with resource requests, a readiness probe and a non-root <code>securityContext</code> already in place.</p>
+    <div class="tool-grid">
+      <div class="io-col">
+        <label for="k8sgen-name">App name (RFC 1123 label)</label>
+        <input type="text" id="k8sgen-name" spellcheck="false" placeholder="checkout-api" value="checkout-api">
+        <label for="k8sgen-image">Container image</label>
+        <input type="text" id="k8sgen-image" spellcheck="false" placeholder="ghcr.io/acme/checkout:1.4.2" value="ghcr.io/acme/checkout:1.4.2">
+        <label for="k8sgen-port">Container port</label>
+        <input type="text" id="k8sgen-port" spellcheck="false" placeholder="8080" value="8080">
+        <label for="k8sgen-replicas">Replicas</label>
+        <input type="text" id="k8sgen-replicas" spellcheck="false" placeholder="2" value="2">
+        <label for="k8sgen-svctype">Service type</label>
+        <select id="k8sgen-svctype">
+          <option value="ClusterIP">ClusterIP</option>
+          <option value="NodePort">NodePort</option>
+          <option value="LoadBalancer">LoadBalancer</option>
+        </select>
+        <label for="k8sgen-host">Ingress host (leave blank to skip the Ingress)</label>
+        <input type="text" id="k8sgen-host" spellcheck="false" placeholder="checkout.example.com" value="checkout.example.com">
+        <button id="k8sgen-generate-btn" class="primary-btn">Generate</button>
+      </div>
+      <div class="io-col">
+        <label>Manifests</label>
+        <div id="k8sgen-result" class="result-box result-idle tf-output">Fill in the fields and click "Generate".</div>
+      </div>
+    </div>
+  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="k8slint.html">K8s Manifest Analyzer</a></li><li><a href="k8squantity.html">K8s Quantity Converter</a></li><li><a href="resourcequota.html">K8s Resource Quota Calculator</a></li></ul></div></section>
 
   <!-- CHMOD CALCULATOR -->
 
@@ -183,21 +213,7 @@
 
 
   <!-- URL ANALYZER -->
-  <section class="tool-panel active" id="panel-urlanalyzer">
-    <div class="panel-header"><h1>URL Analyzer</h1><button class="clear-btn" data-clear="urlanalyzer">Clear</button></div>
-    <p class="tool-desc">Paste a URL and see every component broken down.</p>
-    <div class="tool-grid tool-grid-single">
-      <div class="io-col">
-        <label for="urlanalyzer-input">URL</label>
-        <input type="text" id="urlanalyzer-input" spellcheck="false" placeholder="https://user:pass@example.com:8443/api?x=1" value="https://user:pass@example.com:8443/api?x=1">
-        <button id="urlanalyzer-analyze-btn" class="primary-btn">Analyze</button>
-      </div>
-      <div class="io-col">
-        <label>Breakdown</label>
-        <div id="urlanalyzer-result" class="result-box result-idle">Enter a URL and click "Analyze".</div>
-      </div>
-    </div>
-  <div class="related-tools"><h2>Related tools</h2><ul><li><a href="cidr.html">CIDR Calculator</a></li><li><a href="cidroverlap.html">CIDR Overlap Checker</a></li><li><a href="httpstatus.html">HTTP Status Explorer</a></li></ul></div></section>
+
 
   <!-- HTTP STATUS EXPLORER -->
 
@@ -254,6 +270,6 @@
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@18.0.11/lib/marked.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js"></script><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-<script src="../assets/app.js?v=23"></script>
+<script src="../assets/app.js?v=24"></script>
 </body>
 </html>
