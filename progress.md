@@ -359,3 +359,59 @@ Net diff: 45 files changed, 141 insertions(+), 12723 deletions(-), 7 files delet
 ## How to resume
 
 Open a Claude Code session with working directory `C:\Users\Minfy\Documents\GitHubRootSite` and say "resume the DevOps Toolbox work" — this file has the context needed.
+
+## Tool pages were 33 near-duplicates — fixed (2026-10-08)
+
+**Symptom.** Search Console, 28 days to 2026-10-05: this property drew 16
+impressions and ranked at avg position 5.0 — but on exactly **one** page, the
+`devops-toolbox/` index, for the navigational query "devops toolbox github".
+All 33 tool pages drew zero impressions, ever.
+
+**Cause.** Every tool page shipped the *entire* toolbox. Each of the 34 HTML
+files contained all 34 `<section class="tool-panel">` blocks, with CSS
+(`.tool-panel { display: none }`) showing only the active one. So the pages
+were ~99% byte-identical: all 55KB, all ~2,125 words, same panels in the same
+DOM order. Each page also carried **34 `<h1>` tags**, and the first one — the
+strongest on-page heading signal — read "AI Rephraser" on every page,
+including `chmod.html` and `k8slint.html`.
+
+That is near-duplicate content. Google picks one representative per cluster
+and drops the rest, which is precisely the observed pattern: the index page
+indexed and ranking, the other 33 invisible. Nothing else was wrong — sitemap
+lists all 35 URLs, robots is `Allow: /`, canonicals were already correct and
+self-referential, meta descriptions were already unique and specific, and the
+JSON-LD `WebApplication` block was already per-tool.
+
+**Fix, in two parts (they had to land together).**
+
+1. `assets/app.js` — 43 top-level bindings were unguarded
+   `document.getElementById('x').addEventListener(...)`. With panels removed
+   those return `null`, throw, and halt the rest of the file, breaking every
+   tool defined after the throw. Added a `bind(id, type, handler)` helper that
+   no-ops when the element is absent, and rewrote all 43 call sites. Also
+   guarded the one `document.getElementById('cron-explain-btn').click()` in
+   the `DOMContentLoaded` handler with `?.`.
+2. All 34 pages — stripped every `tool-panel` section except the page's own.
+   ~55KB -> ~10KB each. Each page now has exactly one `<h1>`, and it matches
+   its own `<title>`.
+
+**Verified before pushing:** `node --check` on app.js; `<section>` open/close
+balanced on all 34 pages; one h1 per page matching its tool; and a static
+cross-reference pass (38 app.js blocks vs. the ids present in each page)
+confirming all 34 active tool blocks reference only elements that still exist
+on their own page. The Chrome extension wasn't connected, so this was verified
+statically rather than by clicking through a live browser — worth a manual
+smoke test of two or three tools.
+
+**Behaviour change:** clicking a nav tab used to swap panels client-side via
+`pushState`. With one panel per page, `activateTool()` now returns false and
+the handler returns *before* `e.preventDefault()`, so the real link navigates.
+Slightly slower per switch, and correct — distinct URLs now serve distinct
+content, which is the entire point.
+
+**What to watch:** re-run the `Search Performance` workflow in either blog repo
+in 2-3 weeks. The question is whether tool pages start picking up impressions
+for their own terms ("chmod calculator", "cidr overlap checker", etc.). Note
+this is a *different* problem from the two blogs' — those are
+"Discovered - currently not indexed" (a quality verdict on generated content);
+this was a plain deduplication bug on pages Google was willing to crawl.

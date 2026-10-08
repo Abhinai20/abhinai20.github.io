@@ -94,8 +94,17 @@ document.querySelectorAll('.clear-btn').forEach((btn) => {
   });
 });
 
+// Null-safe event binding. Every tool page now ships ONLY its own panel, so
+// most element ids are absent on any given page - a bare
+// document.getElementById('x').addEventListener(...) would throw and halt the
+// rest of this file. bind() simply does nothing when the element isn't here.
+function bind(id, type, handler, options) {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener(type, handler, options);
+}
+
 // ---------- YAML Validator ----------
-document.getElementById('yaml-check-btn').addEventListener('click', () => {
+bind('yaml-check-btn', 'click', () => {
   const input = document.getElementById('yaml-input').value;
   const resultEl = document.getElementById('yaml-result');
 
@@ -122,7 +131,7 @@ document.getElementById('yaml-check-btn').addEventListener('click', () => {
 });
 
 // ---------- Terraform Plan Formatter ----------
-document.getElementById('tf-format-btn').addEventListener('click', () => {
+bind('tf-format-btn', 'click', () => {
   const input = document.getElementById('tf-input').value;
   const resultEl = document.getElementById('tf-result');
 
@@ -236,7 +245,7 @@ function explainCron(expr) {
   return sentence + '.';
 }
 
-document.getElementById('cron-explain-btn').addEventListener('click', () => {
+bind('cron-explain-btn', 'click', () => {
   const input = document.getElementById('cron-input').value;
   const resultEl = document.getElementById('cron-result');
 
@@ -258,11 +267,11 @@ document.getElementById('cron-explain-btn').addEventListener('click', () => {
 
 // Explain the default example on load
 window.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('cron-explain-btn').click();
+  document.getElementById('cron-explain-btn')?.click();
 });
 
 // ---------- Markdown to Word ----------
-document.getElementById('md-convert-btn').addEventListener('click', () => {
+bind('md-convert-btn', 'click', () => {
   const input = document.getElementById('md-input').value;
   const previewEl = document.getElementById('md-preview');
 
@@ -325,7 +334,7 @@ function parseAsJsonOrYaml(text) {
 }
 
 // ---------- JSON <-> YAML ----------
-document.getElementById('jy-to-yaml-btn').addEventListener('click', () => {
+bind('jy-to-yaml-btn', 'click', () => {
   const resultEl = document.getElementById('jy-result');
   try {
     const { data } = parseAsJsonOrYaml(document.getElementById('jy-input').value);
@@ -336,7 +345,7 @@ document.getElementById('jy-to-yaml-btn').addEventListener('click', () => {
     resultEl.textContent = e.message;
   }
 });
-document.getElementById('jy-to-json-btn').addEventListener('click', () => {
+bind('jy-to-json-btn', 'click', () => {
   const resultEl = document.getElementById('jy-result');
   try {
     const { data } = parseAsJsonOrYaml(document.getElementById('jy-input').value);
@@ -363,7 +372,7 @@ function findContainers(obj, path, out) {
     }
   }
 }
-document.getElementById('k8s-lint-btn').addEventListener('click', () => {
+bind('k8s-lint-btn', 'click', () => {
   const resultEl = document.getElementById('k8s-result');
   let manifest;
   try {
@@ -431,7 +440,7 @@ document.getElementById('k8s-lint-btn').addEventListener('click', () => {
 });
 
 // ---------- Dockerfile Checker ----------
-document.getElementById('docker-lint-btn').addEventListener('click', () => {
+bind('docker-lint-btn', 'click', () => {
   const input = document.getElementById('docker-input').value;
   const resultEl = document.getElementById('docker-result');
   if (!input.trim()) {
@@ -499,7 +508,7 @@ function base64UrlDecode(str) {
   for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
   return new TextDecoder('utf-8').decode(bytes);
 }
-document.getElementById('jwt-decode-btn').addEventListener('click', () => {
+bind('jwt-decode-btn', 'click', () => {
   const resultEl = document.getElementById('jwt-result');
   const token = document.getElementById('jwt-input').value.trim();
   const parts = token.split('.');
@@ -529,7 +538,7 @@ document.getElementById('jwt-decode-btn').addEventListener('click', () => {
 });
 
 // ---------- Regex Tester ----------
-document.getElementById('regex-test-btn').addEventListener('click', () => {
+bind('regex-test-btn', 'click', () => {
   const resultEl = document.getElementById('regex-result');
   const pattern = document.getElementById('regex-pattern').value;
   const flags = document.getElementById('regex-flags').value;
@@ -565,7 +574,7 @@ document.getElementById('regex-test-btn').addEventListener('click', () => {
 });
 
 // ---------- Unix Timestamp Converter ----------
-document.getElementById('ts-to-date-btn').addEventListener('click', () => {
+bind('ts-to-date-btn', 'click', () => {
   const resultEl = document.getElementById('ts-result');
   const raw = document.getElementById('ts-unix').value.trim();
   const ts = Number(raw);
@@ -578,7 +587,7 @@ document.getElementById('ts-to-date-btn').addEventListener('click', () => {
   resultEl.className = 'result-box result-success';
   resultEl.textContent = `UTC:   ${d.toUTCString()}\nISO:   ${d.toISOString()}\nLocal: ${d.toString()}`;
 });
-document.getElementById('ts-to-unix-btn').addEventListener('click', () => {
+bind('ts-to-unix-btn', 'click', () => {
   const resultEl = document.getElementById('ts-result');
   const raw = document.getElementById('ts-date').value;
   if (!raw) {
@@ -601,7 +610,7 @@ const TIMEZONES = [
   ['Tokyo (JST)', 'Asia/Tokyo'],
   ['Sydney (AEST/AEDT)', 'Australia/Sydney'],
 ];
-document.getElementById('tz-convert-btn').addEventListener('click', () => {
+bind('tz-convert-btn', 'click', () => {
   const resultEl = document.getElementById('tz-result');
   const raw = document.getElementById('tz-datetime').value;
   if (!raw) {
@@ -688,7 +697,7 @@ function generatePowerShell({ url, method, headers, data }) {
   const headerLines = headers.map((h) => { const i = h.indexOf(':'); return `    "${h.slice(0, i).trim()}" = "${h.slice(i + 1).trim()}"`; }).join('\n');
   return `Invoke-RestMethod -Uri "${url}" -Method ${method}${headers.length ? ` -Headers @{\n${headerLines}\n}` : ''}${data ? ` -Body '${data}'` : ''}`;
 }
-document.getElementById('curl-convert-btn').addEventListener('click', () => {
+bind('curl-convert-btn', 'click', () => {
   const resultEl = document.getElementById('curl-result');
   const input = document.getElementById('curl-input').value;
   if (!input.trim()) {
@@ -739,7 +748,7 @@ function cidrInfo(cidr) {
     total, usableCount, firstUsable: intToIp(firstUsable), lastUsable: intToIp(lastUsable), prefix,
   };
 }
-document.getElementById('cidr-calc-btn').addEventListener('click', () => {
+bind('cidr-calc-btn', 'click', () => {
   const resultEl = document.getElementById('cidr-result');
   try {
     const r = cidrInfo(document.getElementById('cidr-input').value);
@@ -780,7 +789,7 @@ function formatBytes(bytes) {
   }
   return `${bytes} B`;
 }
-document.getElementById('k8sq-convert-btn').addEventListener('click', () => {
+bind('k8sq-convert-btn', 'click', () => {
   const resultEl = document.getElementById('k8sq-result');
   try {
     const raw = document.getElementById('k8sq-input').value.trim();
@@ -820,7 +829,7 @@ function octalToSymbolic(oct) {
   const map = { 0: '---', 1: '--x', 2: '-w-', 3: '-wx', 4: 'r--', 5: 'r-x', 6: 'rw-', 7: 'rwx' };
   return digits.split('').map((d) => map[d]).join('');
 }
-document.getElementById('chmod-to-octal-btn').addEventListener('click', () => {
+bind('chmod-to-octal-btn', 'click', () => {
   const resultEl = document.getElementById('chmod-result');
   try {
     const sym = document.getElementById('chmod-symbolic').value;
@@ -834,7 +843,7 @@ document.getElementById('chmod-to-octal-btn').addEventListener('click', () => {
     resultEl.textContent = e.message;
   }
 });
-document.getElementById('chmod-to-symbolic-btn').addEventListener('click', () => {
+bind('chmod-to-symbolic-btn', 'click', () => {
   const resultEl = document.getElementById('chmod-result');
   try {
     const oct = document.getElementById('chmod-octal').value;
@@ -868,7 +877,7 @@ function formatXml(xml) {
   }
   return indented.join('\n');
 }
-document.getElementById('xml-format-btn').addEventListener('click', () => {
+bind('xml-format-btn', 'click', () => {
   const resultEl = document.getElementById('xml-result');
   try {
     const input = document.getElementById('xml-input').value;
@@ -895,7 +904,7 @@ function cidrRange(cidr) {
 function rangesOverlap(a, b) {
   return a.network <= b.broadcast && b.network <= a.broadcast;
 }
-document.getElementById('cidroverlap-check-btn').addEventListener('click', () => {
+bind('cidroverlap-check-btn', 'click', () => {
   const resultEl = document.getElementById('cidroverlap-result');
   try {
     const lines = document.getElementById('cidroverlap-input').value.split('\n').map((l) => l.trim()).filter(Boolean);
@@ -918,7 +927,7 @@ document.getElementById('cidroverlap-check-btn').addEventListener('click', () =>
 });
 
 // ---------- URL Analyzer ----------
-document.getElementById('urlanalyzer-analyze-btn').addEventListener('click', () => {
+bind('urlanalyzer-analyze-btn', 'click', () => {
   const resultEl = document.getElementById('urlanalyzer-result');
   try {
     const raw = document.getElementById('urlanalyzer-input').value.trim();
@@ -970,7 +979,7 @@ const HTTP_STATUSES = {
   503: ['Service Unavailable', 'The server is not ready to handle the request. Common causes: overloaded, in maintenance, health check failing.'],
   504: ['Gateway Timeout', "A gateway/proxy server didn't get a response from the upstream server in time. Common causes: slow backend, network partition, deadlock."],
 };
-document.getElementById('httpstatus-lookup-btn').addEventListener('click', () => {
+bind('httpstatus-lookup-btn', 'click', () => {
   const resultEl = document.getElementById('httpstatus-result');
   try {
     const raw = document.getElementById('httpstatus-input').value.trim();
@@ -1000,7 +1009,7 @@ function formatSql(sql) {
   }
   return formatted.split('\n').map((l) => l.trim()).filter(Boolean).join('\n');
 }
-document.getElementById('sqlfmt-format-btn').addEventListener('click', () => {
+bind('sqlfmt-format-btn', 'click', () => {
   const resultEl = document.getElementById('sqlfmt-result');
   try {
     const input = document.getElementById('sqlfmt-input').value;
@@ -1036,7 +1045,7 @@ function jsonToXmlString(val, key) {
   }
   return `<${key}>${String(val)}</${key}>`;
 }
-document.getElementById('xmljson-to-json-btn').addEventListener('click', () => {
+bind('xmljson-to-json-btn', 'click', () => {
   const resultEl = document.getElementById('xmljson-result');
   try {
     const input = document.getElementById('xmljson-input').value;
@@ -1052,7 +1061,7 @@ document.getElementById('xmljson-to-json-btn').addEventListener('click', () => {
     resultEl.textContent = e.message;
   }
 });
-document.getElementById('xmljson-to-xml-btn').addEventListener('click', () => {
+bind('xmljson-to-xml-btn', 'click', () => {
   const resultEl = document.getElementById('xmljson-result');
   try {
     const input = document.getElementById('xmljson-input').value;
@@ -1083,7 +1092,7 @@ function inferSchema(value) {
   if (t === 'number') return { type: Number.isInteger(value) ? 'integer' : 'number' };
   return { type: t };
 }
-document.getElementById('jsonschema-generate-btn').addEventListener('click', () => {
+bind('jsonschema-generate-btn', 'click', () => {
   const resultEl = document.getElementById('jsonschema-result');
   try {
     const input = document.getElementById('jsonschema-input').value;
@@ -1107,7 +1116,7 @@ const SECRET_PATTERNS = [
   { name: 'Slack token', re: /\bxox[baprs]-[A-Za-z0-9-]{10,}\b/g },
   { name: 'Google API key', re: /\bAIza[0-9A-Za-z\-_]{35}\b/g },
 ];
-document.getElementById('secretscanner-scan-btn').addEventListener('click', () => {
+bind('secretscanner-scan-btn', 'click', () => {
   const resultEl = document.getElementById('secretscanner-result');
   try {
     const input = document.getElementById('secretscanner-input').value;
@@ -1129,7 +1138,7 @@ document.getElementById('secretscanner-scan-btn').addEventListener('click', () =
 
 
 // ---------- Cron Builder ----------
-document.getElementById('cronbuilder-build-btn').addEventListener('click', () => {
+bind('cronbuilder-build-btn', 'click', () => {
   const resultEl = document.getElementById('cronbuilder-result');
   try {
     const get = (id) => {
@@ -1250,7 +1259,7 @@ function parseCertificatePem(pemStr) {
     notAfter,
   };
 }
-document.getElementById('tlsdecoder-decode-btn').addEventListener('click', () => {
+bind('tlsdecoder-decode-btn', 'click', () => {
   const resultEl = document.getElementById('tlsdecoder-result');
   try {
     const input = document.getElementById('tlsdecoder-input').value;
@@ -1275,7 +1284,7 @@ document.getElementById('tlsdecoder-decode-btn').addEventListener('click', () =>
 
 // ---------- Mermaid Diagram Preview ----------
 if (window.mermaid) mermaid.initialize({ startOnLoad: false, theme: 'dark' });
-document.getElementById('mermaid-render-btn').addEventListener('click', async () => {
+bind('mermaid-render-btn', 'click', async () => {
   const resultEl = document.getElementById('mermaid-result');
   try {
     const input = document.getElementById('mermaid-input').value;
@@ -1292,7 +1301,7 @@ document.getElementById('mermaid-render-btn').addEventListener('click', async ()
 
 
 // ---------- K8s Resource Quota Calculator ----------
-document.getElementById('resourcequota-calc-btn').addEventListener('click', () => {
+bind('resourcequota-calc-btn', 'click', () => {
   const resultEl = document.getElementById('resourcequota-result');
   try {
     const lines = document.getElementById('resourcequota-input').value.split('\n').map((l) => l.trim()).filter(Boolean);
@@ -1312,7 +1321,7 @@ document.getElementById('resourcequota-calc-btn').addEventListener('click', () =
 });
 
 // ---------- REST Endpoint Mock Generator ----------
-document.getElementById('restmock-generate-btn').addEventListener('click', () => {
+bind('restmock-generate-btn', 'click', () => {
   const resultEl = document.getElementById('restmock-result');
   try {
     const method = document.getElementById('restmock-method').value;
@@ -1350,7 +1359,7 @@ function parseEnvFile(text) {
   });
   return { entries, issues };
 }
-document.getElementById('envparser-check-btn').addEventListener('click', () => {
+bind('envparser-check-btn', 'click', () => {
   const resultEl = document.getElementById('envparser-result');
   try {
     const input = document.getElementById('envparser-input').value;
@@ -1394,7 +1403,7 @@ function formatNginxConfig(input) {
   }
   return lines.filter((l) => l.trim()).join('\n');
 }
-document.getElementById('nginxfmt-format-btn').addEventListener('click', () => {
+bind('nginxfmt-format-btn', 'click', () => {
   const resultEl = document.getElementById('nginxfmt-result');
   try {
     const input = document.getElementById('nginxfmt-input').value;
@@ -1448,7 +1457,7 @@ function nextCronRuns(expr, count, fromDate) {
   if (results.length < count) throw new Error('Could not find enough matching run times (check the expression).');
   return results;
 }
-document.getElementById('cronnext-calc-btn').addEventListener('click', () => {
+bind('cronnext-calc-btn', 'click', () => {
   const resultEl = document.getElementById('cronnext-result');
   try {
     const expr = document.getElementById('cronnext-input').value.trim();
@@ -1583,7 +1592,7 @@ document.querySelectorAll('#paraphraser-modes .mode-btn').forEach((btn) => {
     btn.classList.add('active');
   });
 });
-document.getElementById('paraphraser-run-btn').addEventListener('click', async () => {
+bind('paraphraser-run-btn', 'click', async () => {
   const input = document.getElementById('paraphraser-input').value;
   const resultEl = document.getElementById('paraphraser-result');
   const btn = document.getElementById('paraphraser-run-btn');
@@ -1618,7 +1627,7 @@ document.getElementById('paraphraser-run-btn').addEventListener('click', async (
   synRender();
   btn.disabled = false;
 });
-document.getElementById('paraphraser-copy-btn').addEventListener('click', () => {
+bind('paraphraser-copy-btn', 'click', () => {
   if (!synTokens) return;
   navigator.clipboard.writeText(synTokens.map((t) => t.text).join('')).catch(() => {});
 });
@@ -1626,7 +1635,7 @@ let synPopup = null;
 function synClosePopup() {
   if (synPopup) { synPopup.remove(); synPopup = null; }
 }
-document.getElementById('paraphraser-result').addEventListener('click', async (e) => {
+bind('paraphraser-result', 'click', async (e) => {
   const span = e.target.closest('.syn-word');
   synClosePopup();
   if (!span) return;
@@ -1708,10 +1717,10 @@ function buildFindCommand(o) {
   else if (o.action === 'exec' && o.execCmd) parts.push('-exec', o.execCmd, '{}', '\\;');
   return parts.join(' ');
 }
-document.getElementById('findbuilder-action').addEventListener('change', (e) => {
+bind('findbuilder-action', 'change', (e) => {
   document.getElementById('findbuilder-execcmd').style.display = e.target.value === 'exec' ? '' : 'none';
 });
-document.getElementById('findbuilder-build-btn').addEventListener('click', () => {
+bind('findbuilder-build-btn', 'click', () => {
   const resultEl = document.getElementById('findbuilder-result');
   const action = document.getElementById('findbuilder-action').value;
   if (action === 'exec' && !document.getElementById('findbuilder-execcmd').value.trim()) {
@@ -1756,15 +1765,15 @@ function buildSedCommand(o) {
   if (o.file) parts.push(o.file);
   return parts.join(' ');
 }
-document.getElementById('sedbuilder-mode').addEventListener('change', (e) => {
+bind('sedbuilder-mode', 'change', (e) => {
   const isSub = e.target.value === 'substitute';
   document.getElementById('sedbuilder-sub-fields').style.display = isSub ? '' : 'none';
   document.getElementById('sedbuilder-range-fields').style.display = isSub ? 'none' : '';
 });
-document.getElementById('sedbuilder-inplace').addEventListener('change', (e) => {
+bind('sedbuilder-inplace', 'change', (e) => {
   document.getElementById('sedbuilder-backup').style.display = e.target.checked ? '' : 'none';
 });
-document.getElementById('sedbuilder-build-btn').addEventListener('click', () => {
+bind('sedbuilder-build-btn', 'click', () => {
   const resultEl = document.getElementById('sedbuilder-result');
   const mode = document.getElementById('sedbuilder-mode').value;
   const pattern = mode === 'substitute'
