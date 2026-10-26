@@ -253,9 +253,76 @@ spec:
 
   <!-- SED COMMAND BUILDER -->
 
+  <section class="tool-panel active" id="about-toolbox">
+    <h2>What this is</h2>
+    <p>Thirty-six small tools for the things that come up while working with infrastructure — decoding a certificate, working out why a cron expression fires when it does, checking whether two CIDR ranges collide, reading a Terraform plan, converting between YAML and JSON. No accounts, no limits, no upsell.</p>
 
+    <h2>Everything runs in your browser</h2>
+    <p>This is the part worth knowing. With one clearly marked exception, every tool here does its work locally in JavaScript. Nothing you paste is uploaded, logged or stored anywhere, because there is no server involved in the processing at all — you can disconnect from the network and the tools keep working.</p>
+    <p>That matters more in this domain than in most. The things you would naturally paste into a DevOps tool are exactly the things that should not be pasted into a stranger's web form: a Kubernetes manifest with environment variables in it, an IAM policy that describes your account structure, a JWT from a real session, a certificate chain, a <code>.env</code> file. Plenty of online formatters and decoders send all of that to a backend, and a surprising number say nothing about what happens to it afterwards.</p>
+    <p>The single exception is the AI Rephraser, which cannot work locally because it needs a language model. Its page says so plainly, and it is the only tool that transmits anything.</p>
+
+    <h2>What is here</h2>
+    <p><strong>Kubernetes</strong> — manifest analyzer, manifest generator, kubectl JSONPath tester, quantity converter for CPU and memory units, resource quota calculator.</p>
+    <p><strong>Networking</strong> — CIDR calculator, CIDR overlap checker, VPC subnet planner, TLS certificate decoder, nginx config formatter.</p>
+    <p><strong>Cloud and IaC</strong> — IAM policy analyzer, Terraform plan formatter, Dockerfile best-practices checker, version constraint checker, SLO and error budget calculator.</p>
+    <p><strong>Formats</strong> — YAML validator, JSON ↔ YAML, XML ↔ JSON, JSON Schema generator, config diff, Markdown → Word, Mermaid preview.</p>
+    <p><strong>Shell and scheduling</strong> — cron explainer, cron builder, cron next-run calculator, find command builder, sed command builder, chmod calculator, cURL → code generator.</p>
+    <p><strong>Security and debugging</strong> — JWT decoder, secret scanner, regex tester, Unix timestamp converter, timezone converter, .env validator, REST endpoint mock generator.</p>
+
+    <h2>Why these particular tools</h2>
+    <p>Each one exists because it answers a question that is quicker to look up than to reason about, and that is easy to get subtly wrong from memory — whether <code>1Gi</code> and <code>1G</code> are the same number, whether <code>-/+</code> in a Terraform plan means your database is about to be replaced, whether a cron expression with both a day-of-month and a day-of-week runs on the intersection or the union of the two. Each tool page includes a short reference section covering the mistakes that actually cause incidents, not just the syntax.</p>
+  </section>
 
 </main>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "DevOps Toolbox tools",
+  "description": "Free browser-based tools for Kubernetes, networking, cloud infrastructure, data formats and shell commands.",
+  "numberOfItems": 36,
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Kubernetes Manifest Analyzer", "url": "https://abhinai20.github.io/devops-toolbox/tools/k8slint.html"},
+    {"@type": "ListItem", "position": 2, "name": "Kubernetes Manifest Generator", "url": "https://abhinai20.github.io/devops-toolbox/tools/k8sgen.html"},
+    {"@type": "ListItem", "position": 3, "name": "kubectl JSONPath Tester", "url": "https://abhinai20.github.io/devops-toolbox/tools/jsonpath.html"},
+    {"@type": "ListItem", "position": 4, "name": "Kubernetes Quantity Converter", "url": "https://abhinai20.github.io/devops-toolbox/tools/k8squantity.html"},
+    {"@type": "ListItem", "position": 5, "name": "Kubernetes Resource Quota Calculator", "url": "https://abhinai20.github.io/devops-toolbox/tools/resourcequota.html"},
+    {"@type": "ListItem", "position": 6, "name": "CIDR Calculator", "url": "https://abhinai20.github.io/devops-toolbox/tools/cidr.html"},
+    {"@type": "ListItem", "position": 7, "name": "CIDR Overlap Checker", "url": "https://abhinai20.github.io/devops-toolbox/tools/cidroverlap.html"},
+    {"@type": "ListItem", "position": 8, "name": "VPC Subnet Planner", "url": "https://abhinai20.github.io/devops-toolbox/tools/subnetplanner.html"},
+    {"@type": "ListItem", "position": 9, "name": "TLS Certificate Decoder", "url": "https://abhinai20.github.io/devops-toolbox/tools/tlsdecoder.html"},
+    {"@type": "ListItem", "position": 10, "name": "Nginx Config Formatter", "url": "https://abhinai20.github.io/devops-toolbox/tools/nginxfmt.html"},
+    {"@type": "ListItem", "position": 11, "name": "IAM Policy Analyzer", "url": "https://abhinai20.github.io/devops-toolbox/tools/iampolicy.html"},
+    {"@type": "ListItem", "position": 12, "name": "Terraform Plan Formatter", "url": "https://abhinai20.github.io/devops-toolbox/tools/tf.html"},
+    {"@type": "ListItem", "position": 13, "name": "Dockerfile Best-Practices Checker", "url": "https://abhinai20.github.io/devops-toolbox/tools/dockerlint.html"},
+    {"@type": "ListItem", "position": 14, "name": "Version Constraint Checker", "url": "https://abhinai20.github.io/devops-toolbox/tools/semver.html"},
+    {"@type": "ListItem", "position": 15, "name": "SLO & Error Budget Calculator", "url": "https://abhinai20.github.io/devops-toolbox/tools/slo.html"},
+    {"@type": "ListItem", "position": 16, "name": "JSON to YAML Converter", "url": "https://abhinai20.github.io/devops-toolbox/tools/jsonyaml.html"},
+    {"@type": "ListItem", "position": 17, "name": "XML to JSON Converter", "url": "https://abhinai20.github.io/devops-toolbox/tools/xmljson.html"},
+    {"@type": "ListItem", "position": 18, "name": "JSON Schema Generator", "url": "https://abhinai20.github.io/devops-toolbox/tools/jsonschema.html"},
+    {"@type": "ListItem", "position": 19, "name": "Config Diff", "url": "https://abhinai20.github.io/devops-toolbox/tools/structdiff.html"},
+    {"@type": "ListItem", "position": 20, "name": "Markdown to Word Converter", "url": "https://abhinai20.github.io/devops-toolbox/tools/md2word.html"},
+    {"@type": "ListItem", "position": 21, "name": "Mermaid Diagram Preview", "url": "https://abhinai20.github.io/devops-toolbox/tools/mermaid.html"},
+    {"@type": "ListItem", "position": 22, "name": "Cron Expression Explainer", "url": "https://abhinai20.github.io/devops-toolbox/tools/cron.html"},
+    {"@type": "ListItem", "position": 23, "name": "Cron Builder", "url": "https://abhinai20.github.io/devops-toolbox/tools/cronbuilder.html"},
+    {"@type": "ListItem", "position": 24, "name": "Cron Next Run Calculator", "url": "https://abhinai20.github.io/devops-toolbox/tools/cronnext.html"},
+    {"@type": "ListItem", "position": 25, "name": "find Command Builder", "url": "https://abhinai20.github.io/devops-toolbox/tools/findbuilder.html"},
+    {"@type": "ListItem", "position": 26, "name": "sed Command Builder", "url": "https://abhinai20.github.io/devops-toolbox/tools/sedbuilder.html"},
+    {"@type": "ListItem", "position": 27, "name": "chmod Calculator", "url": "https://abhinai20.github.io/devops-toolbox/tools/chmod.html"},
+    {"@type": "ListItem", "position": 28, "name": "cURL to Code Generator", "url": "https://abhinai20.github.io/devops-toolbox/tools/curl.html"},
+    {"@type": "ListItem", "position": 29, "name": "JWT Decoder", "url": "https://abhinai20.github.io/devops-toolbox/tools/jwt.html"},
+    {"@type": "ListItem", "position": 30, "name": "Secret Scanner", "url": "https://abhinai20.github.io/devops-toolbox/tools/secretscanner.html"},
+    {"@type": "ListItem", "position": 31, "name": "Regex Tester", "url": "https://abhinai20.github.io/devops-toolbox/tools/regex.html"},
+    {"@type": "ListItem", "position": 32, "name": "Unix Timestamp Converter", "url": "https://abhinai20.github.io/devops-toolbox/tools/timestamp.html"},
+    {"@type": "ListItem", "position": 33, "name": "Timezone Converter", "url": "https://abhinai20.github.io/devops-toolbox/tools/timezone.html"},
+    {"@type": "ListItem", "position": 34, "name": ".env File Validator", "url": "https://abhinai20.github.io/devops-toolbox/tools/envparser.html"},
+    {"@type": "ListItem", "position": 35, "name": "REST Endpoint Mock Generator", "url": "https://abhinai20.github.io/devops-toolbox/tools/restmock.html"},
+    {"@type": "ListItem", "position": 36, "name": "AI Rephraser", "url": "https://abhinai20.github.io/devops-toolbox/tools/paraphraser.html"}
+  ]
+}
+</script>
 </div>
 
 <footer class="site-footer">
