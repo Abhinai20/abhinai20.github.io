@@ -192,6 +192,38 @@
         <div id="semver-result" class="result-box result-idle">Enter a constraint and click "Check".</div>
       </div>
     </div>
+  <h2>How semantic versioning works</h2>
+  <p>A semver version is <code>MAJOR.MINOR.PATCH</code>, and each part has a defined meaning: increment MAJOR for a breaking change, MINOR for backwards-compatible features, PATCH for backwards-compatible fixes. The value of the scheme is entirely in that promise — it lets a dependency manager decide what is safe to upgrade automatically.</p>
+
+  <h3>Constraint operators</h3>
+  <ul>
+    <li><code>1.2.3</code> — exactly this version.</li>
+    <li><code>^1.2.3</code> — compatible with 1.2.3: allows MINOR and PATCH, so up to but excluding 2.0.0.</li>
+    <li><code>~1.2.3</code> — allows PATCH only, so up to but excluding 1.3.0.</li>
+    <li><code>&gt;=1.2.3 &lt;2.0.0</code> — the explicit form of a caret range.</li>
+    <li><code>*</code> or <code>latest</code> — anything, which is rarely what you want in a lockfile-less project.</li>
+  </ul>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>Caret behaves differently below 1.0.0</h3>
+  <p>This surprises nearly everyone. For <code>^1.2.3</code> the caret allows minor upgrades, but for <code>^0.2.3</code> it allows only patch upgrades — up to but excluding 0.3.0. The reasoning is that pre-1.0 projects signal breaking changes with the minor number, and the rule bakes that convention in. So the same operator is permissive on a stable package and strict on an unstable one.</p>
+
+  <h3>Pre-release versions sort below the release</h3>
+  <p><code>1.0.0-alpha</code> is <em>older</em> than <code>1.0.0</code>, not newer, and pre-release identifiers compare field by field: <code>1.0.0-alpha</code> &lt; <code>1.0.0-alpha.1</code> &lt; <code>1.0.0-beta</code> &lt; <code>1.0.0-rc.1</code> &lt; <code>1.0.0</code>. Numeric identifiers compare numerically, so <code>alpha.2</code> precedes <code>alpha.10</code> — unlike plain string sorting, which gets that backwards.</p>
+
+  <h3>Ranges do not match pre-releases by default</h3>
+  <p><code>^1.2.3</code> will not install <code>2.0.0-beta.1</code>, and usually will not pick up <code>1.3.0-rc.1</code> either, because a range only considers pre-releases when the constraint itself names one. This is deliberate and usually right, but it means "why isn't it upgrading?" often has the answer "because the only newer version is a pre-release".</p>
+
+  <h3>Build metadata is ignored in comparisons</h3>
+  <p>Anything after a <code>+</code>, such as <code>1.0.0+build.42</code>, has no effect on precedence — two versions differing only in build metadata are the same version as far as ordering is concerned. Using it to distinguish releases does not work.</p>
+
+  <h3>The promise is a convention, not a guarantee</h3>
+  <p>Nothing enforces that a minor release is actually backwards compatible, and plenty of breakage arrives in patch versions. This is why lockfiles exist: the range expresses intent, the lockfile pins reality. A project with permissive ranges and no committed lockfile is one upstream mistake away from an unreproducible build.</p>
+
+  <h3>Leading <code>v</code> is not part of the version</h3>
+  <p><code>v1.2.3</code> is a common tag style, but the version itself is <code>1.2.3</code>. Some parsers strip it and some reject it, so comparing a git tag against a manifest version without normalising first is a reliable source of off-by-one-character bugs.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="tf.html">TF Plan Formatter</a></li><li><a href="iampolicy.html">IAM Policy Analyzer</a></li><li><a href="k8squantity.html">K8s Quantity Converter</a></li></ul></div></section>
 
   <!-- CHMOD CALCULATOR -->

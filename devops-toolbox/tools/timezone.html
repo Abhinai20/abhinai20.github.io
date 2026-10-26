@@ -181,6 +181,30 @@
         <div id="tz-result" class="result-box result-idle">Pick a date/time and click "Convert".</div>
       </div>
     </div>
+  <h2>How timezones are identified</h2>
+  <p>There are two ways to name a zone, and only one of them is safe. IANA identifiers like <code>Asia/Kolkata</code>, <code>Europe/London</code> and <code>America/New_York</code> name a <em>region</em> whose rules are maintained over time. Abbreviations like IST, CST and BST are display labels with no authority behind them.</p>
+  <p>An offset such as <code>+05:30</code> describes a moment, not a place: it tells you the difference from UTC right then, but not what the difference will be in June. Store the IANA identifier when you need to reason about future times, and the offset only when recording what already happened.</p>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>Abbreviations are ambiguous</h3>
+  <p>IST is India Standard Time (+05:30), Irish Standard Time (+01:00) and Israel Standard Time (+02:00). CST covers US Central, China Standard and Cuba Standard — a spread of fourteen hours. Parsing a timestamp that ends in a three-letter abbreviation is guessing, and the guess is usually "whatever the library's table happens to list first".</p>
+
+  <h3>UTC offsets are not fixed properties of a place</h3>
+  <p>A zone's offset changes with daylight saving, and the rules themselves change when governments legislate. Several countries have abolished DST, changed transition dates, or shifted zone entirely within the last few years. Caching "this city is UTC+2" is caching something that has an expiry date you do not control.</p>
+
+  <h3>Some offsets are not whole hours</h3>
+  <p>India is +05:30, Nepal is +05:45, parts of Australia are +08:45, and Chatham Island is +12:45. Code that stores an offset as an integer number of hours, or a UI that only lets you pick whole hours, is broken for a large population. Minutes are not optional.</p>
+
+  <h3>Local times can be impossible or ambiguous</h3>
+  <p>When clocks spring forward, a local time inside the skipped hour never happens — 02:30 simply does not exist that day. When they fall back, an hour repeats, so 01:30 happens twice and a bare local timestamp cannot say which. Both cases are routine causes of scheduled jobs misfiring and of duplicate or missing records. Store UTC and convert on display, which makes both problems disappear.</p>
+
+  <h3>The server's timezone is not a configuration setting you should rely on</h3>
+  <p>Code that formats dates using the machine's local zone produces different output in development and production, and changes behaviour when infrastructure moves region. Set the application's timezone explicitly, keep servers on UTC, and treat any implicit local-time conversion as a bug waiting for the next deployment.</p>
+
+  <h3>Keep the tz database current</h3>
+  <p>Zone rules ship as data, not code — the IANA database is updated several times a year. A container image or runtime pinned long ago will convert future dates with stale rules and be quietly wrong after a transition date changes. Updating the tzdata package is part of routine patching, not an optional extra.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="cron.html">Cron Explainer</a></li><li><a href="cronbuilder.html">Cron Builder</a></li><li><a href="timestamp.html">Unix Timestamp</a></li><li><a href="cronnext.html">Cron Next Run Calculator</a></li></ul></div></section>
 
   <!-- CURL TO CODE -->

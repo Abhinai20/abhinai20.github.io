@@ -286,6 +286,40 @@
         <pre id="findbuilder-result" class="result-box result-idle tf-output">Fill in the filters above and click "Build Command".</pre>
       </div>
     </div>
+  <h2>How find is structured</h2>
+  <p>A find command reads as <code>find [where] [tests] [action]</code> — the starting path, then conditions, then what to do with matches. Everything after the path is evaluated left to right, which matters more than it first appears.</p>
+  <ul>
+    <li><code>-name '*.log'</code> — match the filename; <code>-iname</code> ignores case. Quote the pattern so the shell does not expand it first.</li>
+    <li><code>-type f</code> / <code>-type d</code> / <code>-type l</code> — regular files, directories, symlinks.</li>
+    <li><code>-mtime +7</code> — modified more than seven days ago; <code>-mmin -30</code> is the same idea in minutes.</li>
+    <li><code>-size +100M</code> — larger than 100 megabytes.</li>
+    <li><code>-maxdepth 1</code> — do not descend. Place it before other tests.</li>
+    <li><code>-exec cmd {} +</code> — run a command on the matches.</li>
+  </ul>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3><code>-exec ... +</code> beats <code>-exec ... \;</code></h3>
+  <p>The semicolon form runs the command once per file, which on a large tree means thousands of process spawns. The <code>+</code> form batches as many paths as fit onto one command line, exactly as <code>xargs</code> would, and is usually an order of magnitude faster. Use <code>\;</code> only when the command genuinely takes one argument at a time.</p>
+
+  <h3>Unquoted patterns are expanded by the shell</h3>
+  <p><code>find . -name *.log</code> lets the shell expand <code>*.log</code> against the current directory before find ever sees it, so the command either searches for one specific filename or fails with "paths must precede expression". Always write <code>-name '*.log'</code>.</p>
+
+  <h3><code>-delete</code> is not a safe thing to append</h3>
+  <p>It deletes immediately, with no confirmation and no undo, and it is easy to get wrong in ways that are catastrophic rather than merely annoying. Run the command with <code>-print</code> first and read the list, then swap in <code>-delete</code>. Note too that <code>-delete</code> implies <code>-depth</code>, which can change how it interacts with <code>-prune</code>.</p>
+
+  <h3>Filenames can contain spaces and newlines</h3>
+  <p>Piping <code>find</code> into <code>xargs</code> breaks on any path containing whitespace, which is how a cleanup script ends up deleting the wrong thing. Use <code>-print0</code> with <code>xargs -0</code>, or avoid the pipe entirely with <code>-exec ... +</code>.</p>
+
+  <h3><code>-mtime</code> counts whole 24-hour periods</h3>
+  <p><code>-mtime +1</code> does not mean "since yesterday" — it means at least two full days old, because the fractional part is discarded. For anything where the boundary matters, use <code>-mmin</code> or compare against a reference file with <code>-newermt '2026-01-01'</code>.</p>
+
+  <h3>Order of tests changes the result and the cost</h3>
+  <p>Conditions short-circuit, so putting the cheap, selective test first avoids running an expensive one on every file. It also changes semantics with <code>-prune</code>: pruning has to come before the thing it is meant to exclude, or you will have already descended into the directory you were trying to skip.</p>
+
+  <h3>GNU and BSD find differ</h3>
+  <p>macOS ships BSD find, which wants <code>-type f</code> before some options that GNU accepts anywhere, handles <code>-regex</code> differently, and lacks a few GNU extensions. A script written on Linux is worth testing on macOS before you rely on it in a shared repository.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="sedbuilder.html">sed Command Builder</a></li><li><a href="chmod.html">chmod Calculator</a></li></ul></div></section>
 
   <!-- SED COMMAND BUILDER -->

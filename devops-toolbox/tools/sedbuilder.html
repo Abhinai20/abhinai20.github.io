@@ -268,6 +268,38 @@
         <pre id="sedbuilder-result" class="result-box result-idle tf-output">Fill in the fields above and click "Build Command".</pre>
       </div>
     </div>
+  <h2>sed basics</h2>
+  <p>The overwhelming majority of sed usage is one command: substitute. <code>sed 's/old/new/'</code> replaces the first match on each line; adding <code>g</code> replaces every match on the line.</p>
+  <ul>
+    <li><code>s/a/b/g</code> — replace all occurrences on each line.</li>
+    <li><code>s/a/b/2</code> — replace only the second occurrence on each line.</li>
+    <li><code>3s/a/b/</code> — apply only to line 3; <code>3,7s/...</code> applies to a range.</li>
+    <li><code>/pattern/s/a/b/</code> — apply only to lines matching a pattern.</li>
+    <li><code>-n</code> with <code>p</code> — suppress automatic output and print only what you select.</li>
+    <li><code>d</code> — delete matching lines, as in <code>sed '/^#/d'</code>.</li>
+    <li><code>-E</code> — extended regex, so <code>+</code>, <code>?</code> and <code>()</code> need no backslashes.</li>
+  </ul>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3><code>-i</code> is not portable</h3>
+  <p>This is the one that breaks CI. GNU sed accepts <code>sed -i 's/a/b/' file</code>; BSD sed on macOS requires an argument for the backup suffix, so the same command consumes the next token as the suffix and fails confusingly. <code>sed -i '' 's/a/b/' file</code> works on macOS and breaks on Linux. For a script that must run on both, write to a temporary file and move it, or use <code>perl -pi -e</code>, which behaves consistently.</p>
+
+  <h3>The delimiter does not have to be a slash</h3>
+  <p>Substituting a path turns into backslash soup: <code>s/\/usr\/local\/bin/\/opt\/bin/</code>. Any character works as the delimiter, so <code>s|/usr/local/bin|/opt/bin|</code> says the same thing legibly. Pick a character that does not appear in either side.</p>
+
+  <h3><code>&amp;</code> in the replacement means "the whole match"</h3>
+  <p>Useful when wrapping something — <code>s/error/[&amp;]/</code> produces <code>[error]</code> — and surprising when you only wanted a literal ampersand. Escape it as <code>\&amp;</code> when you mean the character.</p>
+
+  <h3>sed is line-oriented</h3>
+  <p>It processes one line at a time, so a pattern spanning two lines simply never matches. Multi-line edits are possible with the hold space and <code>N</code>, but the resulting command is write-only. If the task needs cross-line context, reach for <code>awk</code>, <code>perl -0777</code>, or a real parser instead.</p>
+
+  <h3>Basic regex needs backslashes</h3>
+  <p>Without <code>-E</code>, sed uses POSIX basic regular expressions, where <code>+</code>, <code>?</code>, <code>|</code>, <code>(</code> and <code>{</code> are literal characters and need escaping to act as operators. A pattern copied from a regex tester will usually need <code>-E</code> to behave as written.</p>
+
+  <h3>Editing config files in place is a liability</h3>
+  <p>A sed command that rewrites configuration is fine once and dangerous repeatedly: run twice it may double-apply, and on a file whose format drifted it can produce something subtly invalid that only fails at restart. Where the file is managed, change the source of truth and regenerate rather than patching the output.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="findbuilder.html">find Command Builder</a></li><li><a href="regex.html">Regex Tester</a></li></ul></div></section>
 
 

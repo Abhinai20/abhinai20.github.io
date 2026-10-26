@@ -172,6 +172,37 @@ CMD [&quot;node&quot;, &quot;index.js&quot;]"></textarea>
         <div id="docker-result" class="result-box result-idle">Paste a Dockerfile and click "Check".</div>
       </div>
     </div>
+  <h2>What makes a Dockerfile good</h2>
+  <p>Most Dockerfile problems come down to three things: how big the image ends up, how often the cache is invalidated, and what the container runs as. The rest is detail.</p>
+
+  <h3>Order instructions by how often they change</h3>
+  <p>Each instruction produces a layer, and changing one invalidates every layer after it. Copying your whole source tree before installing dependencies means every code edit reinstalls everything. Copy the manifest first, install, then copy the source:</p>
+  <p><code>COPY package*.json ./</code> → <code>RUN npm ci</code> → <code>COPY . .</code></p>
+  <p>That single reordering is usually the largest build-time win available.</p>
+
+  <h3>Use multi-stage builds</h3>
+  <p>Compilers, headers and build tools do not belong in a runtime image. Build in one stage, copy only the resulting artefact into a slim final stage, and the image shrinks by hundreds of megabytes while losing a large amount of attack surface with it.</p>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>Cleaning up in a later layer saves nothing</h3>
+  <p>Deleting a file in a subsequent <code>RUN</code> does not reclaim the space — the earlier layer still contains it, and the image carries both. The cleanup has to happen in the <em>same</em> instruction that created the files: <code>RUN apt-get update &amp;&amp; apt-get install -y --no-install-recommends foo &amp;&amp; rm -rf /var/lib/apt/lists/*</code>. The same applies to secrets: a credential added in one layer and deleted in the next is still in the image for anyone who pulls it.</p>
+
+  <h3><code>:latest</code> is not a version</h3>
+  <p>It is just the default tag, and it moves. A build that worked yesterday can produce a different base image today, which turns a reproducible build into a lottery and makes rollbacks meaningless. Pin a specific tag, and pin by digest where the stakes justify it.</p>
+
+  <h3>Containers run as root unless you say otherwise</h3>
+  <p>Without a <code>USER</code> instruction the process runs as root inside the container, so a compromise starts with full privileges and a path toward the host via any misconfiguration. Create an unprivileged user and switch to it after installation, remembering that file ownership on anything copied in needs to match.</p>
+
+  <h3><code>ADD</code> does more than you want</h3>
+  <p>It auto-extracts archives and can fetch remote URLs, both of which are surprising when you only meant to copy a file. Use <code>COPY</code> unless you specifically want extraction.</p>
+
+  <h3>A missing <code>.dockerignore</code> sends everything</h3>
+  <p>Without one, <code>COPY . .</code> ships <code>.git</code>, <code>node_modules</code>, local env files and build output into the image and the build context. That bloats the image, slows every build, and is a routine way credentials end up published. Treat it as mandatory, not optional.</p>
+
+  <h3><code>ENTRYPOINT</code> and <code>CMD</code> in shell form break signals</h3>
+  <p>Written as a bare string, the command runs under <code>/bin/sh -c</code>, which does not forward <code>SIGTERM</code> to your process — so the container ignores a graceful stop and gets killed after the timeout. Use the exec form, <code>CMD ["node", "server.js"]</code>, so your process is PID 1 and receives signals directly.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="k8slint.html">K8s Manifest Analyzer</a></li><li><a href="k8squantity.html">K8s Quantity Converter</a></li><li><a href="resourcequota.html">K8s Resource Quota Calculator</a></li></ul></div></section>
 
   <!-- JWT DECODER -->

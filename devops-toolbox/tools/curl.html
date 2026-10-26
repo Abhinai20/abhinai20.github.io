@@ -184,6 +184,39 @@
         <pre id="curl-result" class="result-box result-idle tf-output">Paste a curl command and click "Convert".</pre>
       </div>
     </div>
+  <h2>The flags you actually use</h2>
+  <ul>
+    <li><code>-X POST</code> — set the HTTP method.</li>
+    <li><code>-H 'Header: value'</code> — add a request header; repeatable.</li>
+    <li><code>-d '{"k":"v"}'</code> — send a request body. Implies POST.</li>
+    <li><code>-o file</code> — write the body to a file; <code>-O</code> keeps the remote filename.</li>
+    <li><code>-L</code> — follow redirects.</li>
+    <li><code>-u user:pass</code> — HTTP basic auth.</li>
+    <li><code>-i</code> — include response headers in the output; <code>-I</code> sends HEAD and shows headers only.</li>
+    <li><code>-s</code> — silent, suppressing the progress meter; usually paired as <code>-sS</code> so errors still show.</li>
+    <li><code>-w '%{http_code}'</code> — print selected response metadata after the transfer.</li>
+  </ul>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3><code>-X POST</code> with <code>-d</code> is redundant, and sometimes harmful</h3>
+  <p><code>-d</code> already switches the method to POST. Forcing <code>-X</code> as well matters when a redirect is involved: curl normally changes the method to GET on a 301 or 302, but an explicit <code>-X</code> pins it, so the redirected request keeps POSTing to the new location. Omit <code>-X</code> unless you specifically need a method curl would not choose.</p>
+
+  <h3><code>-d</code> sets the wrong Content-Type for JSON</h3>
+  <p>It defaults to <code>application/x-www-form-urlencoded</code>, so an API expecting JSON may reject a body that looks perfectly valid. Always pair it: <code>-H 'Content-Type: application/json'</code>. Newer curl versions offer <code>--json</code> as shorthand for the body, the content type and the accept header together.</p>
+
+  <h3><code>-k</code> disables certificate verification entirely</h3>
+  <p>It is the standard reflex when a TLS error appears, and it turns off the protection that error exists to provide — including against interception. For a self-signed or internal CA, pass the CA bundle with <code>--cacert</code> instead. Reaching for <code>-k</code> in a script that handles anything sensitive is worth treating as a bug, not a workaround.</p>
+
+  <h3>Quoting bites on Windows</h3>
+  <p>A curl command copied from documentation usually uses single quotes, which <code>cmd.exe</code> does not treat as quotes at all. On Windows, use double quotes and escape the inner ones, or run the command in PowerShell with care — PowerShell also has its own parsing of <code>-d</code> and JSON braces. Pasting a Linux curl line into a Windows prompt unchanged is the most common reason it "doesn't work".</p>
+
+  <h3><code>-d</code> strips newlines, <code>--data-binary</code> does not</h3>
+  <p><code>-d</code> is line-oriented and removes newlines from a file passed with <code>-d @file</code>, which corrupts anything whitespace-sensitive — YAML, a binary payload, a signed blob. Use <code>--data-binary @file</code> when the body must arrive byte for byte.</p>
+
+  <h3>curl does not fail on HTTP errors by default</h3>
+  <p>A 500 response is still a successful transfer as far as the exit code is concerned, so a script checking only <code>$?</code> will sail past server errors. <code>-f</code> makes curl return a non-zero exit code on HTTP failures, which is what you usually want in automation.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li></ul></div></section>
 
   <!-- CIDR CALCULATOR -->

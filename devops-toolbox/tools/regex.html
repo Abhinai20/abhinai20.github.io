@@ -179,6 +179,43 @@
         <div id="regex-result" class="result-box result-idle">Enter a pattern and text, then click "Test".</div>
       </div>
     </div>
+  <h2>Regex syntax reference</h2>
+  <p>A regular expression describes a pattern to match inside text. These are the pieces you reach for most often.</p>
+  <ul>
+    <li><code>.</code> — any character except a newline.</li>
+    <li><code>\d</code> <code>\w</code> <code>\s</code> — a digit, a word character, whitespace. Capitalised (<code>\D</code> <code>\W</code> <code>\S</code>) means the opposite.</li>
+    <li><code>[abc]</code> — any one of these; <code>[^abc]</code> — any one except these; <code>[a-z]</code> — a range.</li>
+    <li><code>*</code> <code>+</code> <code>?</code> — zero or more, one or more, zero or one.</li>
+    <li><code>{2,5}</code> — between two and five repetitions.</li>
+    <li><code>^</code> <code>$</code> — start and end of the string, or of a line with the multiline flag.</li>
+    <li><code>\b</code> — a word boundary, which is what makes <code>\bcat\b</code> skip "concatenate".</li>
+    <li><code>(...)</code> — a capturing group; <code>(?:...)</code> groups without capturing.</li>
+    <li><code>|</code> — alternation, matching either side.</li>
+  </ul>
+
+  <h3>Flags</h3>
+  <p><code>i</code> ignores case, <code>g</code> finds every match rather than the first, <code>m</code> makes <code>^</code> and <code>$</code> match at line boundaries, and <code>s</code> lets <code>.</code> match newlines too.</p>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>Quantifiers are greedy by default</h3>
+  <p>Given <code>&lt;b&gt;one&lt;/b&gt; and &lt;b&gt;two&lt;/b&gt;</code>, the pattern <code>&lt;b&gt;.*&lt;/b&gt;</code> matches the entire string, not the first tag pair — <code>.*</code> takes as much as it can and then backs off only enough to let the rest match. Adding <code>?</code> makes it lazy: <code>&lt;b&gt;.*?&lt;/b&gt;</code> stops at the first closing tag.</p>
+
+  <h3>Catastrophic backtracking is a real outage</h3>
+  <p>Nested quantifiers over overlapping character sets, such as <code>(a+)+b</code>, can make the engine try an exponential number of paths before giving up. On a long non-matching input that is seconds or minutes of pinned CPU, and if the pattern runs on user input it is a denial-of-service vector with its own name, ReDoS. Prefer specific character classes over <code>.*</code>, avoid a quantifier inside a quantified group, and apply a timeout where the platform offers one.</p>
+
+  <h3><code>.</code> does not match newlines</h3>
+  <p>By default a dot stops at a line break, so a pattern that works on single-line test input quietly fails on a multi-line document. The <code>s</code> flag (sometimes called "dotall") changes it. Note that <code>m</code> is a different flag doing a different job — it affects anchors, not the dot.</p>
+
+  <h3>Escaping happens twice in most languages</h3>
+  <p>A regex that works in a tester often breaks when pasted into code, because the string literal consumes one level of backslashes first. <code>\d</code> in a Java or JSON string has to be written <code>\\d</code>. Python raw strings (<code>r"\d"</code>) and JavaScript regex literals (<code>/\d/</code>) avoid this entirely, which is why they are worth using.</p>
+
+  <h3>Dialects genuinely differ</h3>
+  <p>Lookbehind is unsupported in some engines and fixed-width-only in others. POSIX tools are a bigger jump: basic <code>grep</code> and <code>sed</code> need backslashes before <code>+</code>, <code>?</code> and <code>(</code>, which is why <code>grep -E</code> exists. A pattern verified in a browser tester is verified for that engine, not universally.</p>
+
+  <h3>Do not parse HTML with it</h3>
+  <p>Regular expressions cannot describe arbitrarily nested structures, so a pattern over HTML, XML or JSON works on your sample and fails on real input containing a nested tag, an attribute with a bracket in it, or a comment. Extracting one simple value from predictable markup is fine; anything structural wants a parser.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="curl.html">cURL → Code</a></li></ul></div></section>
 
   <!-- UNIX TIMESTAMP -->

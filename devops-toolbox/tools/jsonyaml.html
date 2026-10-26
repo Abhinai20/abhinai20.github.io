@@ -166,6 +166,31 @@
         <pre id="jy-result" class="result-box result-idle tf-output">Paste JSON or YAML, then pick a direction.</pre>
       </div>
     </div>
+  <h2>How the two formats relate</h2>
+  <p>YAML 1.2 is a superset of JSON, which means any valid JSON document is already valid YAML and converting one way is lossless. Going the other direction is not always, because YAML has features JSON has no way to express: comments, anchors and aliases, multiple documents in one file, and several scalar styles.</p>
+  <p>In practice the conversion people want is "make this configuration readable" or "feed this config to a tool that only speaks JSON", and both work fine as long as you know what YAML is doing with your unquoted values.</p>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>The Norway problem</h3>
+  <p>Under YAML 1.1 rules, which many parsers still follow, the unquoted scalars <code>y</code>, <code>n</code>, <code>yes</code>, <code>no</code>, <code>on</code> and <code>off</code> are booleans. A country list containing <code>NO</code> for Norway yields <code>false</code>. The same rule turns a config value of <code>on</code> into <code>true</code>. Quote any string that could be mistaken for a boolean, and be deliberate about it in generated files.</p>
+
+  <h3>Version numbers lose their meaning</h3>
+  <p><code>version: 1.10</code> parses as the float 1.10, which is 1.1, so the patch digit vanishes. <code>version: 1.2.3</code> stays a string because it is not a valid number, meaning the type of the field changes depending on the value — a trap in anything that compares versions. Quote version strings always.</p>
+  <p>The same applies to anything with leading zeros: an identifier like <code>012345</code> may be read as octal or silently stripped to <code>12345</code>, which breaks zip codes, account numbers and ids.</p>
+
+  <h3>Tabs are forbidden</h3>
+  <p>YAML indentation must be spaces. A single tab character produces a parse error that often points at a confusing line, and editors configured to insert tabs will reintroduce it every time. Setting the editor to expand tabs for <code>.yaml</code> files saves repeated frustration.</p>
+
+  <h3>Indentation is the structure</h3>
+  <p>Unlike JSON's braces, nesting in YAML is carried entirely by leading whitespace, so a block pasted at the wrong depth is still valid YAML — just describing something different. This is the most common cause of a Kubernetes manifest applying cleanly and doing the wrong thing, because the field landed on the wrong parent.</p>
+
+  <h3>Comments and anchors do not survive the round trip</h3>
+  <p>JSON has no comment syntax, so converting YAML to JSON and back loses every comment and expands every alias. If the YAML file is maintained by people, convert for consumption rather than editing the JSON and converting back.</p>
+
+  <h3>Multi-document files</h3>
+  <p>YAML allows several documents in one file separated by <code>---</code>, which Kubernetes manifests use constantly. JSON has no equivalent, so such a file converts to an array of objects or has to be split. A converter handed a multi-document file that returns only the first document has silently dropped the rest.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="md2word.html">Markdown → Word</a></li></ul></div></section>
 
   <!-- KUBERNETES MANIFEST ANALYZER -->
