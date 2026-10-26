@@ -172,6 +172,41 @@
         <pre id="jwt-result" class="result-box result-idle tf-output">Paste a JWT and click "Decode".</pre>
       </div>
     </div>
+  <h2>What a JWT actually contains</h2>
+  <p>A JSON Web Token is three base64url-encoded segments joined by dots: <code>header.payload.signature</code>. The header says which algorithm signed it, the payload carries the claims, and the signature is what makes the first two trustworthy.</p>
+  <p>The important consequence of that structure: the payload is <em>encoded</em>, not encrypted. Anyone holding the token can read every claim in it without any key at all — which is exactly what this decoder does, entirely in your browser.</p>
+
+  <h3>Standard claims</h3>
+  <ul>
+    <li><code>iss</code> — issuer, who minted the token.</li>
+    <li><code>sub</code> — subject, usually the user id.</li>
+    <li><code>aud</code> — audience, who the token is intended for.</li>
+    <li><code>exp</code> — expiry, as a Unix timestamp in seconds.</li>
+    <li><code>nbf</code> — not valid before this time.</li>
+    <li><code>iat</code> — when it was issued.</li>
+    <li><code>jti</code> — a unique id, used to revoke or de-duplicate.</li>
+  </ul>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>Decoding is not verifying</h3>
+  <p>This is the mistake that matters. Reading the claims out of a token tells you what it says, not whether it is genuine. Anyone can craft a token with <code>"admin": true</code> in the payload. Only checking the signature against the issuer's key proves the token was issued by whom it claims and has not been altered since. Never make an authorisation decision from a decoded payload alone.</p>
+
+  <h3><code>alg: none</code> and algorithm confusion</h3>
+  <p>The header is attacker-controlled, so a library that trusts it can be told how to verify. Two classic attacks follow: setting <code>alg</code> to <code>none</code> so verification is skipped entirely, and switching an RS256 token to HS256 so the library uses the <em>public</em> key as an HMAC secret — a key the attacker already has. Pin the expected algorithm in your verification code rather than reading it from the token.</p>
+
+  <h3>Put nothing secret in the payload</h3>
+  <p>Because it is readable by anyone who holds the token, the payload is the wrong place for anything sensitive — no personal data beyond what is necessary, no internal identifiers you would not publish, and certainly no credentials. A token often ends up in browser storage, server logs and error reports.</p>
+
+  <h3>Expiry is in seconds, and clocks drift</h3>
+  <p><code>exp</code>, <code>nbf</code> and <code>iat</code> are Unix timestamps in <em>seconds</em>, while many languages produce milliseconds by default. A token minted with a millisecond value will appear to expire tens of thousands of years from now. Verification should also allow a small clock-skew tolerance between the issuing and validating machines.</p>
+
+  <h3>Revocation is the hard part</h3>
+  <p>A signed token stays valid until it expires — there is no built-in way to withdraw one, because verification is deliberately offline. If you need to be able to log someone out immediately, you need short expiry times plus refresh tokens, or a server-side denylist keyed on <code>jti</code>. Choosing long-lived tokens because it is convenient is choosing not to be able to revoke access.</p>
+
+  <h3>base64url is not base64</h3>
+  <p>JWT segments use the URL-safe alphabet: <code>-</code> and <code>_</code> instead of <code>+</code> and <code>/</code>, and the trailing <code>=</code> padding is stripped. A plain base64 decoder will often fail or produce garbage on a token, which is a common source of confusion when decoding one by hand.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="chmod.html">chmod Calculator</a></li><li><a href="secretscanner.html">Secret Scanner</a></li></ul></div></section>
 
   <!-- REGEX TESTER -->

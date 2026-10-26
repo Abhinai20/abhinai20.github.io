@@ -181,6 +181,36 @@
     </div>
     <label style="margin-top:16px;">Result</label>
     <div id="ts-result" class="result-box result-idle">Use either field above.</div>
+  <h2>What a Unix timestamp is</h2>
+  <p>A Unix timestamp counts the seconds elapsed since 00:00:00 UTC on 1 January 1970, known as the epoch. It is a single integer with no timezone attached, which is what makes it convenient to store and compare — and what makes it easy to misread.</p>
+  <p>A ten-digit number is almost certainly seconds. A thirteen-digit number is milliseconds. Recognising which you are holding is usually just a matter of counting the digits.</p>
+
+  <h3>Useful reference points</h3>
+  <ul>
+    <li><code>0</code> — 1 January 1970, the epoch itself.</li>
+    <li><code>1000000000</code> — 9 September 2001.</li>
+    <li><code>1600000000</code> — 13 September 2020.</li>
+    <li><code>2000000000</code> — 18 May 2033.</li>
+    <li><code>2147483647</code> — 19 January 2038, the signed 32-bit limit.</li>
+  </ul>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>Seconds versus milliseconds</h3>
+  <p>This is the most common bug in this area. JavaScript's <code>Date.now()</code> returns milliseconds; most Unix tooling, database functions and JWT claims use seconds. Mixing them does not usually throw an error — it silently produces a date in 1970 or in the year 54,000, which then propagates into comparisons and expiry checks. If a date looks absurd by a factor of a thousand, this is why.</p>
+
+  <h3>The year 2038 problem</h3>
+  <p>A signed 32-bit integer runs out at 03:14:07 UTC on 19 January 2038. Systems still storing time that way will wrap to a negative number and read as 1901. Modern 64-bit platforms are fine, but embedded devices, old database schemas and file formats with fixed-width fields are not automatically safe — and anything calculating far-future dates, such as a long-lived certificate or a retention policy, can hit the ceiling well before 2038 arrives.</p>
+
+  <h3>A timestamp has no timezone, but your display does</h3>
+  <p>The integer itself is unambiguous and always UTC. Every conversion to a human-readable string applies a timezone somewhere, and the default is usually the machine's local setting. The same timestamp shown on a developer laptop and a production server in another region produces two different strings, neither of which is wrong. Store and transmit UTC; convert only at the point of display.</p>
+
+  <h3>Leap seconds are not represented</h3>
+  <p>Unix time pretends every day is exactly 86,400 seconds, so inserted leap seconds are not counted. A timestamp is therefore not a true count of elapsed physical seconds since 1970. This almost never matters, but it does mean two timestamps subtracted give you a nominal interval rather than a precise duration — and it is why high-precision systems smear leap seconds rather than inserting them.</p>
+
+  <h3>Do not use it to measure elapsed time</h3>
+  <p>Wall-clock time can jump backwards when NTP corrects drift or a timezone database updates, which can make a measured duration negative. For timing how long something took, use a monotonic clock instead — <code>time.monotonic()</code> in Python, <code>performance.now()</code> in browsers, <code>CLOCK_MONOTONIC</code> on Linux.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="cron.html">Cron Explainer</a></li><li><a href="cronbuilder.html">Cron Builder</a></li><li><a href="timezone.html">Timezone Converter</a></li><li><a href="cronnext.html">Cron Next Run Calculator</a></li></ul></div></section>
 
   <!-- TIMEZONE CONVERTER -->

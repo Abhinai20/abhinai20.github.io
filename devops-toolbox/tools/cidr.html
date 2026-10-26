@@ -187,6 +187,39 @@
         <div id="cidr-result" class="result-box result-idle">Enter a CIDR block and click "Calculate".</div>
       </div>
     </div>
+  <h2>How CIDR notation works</h2>
+  <p>CIDR writes a network as an address followed by a prefix length, as in <code>10.0.1.0/24</code>. The prefix length is simply how many leading bits are fixed as the network portion; whatever remains identifies hosts inside it.</p>
+  <p>An IPv4 address is 32 bits, so a <code>/24</code> fixes 24 bits and leaves 8 for hosts — 256 addresses. Every bit you take away from the prefix doubles the size of the block: a <code>/23</code> is 512 addresses, a <code>/22</code> is 1,024, and so on.</p>
+
+  <h3>Common block sizes</h3>
+  <ul>
+    <li><code>/32</code> — a single address, used for host routes and firewall rules.</li>
+    <li><code>/31</code> — two addresses, for point-to-point links (see below).</li>
+    <li><code>/29</code> — 8 addresses, 6 usable.</li>
+    <li><code>/24</code> — 256 addresses, 254 usable. The classic small subnet.</li>
+    <li><code>/16</code> — 65,536 addresses. A typical VPC size.</li>
+  </ul>
+
+  <h3>Private address ranges</h3>
+  <p>Three ranges are reserved for private use and are never routed on the public internet: <code>10.0.0.0/8</code>, <code>172.16.0.0/12</code> and <code>192.168.0.0/16</code>. Note that the middle one is <em>not</em> all of <code>172.x</code> — it covers <code>172.16</code> through <code>172.31</code> only, which is a recurring source of accidental overlap.</p>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>Two addresses in every subnet are not usable</h3>
+  <p>The first address in a block is the network identifier and the last is the broadcast address, so a <code>/24</code> gives 254 assignable hosts rather than 256. Sizing a subnet for exactly as many hosts as you have is how you end up one address short on the day you need it.</p>
+
+  <h3>Cloud providers reserve more than two</h3>
+  <p>In an AWS VPC subnet, five addresses are unavailable, not two: the network address, the broadcast address, plus the first three usable addresses, which AWS takes for the implied router, DNS, and future use. A <code>/28</code> therefore yields 11 usable addresses rather than 14. Azure and Google Cloud reserve similarly. This catches people out when carving the smallest possible subnets.</p>
+
+  <h3><code>/31</code> is a legitimate special case</h3>
+  <p>By the normal rule a <code>/31</code> would have two addresses and zero usable ones. RFC 3021 makes an exception for point-to-point links, where both addresses are assignable because there is no need for a broadcast address with only two endpoints. Most modern routers support it; it halves address consumption on transit links.</p>
+
+  <h3>The address you wrote may not be the network address</h3>
+  <p>Writing <code>10.0.1.37/24</code> is describing a host inside <code>10.0.1.0/24</code>, not a network starting at <code>.37</code>. Some tools silently normalise it to the network address and others reject it outright, so the same string can behave differently across a router, a firewall rule and a cloud API. Write the network address explicitly when defining a block.</p>
+
+  <h3>Overlap is not always obvious</h3>
+  <p>Two ranges that look unrelated can still overlap, because containment depends on prefix length rather than on the dotted digits. <code>10.0.0.0/16</code> fully contains <code>10.0.5.0/24</code>, and peering two networks that overlap anywhere will fail. Plan address space before you allocate it, and leave gaps — renumbering a live network is considerably harder than oversizing it on day one.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="cidroverlap.html">CIDR Overlap Checker</a></li></ul></div></section>
 
   <!-- K8S QUANTITY CONVERTER -->

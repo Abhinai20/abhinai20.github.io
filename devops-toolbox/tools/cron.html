@@ -160,6 +160,58 @@
     <div class="cron-ref">
       <strong>Field order:</strong> <code>minute hour day-of-month month day-of-week</code>
     </div>
+
+    <h2>Cron syntax reference</h2>
+    <p>A standard crontab line has five time fields followed by the command to run. Each field accepts a single value, a list, a range, or a step.</p>
+    <ul>
+      <li><code>minute</code> — 0–59</li>
+      <li><code>hour</code> — 0–23, on a 24-hour clock</li>
+      <li><code>day-of-month</code> — 1–31</li>
+      <li><code>month</code> — 1–12, or <code>JAN</code>–<code>DEC</code></li>
+      <li><code>day-of-week</code> — 0–7, or <code>SUN</code>–<code>SAT</code>. Both 0 and 7 mean Sunday.</li>
+    </ul>
+
+    <h3>Special characters</h3>
+    <ul>
+      <li><code>*</code> — every value in the field.</li>
+      <li><code>,</code> — a list, as in <code>1,15,30</code>.</li>
+      <li><code>-</code> — an inclusive range, as in <code>9-17</code>.</li>
+      <li><code>/</code> — a step. <code>*/15</code> in the minute field means every 15 minutes. A step can follow a range too: <code>0-30/10</code> runs at 0, 10, 20 and 30 only.</li>
+    </ul>
+
+    <h3>Shorthand aliases</h3>
+    <p>Most cron implementations accept these in place of all five fields: <code>@yearly</code> (equivalent to <code>0 0 1 1 *</code>), <code>@monthly</code>, <code>@weekly</code>, <code>@daily</code>, <code>@hourly</code>, and <code>@reboot</code>.</p>
+
+    <h3>Common expressions</h3>
+    <ul>
+      <li><code>*/5 * * * *</code> — every five minutes.</li>
+      <li><code>0 * * * *</code> — once an hour, on the hour.</li>
+      <li><code>30 2 * * *</code> — every day at 02:30.</li>
+      <li><code>0 9 * * 1-5</code> — 09:00 on weekdays only.</li>
+      <li><code>0 0 1 * *</code> — midnight on the first of each month.</li>
+      <li><code>15 3 * * 0</code> — 03:15 every Sunday.</li>
+    </ul>
+
+    <h2>Gotchas worth knowing</h2>
+
+    <h3>Day-of-month and day-of-week are OR'd, not AND'd</h3>
+    <p>This is the single most misunderstood part of cron. When <em>both</em> the day-of-month and day-of-week fields are restricted — neither is <code>*</code> — the job runs when <em>either</em> matches, not when both do.</p>
+    <p>So <code>0 0 13 * 5</code> does not mean "Friday the 13th". It means midnight on the 13th of every month, <em>and also</em> midnight every Friday. If you want a job to run only on a weekday that is also a particular date, you have to test for it inside the command itself rather than in the schedule.</p>
+
+    <h3>Cron runs with a minimal environment</h3>
+    <p>A cron job does not inherit your interactive shell's environment. <code>PATH</code> is typically just <code>/usr/bin:/bin</code>, and your profile scripts are never sourced. A command that works when you paste it into a terminal can fail under cron purely because a binary is not on that reduced path. Use absolute paths, or set <code>PATH</code> explicitly at the top of the crontab.</p>
+
+    <h3>Percent signs must be escaped</h3>
+    <p>In a crontab, an unescaped <code>%</code> is translated into a newline, and everything after the first one is fed to the command as standard input. This bites anyone using <code>date</code> format strings. Write <code>\%Y\%m\%d</code>, or move the command into a script.</p>
+
+    <h3>Daylight saving time can skip or repeat a job</h3>
+    <p>Cron schedules in the system's local timezone. When clocks jump forward, a job scheduled inside the skipped hour may not run at all that day; when they fall back, a job in the repeated hour can run twice. For anything where exactly-once matters, run the machine's cron in UTC, or make the job idempotent so a second run is harmless.</p>
+
+    <h3><code>@reboot</code> means daemon start, not boot</h3>
+    <p>It fires when the cron daemon itself starts, which usually coincides with boot but is not the same event. Restarting cron re-triggers it. It is also not a substitute for a service manager — if the job needs to run reliably and be restarted on failure, a systemd unit is the better tool.</p>
+
+    <h3>Six fields means something else</h3>
+    <p>If an expression has six fields rather than five, it is probably not Unix crontab. Spring's scheduler and several container platforms put <em>seconds</em> first; Quartz uses a sixth field for the year and supports <code>?</code>, <code>L</code> and <code>W</code> that standard cron does not. Checking the field count first saves a lot of confusion.</p>
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="cronbuilder.html">Cron Builder</a></li><li><a href="timestamp.html">Unix Timestamp</a></li><li><a href="timezone.html">Timezone Converter</a></li><li><a href="cronnext.html">Cron Next Run Calculator</a></li></ul></div></section>
 
   <!-- MARKDOWN TO WORD -->

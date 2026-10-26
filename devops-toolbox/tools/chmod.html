@@ -196,6 +196,43 @@
     </div>
     <label style="margin-top:16px;">Result</label>
     <div id="chmod-result" class="result-box result-idle">Use either field above.</div>
+  <h2>How Unix permissions work</h2>
+  <p>Every file and directory carries three permission sets: one for the owning user, one for the owning group, and one for everyone else. Each set has three bits — read, write and execute — which is why permissions are usually written as three octal digits.</p>
+  <ul>
+    <li><code>4</code> — read (<code>r</code>)</li>
+    <li><code>2</code> — write (<code>w</code>)</li>
+    <li><code>1</code> — execute (<code>x</code>)</li>
+  </ul>
+  <p>Add them together per triad. <code>7</code> is read, write and execute; <code>6</code> is read and write; <code>5</code> is read and execute. So <code>755</code> means the owner can do everything while group and others can read and execute, and <code>644</code> means the owner can read and write while everyone else can only read.</p>
+
+  <h3>The common values</h3>
+  <ul>
+    <li><code>644</code> — ordinary files: owner edits, everyone reads.</li>
+    <li><code>755</code> — directories, and scripts meant to be run by anyone.</li>
+    <li><code>600</code> — private files such as credentials. SSH requires this for private keys.</li>
+    <li><code>700</code> — a private directory only the owner may enter.</li>
+    <li><code>775</code> — a shared directory for a team, writable by the group.</li>
+  </ul>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>On a directory, execute means "enter", not "run"</h3>
+  <p>The <code>x</code> bit on a directory controls whether you may traverse into it and reach what is inside. Read without execute lets you list the names in a directory but not open anything within it; execute without read lets you open a file whose exact path you already know, but not list the contents. This is why <code>755</code> is normal for a directory even though nothing in it is a program.</p>
+
+  <h3><code>chmod -R 755</code> makes every file executable</h3>
+  <p>Recursive chmod applies the same mode to directories and regular files alike, so a whole tree of documents ends up marked executable. The usual fix is to treat the two separately:</p>
+  <p><code>find . -type d -exec chmod 755 {} +</code> and <code>find . -type f -exec chmod 644 {} +</code></p>
+  <p>Alternatively, symbolic mode with a capital <code>X</code> — <code>chmod -R a+rX .</code> — sets execute only on directories and on files that already had it.</p>
+
+  <h3>umask subtracts, it does not set</h3>
+  <p>New files are not created with the mode you might expect; the umask masks bits out of the system default. With the common umask of <code>022</code>, a new file lands at <code>644</code> and a new directory at <code>755</code>. If files are appearing with unexpectedly open or closed permissions, the umask of the creating process is usually the reason rather than anything chmod did.</p>
+
+  <h3>The special bits</h3>
+  <p>A fourth leading digit sets setuid (<code>4</code>), setgid (<code>2</code>) and the sticky bit (<code>1</code>). Setgid on a directory is the genuinely useful one: new files inside inherit the directory's group, which is what makes shared team directories work. The sticky bit is why <code>/tmp</code> is world-writable yet users cannot delete each other's files. Setuid on an executable runs it as the file's owner and deserves real caution.</p>
+
+  <h3>Permissions are not ownership</h3>
+  <p>chmod changes what the owner, group and others may do; it never changes who the owner or group <em>is</em>. If the right answer is "this should belong to a different user", that is <code>chown</code>. Granting <code>777</code> to work around an ownership problem is the reflex worth resisting — it makes the file writable by every account on the system, including any service that gets compromised.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="jwt.html">JWT Decoder</a></li><li><a href="secretscanner.html">Secret Scanner</a></li></ul></div></section>
 
   <!-- XML FORMATTER -->
