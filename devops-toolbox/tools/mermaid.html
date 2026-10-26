@@ -231,6 +231,36 @@
         <div id="mermaid-result" class="result-box result-idle" style="overflow:auto;">Paste Mermaid syntax and click "Render".</div>
       </div>
     </div>
+  <h2>Mermaid basics</h2>
+  <p>Mermaid turns text into diagrams, which means a diagram can live in version control next to the thing it describes and be reviewed in a pull request like any other change. That is its real advantage over a drawing tool.</p>
+  <ul>
+    <li><code>flowchart TD</code> — a flowchart, top-down. <code>LR</code> is left-to-right.</li>
+    <li><code>A --&gt; B</code> — an arrow; <code>A --&gt;|label| B</code> labels it.</li>
+    <li><code>A[Box]</code>, <code>A(Rounded)</code>, <code>A{Diamond}</code>, <code>A[(Database)]</code> — node shapes.</li>
+    <li><code>sequenceDiagram</code> — interactions over time, with <code>participant</code> and <code>A-&gt;&gt;B: message</code>.</li>
+    <li><code>subgraph name ... end</code> — grouping.</li>
+  </ul>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>Punctuation in labels breaks the parse</h3>
+  <p>Parentheses, braces, commas and colons inside a node label are read as syntax. <code>A[Deploy (prod)]</code> fails; <code>A["Deploy (prod)"]</code> works. Quoting every label that contains anything but letters, numbers and spaces avoids a whole class of confusing errors — and the error messages point at a line number rather than at the real problem.</p>
+
+  <h3>Renderer versions differ a lot</h3>
+  <p>GitHub, GitLab, your IDE preview and a local CLI are frequently on different Mermaid versions. Newer diagram types and newer syntax render in one place and show as an error block in another. A diagram that looks right in your editor is not guaranteed to render where it will be read, so check it where it will actually live.</p>
+
+  <h3>Node IDs are not labels</h3>
+  <p><code>A[Login Service]</code> declares a node whose id is <code>A</code>. Reusing <code>A</code> later with different text silently redefines it, and referring to <code>Login Service</code> in an arrow does not work. Using meaningful ids (<code>login[Login Service]</code>) makes larger diagrams far easier to edit.</p>
+
+  <h3>Layout is automatic and only loosely controllable</h3>
+  <p>You describe relationships, not positions. Beyond direction and subgraphs, there is limited influence over where things land, and adding one node can rearrange the whole diagram. Fighting the layout engine on a complex diagram usually means the diagram is trying to show too much — splitting it is the better fix.</p>
+
+  <h3>Comments use <code>%%</code></h3>
+  <p>Not <code>#</code>, not <code>//</code>. The comment must be on its own line; a trailing comment after a statement is parsed as part of it.</p>
+
+  <h3>Theme and contrast are not guaranteed</h3>
+  <p>Default colours can be illegible against a dark background, which is a common complaint when a diagram renders fine locally and is unreadable on a site in dark mode. Setting the theme explicitly in the diagram's init block, rather than relying on the host's default, keeps it readable wherever it ends up.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li></ul></div></section>
   <!-- K8S RESOURCE QUOTA CALCULATOR -->
 

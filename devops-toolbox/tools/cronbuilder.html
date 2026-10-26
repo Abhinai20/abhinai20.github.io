@@ -227,6 +227,35 @@
         <div id="cronbuilder-result" class="result-box result-idle">Fill in the fields and click "Build".</div>
       </div>
     </div>
+  <h2>Choosing a schedule, not just writing one</h2>
+  <p>Getting the syntax right is the easy half. The decisions that cause trouble later are about <em>when</em> and <em>how often</em>, and they are worth making deliberately.</p>
+  <ul>
+    <li>How long does the job take, and what happens if it is still running when the next one starts?</li>
+    <li>Does it need to run at a specific local time, or just regularly?</li>
+    <li>What happens if a run is missed entirely — does the next one catch up, or is that data gone?</li>
+    <li>Is anything else scheduled at the same minute?</li>
+  </ul>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>Avoid the top of the hour</h3>
+  <p>Almost every schedule anyone writes lands on <code>0</code> minutes, so midnight and the hour boundary are when backups, report generation, cache warming and every third-party API's rate limit all collide. Picking an off-minute such as <code>7</code> or <code>23</code> costs nothing and sidesteps a surprising amount of contention. At larger scale, deliberate jitter across hosts matters even more.</p>
+
+  <h3>Cron does not prevent overlapping runs</h3>
+  <p>If a job scheduled every five minutes takes six, you now have two copies running, then three. Cron will happily keep starting them until the machine falls over. Use a lock — <code>flock</code> is the standard answer on Linux — so a late run skips rather than stacks.</p>
+
+  <h3>Frequent polling is usually the wrong design</h3>
+  <p>A job running every minute to check whether something happened is a queue implemented badly: it burns resources continuously and still adds up to a minute of latency. If an event can trigger the work directly, that is both cheaper and faster. Reserve short intervals for things that genuinely have no event to hang off.</p>
+
+  <h3>Decide what a missed run means before you need to</h3>
+  <p>Machines reboot, deployments restart containers, and schedulers are delayed. For an idempotent job that processes everything outstanding, a missed run is harmless. For one that processes "the last hour", a missed run is a permanent gap in the data. The second kind needs to work from a watermark rather than from the clock.</p>
+
+  <h3>The schedule runs in the machine's timezone</h3>
+  <p>A job written for 09:00 local will shift relative to UTC twice a year, and will run at different absolute times across a fleet in different regions. For anything coordinated, set the schedule in UTC and convert when a human needs to read it.</p>
+
+  <h3>Make failure visible</h3>
+  <p>By default cron emails output to the local user, which on a server means it goes nowhere anyone reads. A job that has been failing silently for months is the normal outcome, not an unusual one. Send the exit status somewhere monitored, or use a dead-man's-switch that alerts when the expected check-in does not arrive — that catches the job never running at all, which output-based alerting cannot.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="cron.html">Cron Explainer</a></li><li><a href="timestamp.html">Unix Timestamp</a></li><li><a href="timezone.html">Timezone Converter</a></li><li><a href="cronnext.html">Cron Next Run Calculator</a></li></ul></div></section>
 
   <!-- TLS CERTIFICATE DECODER -->

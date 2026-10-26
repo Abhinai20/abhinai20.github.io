@@ -192,6 +192,30 @@
         <div id="structdiff-result" class="result-box result-idle tf-output">Paste both sides and click "Compare".</div>
       </div>
     </div>
+  <h2>Why a structural diff beats a text diff</h2>
+  <p>A line-based diff compares characters, so it reports differences that do not exist and misses ones that do. Reformatting a file, reordering keys, or changing indentation produces a wall of changes with no semantic content — while a genuine change buried in a reformatted block is easy to miss entirely.</p>
+  <p>A structural diff parses both documents first and compares the resulting data, so key order and whitespace stop mattering and what you see is what actually changed.</p>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>Object key order is meaningless, array order is not</h3>
+  <p>Two objects with the same pairs in a different order are equal. Two arrays with the same elements in a different order are <em>not</em> — and sometimes the order genuinely matters, as with nginx location blocks, IAM statement evaluation, or an ordered pipeline. A tool that normalises array order will hide real differences; one that does not will report noise when the order is irrelevant. Know which case you are in.</p>
+
+  <h3>Type changes hide inside equal-looking values</h3>
+  <p><code>"8080"</code> and <code>8080</code> render identically in a terminal and behave differently in code. The same applies to <code>"true"</code> versus <code>true</code>, and to a null that became an empty string. These are exactly the changes a text diff cannot flag and that cause configuration bugs.</p>
+
+  <h3>Absent is not the same as null or empty</h3>
+  <p>A missing key, a key set to null, and a key set to an empty string are three different states, and they often behave differently — a missing field may take a default while an explicit null overrides it. A diff that collapses them will report "no change" across a meaningful one.</p>
+
+  <h3>Numeric precision drifts through parsers</h3>
+  <p>Round-tripping through a JSON parser can turn <code>1.0</code> into <code>1</code>, or lose precision on integers beyond 2^53. The difference reported may therefore be an artefact of parsing rather than a change in the source file.</p>
+
+  <h3>Comments disappear</h3>
+  <p>Parsing YAML to compare it discards comments, so a change that only edits a comment shows as no change at all. If the comment carries operational meaning — and in configuration it often does — a structural diff is the wrong tool for reviewing it.</p>
+
+  <h3>Diffing rendered output, not templates</h3>
+  <p>For Helm or Kustomize, comparing the templates tells you little; comparing the rendered manifests tells you what will actually be applied. Rendering both sides first and diffing the output is how you catch a values change that silently altered something three levels down.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="k8slint.html">K8s Manifest Analyzer</a></li><li><a href="jsonschema.html">JSON Schema Generator</a></li></ul></div></section>
 
   <!-- CHMOD CALCULATOR -->

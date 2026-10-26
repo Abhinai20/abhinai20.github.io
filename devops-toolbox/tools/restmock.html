@@ -235,6 +235,30 @@
         <pre id="restmock-result" class="result-box result-idle tf-output">Fill in the fields and click "Generate".</pre>
       </div>
     </div>
+  <h2>What a mock endpoint is for</h2>
+  <p>A mock returns a canned response so you can build and test against an API that is unfinished, rate limited, expensive to call, or simply someone else's. It decouples your progress from theirs, and makes tests fast and deterministic.</p>
+  <p>The useful mock is not just a happy-path body. It covers the error cases you will actually have to handle: a 401, a 429 with a <code>Retry-After</code>, a 500, a timeout, and a malformed response.</p>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>Mocks drift from the real API</h3>
+  <p>This is the central risk. A mock written from documentation six months ago keeps passing while the real endpoint has added a required field, changed a type, or started returning errors differently. The test suite stays green and the integration is broken. Mocks need to be regenerated from the real response, or validated against a shared schema, or the confidence they give is false.</p>
+
+  <h3>A green test against a mock proves very little</h3>
+  <p>It proves your code handles the response you wrote. Contract testing — where the consumer's expectations are verified against the actual provider — is what closes that gap. Mocks are for development speed; they are not a substitute for integrating at least once against the real thing.</p>
+
+  <h3>Status codes carry semantics worth mocking</h3>
+  <p>Returning 200 with an error body for every failure trains your code not to check status at all. Mock a 404 that means "not found" distinctly from a 400 that means "your request was wrong", and a 429 with the retry header, because retry logic that has never been exercised against a real 429 is retry logic that does not work.</p>
+
+  <h3>Everything is instant, and production is not</h3>
+  <p>A mock answering in a millisecond hides every timeout bug, every missing cancellation, and every assumption that a call is cheap enough to make inside a loop. Adding deliberate latency, and occasionally a hang, is how you find those before a user does.</p>
+
+  <h3>Do not mock what you do not own badly</h3>
+  <p>A hand-written guess at a third-party payload is worse than no mock, because it encodes a misunderstanding as a passing test. Capture a real response once and use that as the fixture.</p>
+
+  <h3>Mock servers leak into production configuration</h3>
+  <p>A base URL pointing at a mock, left in a config file or a default value, is a genuinely common incident. Keep the mock endpoint out of any shared default, and make the absence of a real URL a hard failure rather than something that quietly falls back.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li></ul></div></section>
 
 

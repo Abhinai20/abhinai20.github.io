@@ -169,6 +169,30 @@ a code block
         <div id="md-preview" class="result-box result-idle md-preview">Paste Markdown and click convert — a preview of the formatted result will appear here, and a .docx file will download automatically.</div>
       </div>
     </div>
+  <h2>Converting Markdown for people who want Word</h2>
+  <p>Markdown is the better format to write and review in — it diffs cleanly and lives in version control — but plenty of readers expect a document they can open, comment on and track changes in. Converting at the end gets both.</p>
+  <p>The mapping is mostly predictable: headings become Word heading styles, lists become list paragraphs, emphasis and code spans become character formatting, and tables become Word tables.</p>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>Headings must map to styles, not just look big</h3>
+  <p>If a converter renders a heading as large bold text rather than applying the Heading 1 style, Word's navigation pane and automatic table of contents stay empty, and the document is painful to work with. Style mapping is what makes the output a real Word document rather than a picture of one.</p>
+
+  <h3>Images need to be reachable at conversion time</h3>
+  <p>Markdown references images by path or URL; a <code>.docx</code> embeds them. A relative path that is wrong, or a remote image behind authentication, produces a document with broken placeholders — and the failure is often silent. Check the images specifically before sending the file on.</p>
+
+  <h3>Markdown tables are limited</h3>
+  <p>There is no merged cell, no nested table and no cell-level formatting in standard Markdown, so a complex table has to be simplified before it converts or rebuilt afterwards in Word. Anything edited in Word afterwards will also be lost on the next conversion.</p>
+
+  <h3>Raw HTML usually does not survive</h3>
+  <p>Markdown permits inline HTML, and most converters either drop it or emit it as literal text. Anything relying on a <code>&lt;div&gt;</code>, an inline style or an embedded widget will not appear. Keep the source to plain Markdown if the Word output matters.</p>
+
+  <h3>Code blocks lose highlighting</h3>
+  <p>A fenced block with a language tag converts to monospaced text, usually without colour, and long lines wrap rather than scrolling. For a document heavy with code, check that indentation survived — it is what makes the difference between readable and not.</p>
+
+  <h3>The conversion is one-way in practice</h3>
+  <p>Once a reviewer edits the <code>.docx</code>, those edits live only there. Converting back to Markdown is possible but lossy, and merging two sets of changes by hand is error-prone. Decide which format is the source of truth before circulating the file, and treat the other as output — regenerating it rather than editing it.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="jsonyaml.html">JSON ↔ YAML</a></li></ul></div></section>
 
   <!-- JSON <-> YAML -->

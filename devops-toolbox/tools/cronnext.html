@@ -239,6 +239,30 @@
         <div id="cronnext-result" class="result-box result-idle">Enter a cron expression and click "Show Next Runs".</div>
       </div>
     </div>
+  <h2>Verifying when a schedule will actually fire</h2>
+  <p>Calculating the next few run times is the fastest way to check an expression means what you think. It catches the mistakes reading the syntax does not — a schedule that is an order of magnitude more frequent than intended, or one that will not fire for another eleven months.</p>
+  <p>Two patterns are worth testing every time: the gap between consecutive runs, and the first run after a month or year boundary.</p>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>A missing field makes it far more frequent</h3>
+  <p>The classic error is writing <code>0 2 * *</code> meaning "2am daily" and getting four fields instead of five. Depending on the parser, that is either an error or a schedule that runs every hour. The inverse is just as common: <code>* 2 * * *</code> runs sixty times between 02:00 and 02:59, not once at 2am.</p>
+
+  <h3>Day-of-month and day-of-week combine as OR</h3>
+  <p>When both are restricted, the job runs when either matches — so <code>0 0 1 * 1</code> fires on the 1st of every month <em>and</em> every Monday, which is far more often than "the first Monday". Listing the next ten runs makes this immediately obvious, which is exactly why it is worth checking rather than reasoning about.</p>
+
+  <h3>Short months and the 31st</h3>
+  <p><code>0 0 31 * *</code> simply does not run in months without a 31st, so a monthly job skips February, April, June, September and November. "Last day of the month" has no standard cron expression; the usual approach is to run on the 1st and process the previous month, or to check the date inside the job.</p>
+
+  <h3>Daylight saving shifts or duplicates a run</h3>
+  <p>A job scheduled inside the hour that is skipped when clocks move forward does not run that day. In the repeated hour when they move back, it can run twice. Some implementations compensate and others do not, so the only reliable answers are to schedule in UTC or to make the job idempotent.</p>
+
+  <h3>The next run is not the next <em>start</em> you will see</h3>
+  <p>Calculated times assume the scheduler fires precisely. In practice a busy host, a container still pulling an image, or a hosted scheduler under load can delay a run by minutes — and hosted cron services explicitly offer no exact-time guarantee. If a run being late by ten minutes breaks something, the schedule is not the right mechanism.</p>
+
+  <h3>Catch-up behaviour varies</h3>
+  <p>If the machine was off at the scheduled time, plain cron does nothing — the run is simply lost. <code>anacron</code> and systemd timers with <code>Persistent=true</code> will run the job once the system is back. Kubernetes CronJobs behave differently again, with <code>startingDeadlineSeconds</code> deciding whether a missed run is attempted. Knowing which you are using determines whether "it did not run" is a bug or the documented behaviour.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="cron.html">Cron Explainer</a></li><li><a href="cronbuilder.html">Cron Builder</a></li><li><a href="timestamp.html">Unix Timestamp</a></li><li><a href="timezone.html">Timezone Converter</a></li></ul></div></section>
 
 

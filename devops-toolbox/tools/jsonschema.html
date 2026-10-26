@@ -214,6 +214,38 @@
         <pre id="jsonschema-result" class="result-box result-idle tf-output">Paste sample JSON and click "Generate Schema".</pre>
       </div>
     </div>
+  <h2>How JSON Schema describes data</h2>
+  <p>A schema is itself JSON, describing the shape another document must have. The core keywords:</p>
+  <ul>
+    <li><code>type</code> — <code>object</code>, <code>array</code>, <code>string</code>, <code>number</code>, <code>integer</code>, <code>boolean</code>, <code>null</code>.</li>
+    <li><code>properties</code> — the schema for each named field of an object.</li>
+    <li><code>required</code> — an array of property names that must be present.</li>
+    <li><code>items</code> — the schema every element of an array must satisfy.</li>
+    <li><code>enum</code> — an explicit list of permitted values.</li>
+    <li><code>format</code> — a semantic hint such as <code>email</code>, <code>uri</code> or <code>date-time</code>.</li>
+    <li><code>additionalProperties</code> — whether fields not listed are allowed.</li>
+  </ul>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>Listing a property does not make it required</h3>
+  <p>This catches nearly everyone once. <code>properties</code> only says "if this field appears, it must look like this" — an empty object validates against a schema with a dozen properties. Requiring a field means naming it in the separate <code>required</code> array, and forgetting that produces a schema that accepts almost anything.</p>
+
+  <h3><code>additionalProperties</code> defaults to true</h3>
+  <p>Unknown fields are permitted unless you set it to <code>false</code>. That default is right for forward compatibility and wrong for catching typos: a config with <code>reties: 3</code> instead of <code>retries: 3</code> validates cleanly and then uses the default retry count. For configuration schemas, setting it to <code>false</code> turns a silent misconfiguration into an error at load time.</p>
+
+  <h3><code>format</code> is advisory in many validators</h3>
+  <p>By specification, <code>format</code> is an annotation rather than an assertion, and several libraries do not enforce it unless explicitly configured to. A schema relying on <code>"format": "email"</code> for validation may be enforcing nothing at all. Where it matters, pair it with a <code>pattern</code>.</p>
+
+  <h3><code>integer</code> and <code>number</code> differ, and JSON has one numeric type</h3>
+  <p><code>1.0</code> is usually accepted as an integer because it has no fractional part, while <code>1.5</code> is not. More awkwardly, large integers can lose precision passing through JavaScript, so an id beyond 2^53 may validate and still be wrong by the time it is used.</p>
+
+  <h3>Draft versions are not compatible</h3>
+  <p>Draft-04, Draft-07 and 2020-12 differ in real ways — <code>exclusiveMinimum</code> changed from a boolean to a number, and the keywords for array tuples were renamed. A schema written for one draft can be silently misinterpreted by a validator expecting another. Declare <code>$schema</code> explicitly and check what your library supports.</p>
+
+  <h3>A generated schema is a starting point</h3>
+  <p>Inferring a schema from a sample captures the shape of that sample, not your intent: optional fields that happened to be present become required, an enum is missed, and a nullable field looks non-nullable. Generation saves the typing; the constraints still need a human.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="jsonyaml.html">JSON ↔ YAML</a></li></ul></div></section>
 
   <!-- SECRET SCANNER -->

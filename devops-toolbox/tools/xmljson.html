@@ -214,6 +214,30 @@
         <pre id="xmljson-result" class="result-box result-idle tf-output">Paste XML or JSON and pick a direction.</pre>
       </div>
     </div>
+  <h2>Why the conversion is lossy</h2>
+  <p>XML and JSON describe different things. JSON has objects, arrays, strings, numbers, booleans and null. XML has elements, attributes, namespaces, ordering, comments, mixed content and no types at all. There is no canonical mapping between them, so every converter invents its own conventions — commonly prefixing attributes with <code>@</code> and putting element text under a key such as <code>#text</code>.</p>
+  <p>That means a document converted by one tool and back by another will not necessarily match the original, and two converters can produce different JSON from the same XML.</p>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>Repeated elements are ambiguous when there is only one</h3>
+  <p>This is the most consequential problem. A list of three <code>&lt;item&gt;</code> elements converts to an array, but a list of <em>one</em> looks identical to a plain field — so the same schema produces an array sometimes and an object other times, depending on the data. Downstream code that indexes into it works in testing and breaks on the single-item case. Converters that let you force a path to always be an array exist precisely because of this.</p>
+
+  <h3>Attributes and child elements collide</h3>
+  <p><code>&lt;user id="1"&gt;&lt;id&gt;2&lt;/id&gt;&lt;/user&gt;</code> has both an attribute and a child called <code>id</code>. In JSON they would be the same key, so a converter must rename one — and which one it renames is a convention, not a rule.</p>
+
+  <h3>Everything in XML is a string</h3>
+  <p>XML has no native numeric or boolean types, so <code>&lt;count&gt;5&lt;/count&gt;</code> may convert to <code>"5"</code> or to <code>5</code> depending on whether the converter guesses types. Guessing introduces its own bug: a part number like <code>007</code> or <code>1.10</code> becomes a number and loses its original form.</p>
+
+  <h3>Namespaces usually get flattened</h3>
+  <p>Prefixes such as <code>soap:</code> are meaningful in XML and have no JSON equivalent. Converters either keep the prefix in the key, strip it, or expand it to the full URI — and stripping it can make two genuinely distinct elements collide.</p>
+
+  <h3>Order is preserved in XML and not in objects</h3>
+  <p>Sibling elements are ordered; JSON object keys are not guaranteed to be. For a document where sequence matters, converting to an object loses that, and only an array representation preserves it.</p>
+
+  <h3>Mixed content has no clean representation</h3>
+  <p>Text interleaved with elements — <code>&lt;p&gt;Hello &lt;b&gt;world&lt;/b&gt;!&lt;/p&gt;</code> — cannot be expressed naturally in JSON at all. Any conversion of document-oriented XML, as opposed to data-oriented XML, will be awkward. If the XML is really a document, convert it for inspection rather than as a processing step.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="../index.html">YAML Validator</a></li><li><a href="jsonyaml.html">JSON ↔ YAML</a></li></ul></div></section>
 
   <!-- JSON SCHEMA GENERATOR -->

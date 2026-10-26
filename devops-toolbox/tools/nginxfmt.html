@@ -236,6 +236,35 @@
         <pre id="nginxfmt-result" class="result-box result-idle tf-output">Paste an nginx config and click "Format".</pre>
       </div>
     </div>
+  <h2>How an nginx config is organised</h2>
+  <p>Configuration nests in blocks, and a directive's meaning depends on which block it sits in. The usual hierarchy is <code>http</code> → <code>server</code> → <code>location</code>, with most directives inherited downward and overridable at each level.</p>
+  <ul>
+    <li><code>server</code> — one virtual host, selected by <code>listen</code> and <code>server_name</code>.</li>
+    <li><code>location</code> — a URI path rule inside a server.</li>
+    <li><code>upstream</code> — a named pool of backends for proxying.</li>
+    <li>Every directive ends with a semicolon; blocks use braces.</li>
+  </ul>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>Location matching is not top to bottom</h3>
+  <p>This is the big one. nginx does not take the first matching location — it applies a precedence order: exact matches (<code>=</code>) first, then the longest matching literal prefix, then regular expressions in file order, then the longest prefix as a fallback. A regex location placed below a prefix one can still win. Reordering the file to fix routing usually means the precedence rules are being misread.</p>
+
+  <h3><code>root</code> and <code>alias</code> treat the trailing slash differently</h3>
+  <p><code>root</code> appends the full request URI to the path; <code>alias</code> replaces the matched location prefix. A missing or extra trailing slash on an <code>alias</code> produces a path with a duplicated or missing segment, giving a 404 for a file that plainly exists. When a static file will not serve, this is the first thing to check.</p>
+
+  <h3><code>if</code> is best avoided</h3>
+  <p>Inside a location block, <code>if</code> behaves unlike a normal conditional and can produce surprising results when combined with other directives — the nginx documentation itself warns about it. Most uses can be replaced with a more specific location, a <code>map</code>, or <code>try_files</code>.</p>
+
+  <h3>Test before reloading</h3>
+  <p><code>nginx -t</code> validates syntax and the existence of referenced files. A reload with a broken config leaves the old workers running, so the site stays up but your change silently did not apply — which is worse than a visible failure, because it looks like the change did not work rather than that it never loaded.</p>
+
+  <h3>Reload, do not restart</h3>
+  <p><code>nginx -s reload</code> starts new workers with the new config and lets existing connections drain. A restart drops them. For a config change there is no reason to restart.</p>
+
+  <h3>Proxying loses the original client details</h3>
+  <p>Without explicit <code>proxy_set_header</code> lines, the backend sees nginx as the client: the real IP, the original host and the scheme are all lost, which breaks redirect generation and logging. Setting <code>Host</code>, <code>X-Real-IP</code>, <code>X-Forwarded-For</code> and <code>X-Forwarded-Proto</code> is part of any proxy block — and the backend must be configured to trust them only from nginx, or they become spoofable.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li></ul></div></section>
 
   <!-- CRON NEXT RUN CALCULATOR -->

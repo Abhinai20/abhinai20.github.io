@@ -239,6 +239,35 @@ NOT_A_VALID_LINE</textarea>
         <div id="envparser-result" class="result-box result-idle">Paste a .env file and click "Validate".</div>
       </div>
     </div>
+  <h2>What a .env file is</h2>
+  <p>A <code>.env</code> file is a list of <code>KEY=value</code> lines loaded into the environment at startup. It is the standard way to keep configuration out of code — and the format is less standardised than it looks.</p>
+  <ul>
+    <li>One assignment per line, no spaces around <code>=</code>.</li>
+    <li>Keys conventionally uppercase with underscores.</li>
+    <li><code>#</code> starts a comment.</li>
+    <li>Blank lines are ignored.</li>
+  </ul>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>There is no specification</h3>
+  <p>Every loader implements its own dialect. Whether <code>export</code> prefixes are allowed, whether <code>${OTHER}</code> is interpolated, how multi-line values and escapes work — all of it varies between the Python, Node, Ruby and Go implementations, and between Docker Compose and your application. A file that works locally can parse differently in the container, which is a genuinely confusing class of bug.</p>
+
+  <h3>Docker Compose does not expand variables the way a shell does</h3>
+  <p>An <code>env_file</code> is read literally: quotes become part of the value and <code>$VAR</code> is not interpolated. So <code>PASSWORD="secret"</code> yields a password including the quote marks. Compose also uses <code>.env</code> in the project directory for substitution in the compose file itself, which is a different mechanism from <code>env_file</code> — two things with the same name doing different jobs.</p>
+
+  <h3>Spaces around the equals sign break it</h3>
+  <p><code>KEY = value</code> often produces a key with a trailing space, a value with a leading one, or nothing at all. Similarly, a trailing space after a value is invisible in an editor and included in the value — a frequent cause of a token that looks correct and is rejected.</p>
+
+  <h3>Everything is a string</h3>
+  <p>There are no types. <code>DEBUG=false</code> arrives as the string <code>"false"</code>, which is truthy in most languages. Parsing booleans and numbers explicitly, rather than relying on the value looking right, avoids a whole family of config bugs.</p>
+
+  <h3>Precedence surprises people</h3>
+  <p>Most loaders do not overwrite a variable already present in the real environment, so a stale shell export silently wins over the file you just edited. When a change to <code>.env</code> appears to have no effect, check whether the variable is already set in the environment.</p>
+
+  <h3>Never commit it</h3>
+  <p>A <code>.env</code> file holding real credentials in a repository is one of the most common leak sources there is. Add it to <code>.gitignore</code> on day one and commit a <code>.env.example</code> with the keys and dummy values instead — that documents what is required without publishing anything, and gives new developers a working template.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="regex.html">Regex Tester</a></li><li><a href="curl.html">cURL → Code</a></li></ul></div></section>
 
   <!-- NGINX CONFIG FORMATTER -->
