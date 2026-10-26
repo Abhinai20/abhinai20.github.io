@@ -192,6 +192,37 @@
         <div id="jsonpath-result" class="result-box result-idle">Enter an expression and click "Evaluate".</div>
       </div>
     </div>
+  <h2>kubectl JSONPath syntax</h2>
+  <p>JSONPath lets you pull specific fields out of kubectl output instead of parsing it with text tools. The basics:</p>
+  <ul>
+    <li><code>{.items[*].metadata.name}</code> — the name of every item.</li>
+    <li><code>{.items[0].spec.containers[*].image}</code> — every image in the first item.</li>
+    <li><code>{range .items[*]}{.metadata.name}{"\t"}{.status.phase}{"\n"}{end}</code> — iterate and format.</li>
+    <li><code>{.items[?(@.status.phase=="Running")].metadata.name}</code> — filter on a field.</li>
+    <li><code>{.metadata.annotations['kubernetes\.io/description']}</code> — a key containing a dot must be escaped.</li>
+  </ul>
+  <p>Use it as <code>kubectl get pods -o jsonpath='...'</code>. The surrounding single quotes keep the shell out of it.</p>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>kubectl's JSONPath is not standard JSONPath</h3>
+  <p>It is a Go implementation with its own dialect. <code>$</code> is optional, <code>range</code>/<code>end</code> exist and are not in the original spec, and several filter and script expressions from other JSONPath libraries are unsupported. An expression copied from a general JSONPath tester frequently fails here, and vice versa.</p>
+
+  <h3>Dots in keys must be escaped</h3>
+  <p>Kubernetes labels and annotations are full of keys like <code>app.kubernetes.io/name</code>, and a bare dot is a path separator. Use bracket notation with escaped dots: <code>{.metadata.labels['app\.kubernetes\.io/name']}</code>. Forgetting this returns nothing rather than an error, which makes it look like the field is missing.</p>
+
+  <h3>No output usually means no match, not an error</h3>
+  <p>A path that does not exist produces an empty result silently. In a script that is indistinguishable from a legitimately empty value, so a typo becomes a silent wrong answer. When a query returns nothing unexpectedly, check the raw object with <code>-o json</code> before assuming the resource is absent.</p>
+
+  <h3>Output is unseparated by default</h3>
+  <p><code>{.items[*].metadata.name}</code> joins names with spaces and no trailing newline, which makes the result awkward to loop over. The <code>range</code> form with explicit <code>{"\n"}</code> is almost always what you want in a script.</p>
+
+  <h3>Quoting breaks on Windows</h3>
+  <p>The single quotes that protect the expression in bash are not quotes in <code>cmd.exe</code>, and PowerShell interprets the contents differently again. On Windows, swap to double quotes and escape the inner ones, or put the expression in a file and reference it.</p>
+
+  <h3>Consider <code>-o custom-columns</code> instead</h3>
+  <p>For the common case of "show me these three fields as a table", custom-columns is shorter and more readable than the equivalent range expression: <code>-o custom-columns=NAME:.metadata.name,PHASE:.status.phase</code>. Reach for JSONPath when you need filtering or a format custom-columns cannot express.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="k8slint.html">K8s Manifest Analyzer</a></li><li><a href="jsonyaml.html">JSON ↔ YAML</a></li><li><a href="jsonschema.html">JSON Schema Generator</a></li></ul></div></section>
 
   <!-- CHMOD CALCULATOR -->

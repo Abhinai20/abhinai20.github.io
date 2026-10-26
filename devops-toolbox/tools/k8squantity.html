@@ -190,6 +190,34 @@
         <div id="k8sq-result" class="result-box result-idle">Enter a quantity and click "Convert".</div>
       </div>
     </div>
+  <h2>How Kubernetes expresses quantities</h2>
+  <p>Kubernetes uses two different suffix families, and confusing them is the most common sizing mistake.</p>
+  <ul>
+    <li><strong>Binary:</strong> <code>Ki</code>, <code>Mi</code>, <code>Gi</code>, <code>Ti</code> — powers of 1024. <code>1Gi</code> is 1,073,741,824 bytes.</li>
+    <li><strong>Decimal:</strong> <code>K</code>, <code>M</code>, <code>G</code>, <code>T</code> — powers of 1000. <code>1G</code> is 1,000,000,000 bytes.</li>
+  </ul>
+  <p>The gap is about 7% at gigabyte scale and widens as the unit grows. For memory you almost always want the binary form, because that is how the kernel and the container runtime actually account for it.</p>
+
+  <h3>CPU is measured in millicores</h3>
+  <p>CPU quantities use <code>m</code> for thousandths of a core: <code>500m</code> is half a core, <code>1000m</code> is exactly one core, and a bare <code>1</code> means the same as <code>1000m</code>. CPU is compressible — a container over its limit is throttled, not killed.</p>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3><code>1M</code> is not one mebibyte</h3>
+  <p>Writing <code>memory: 512M</code> when you meant <code>512Mi</code> gives you about 24 MiB less than intended. That is usually harmless, until it is the margin that causes an OOMKill under load. The lowercase <code>m</code> is worse: <code>memory: 100m</code> is not 100 megabytes, it is 0.1 <em>bytes</em>, because <code>m</code> means milli. Kubernetes accepts it without complaint.</p>
+
+  <h3>Memory limits are enforced by killing</h3>
+  <p>Unlike CPU, memory is incompressible. A container that exceeds its memory limit is terminated with OOMKilled — there is no throttling, no warning, and the process gets no chance to shed load. The exit code is 137. Setting a limit lower than genuine peak usage converts a slow-memory problem into a crash loop.</p>
+
+  <h3>Requests schedule, limits constrain</h3>
+  <p>The request is what the scheduler uses to decide whether a node has room; the limit is what the runtime enforces at execution. Setting a request far below the limit lets the scheduler overcommit a node, which works until several pods peak together and the node starts evicting. Setting them equal gives the pod Guaranteed quality of service and the most predictable behaviour.</p>
+
+  <h3>Node capacity is not what you can use</h3>
+  <p>A node advertises capacity, but the kubelet reserves part of it for the system and the kubelet itself, leaving a smaller allocatable figure. Sizing pods against the node's total memory rather than its allocatable memory is why a pod that "obviously fits" stays Pending.</p>
+
+  <h3>Fractional CPU below 100m behaves poorly</h3>
+  <p>CPU requests translate to cgroup shares, and very small values give a container so little guaranteed time that it is starved under contention — which looks like random latency rather than a resource problem. If a workload is latency sensitive, do not request less than about 100m.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="k8slint.html">K8s Manifest Analyzer</a></li><li><a href="dockerlint.html">Dockerfile Checker</a></li><li><a href="resourcequota.html">K8s Resource Quota Calculator</a></li></ul></div></section>
 
   <!-- CHMOD CALCULATOR -->

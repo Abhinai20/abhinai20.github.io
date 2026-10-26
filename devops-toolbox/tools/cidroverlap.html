@@ -203,6 +203,36 @@
         <div id="cidroverlap-result" class="result-box result-idle">Paste CIDR blocks and click "Check Overlaps".</div>
       </div>
     </div>
+  <h2>What counts as an overlap</h2>
+  <p>Two CIDR blocks overlap when any address belongs to both. In practice that takes one of two forms:</p>
+  <ul>
+    <li><strong>Containment</strong> — one range sits entirely inside the other, as <code>10.0.5.0/24</code> does inside <code>10.0.0.0/16</code>.</li>
+    <li><strong>Identical</strong> — the same range allocated twice in different places.</li>
+  </ul>
+  <p>Properly aligned CIDR blocks cannot partially overlap: because every block starts on a boundary that is a power of two, two ranges are either disjoint or one contains the other. A partial overlap means one of the inputs is not a valid network address.</p>
+
+  <h2>Why overlaps matter</h2>
+
+  <h3>Peering and VPN are refused outright</h3>
+  <p>Overlapping ranges cannot be peered — the request fails rather than degrading, because the routing would be ambiguous. The same applies to site-to-site VPN and Direct Connect back to a corporate network. This is usually discovered at exactly the wrong moment: when two environments that were built independently need to talk.</p>
+
+  <h3>Routing becomes ambiguous</h3>
+  <p>Where overlapping routes do coexist, the most specific prefix wins — a <code>/24</code> route beats a <code>/16</code> covering the same addresses. That makes behaviour depend on which routes happen to be installed, which is a very difficult class of bug: traffic to one host works and another does not, with nothing obviously wrong at either end.</p>
+
+  <h3>Security group references stop being meaningful</h3>
+  <p>Rules written against CIDR ranges rather than security group IDs silently widen when ranges overlap, because a rule intended for one environment also matches addresses in another.</p>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>The default ranges collide constantly</h3>
+  <p>Almost every tutorial and default template uses <code>10.0.0.0/16</code> or <code>172.17.0.0/16</code>, so independently built environments collide the first time anyone tries to connect them. Docker's default bridge is <code>172.17.0.0/16</code>, which also conflicts with the lower end of the private <code>172.16.0.0/12</code> range used by some corporate networks — a classic cause of a container losing access to an internal service.</p>
+
+  <h3>Check against everything, not just cloud</h3>
+  <p>The comparison set has to include on-premises networks, VPN client pools, partner networks you might peer with, and Kubernetes pod and service CIDRs — which are separate ranges that must not collide with the VPC or with each other.</p>
+
+  <h3>Renumbering later is the expensive option</h3>
+  <p>Changing a subnet's range means recreating it and everything in it. Keeping a simple allocation registry, even a spreadsheet, costs a few minutes per environment and avoids that entirely.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="cidr.html">CIDR Calculator</a></li></ul></div></section>
 
   <!-- URL ANALYZER -->

@@ -190,6 +190,39 @@
         <div id="iampolicy-result" class="result-box result-idle">Paste a policy and click "Analyze".</div>
       </div>
     </div>
+  <h2>How an IAM policy is structured</h2>
+  <p>A policy document is a list of statements, each granting or denying specific actions on specific resources, optionally under conditions.</p>
+  <ul>
+    <li><strong>Effect</strong> — <code>Allow</code> or <code>Deny</code>.</li>
+    <li><strong>Action</strong> — the API operations, such as <code>s3:GetObject</code>.</li>
+    <li><strong>Resource</strong> — the ARNs the statement applies to.</li>
+    <li><strong>Condition</strong> — extra constraints, such as a source IP range or a required tag.</li>
+    <li><strong>Principal</strong> — who is being granted access, in resource-based policies only.</li>
+  </ul>
+
+  <h3>How a request is decided</h3>
+  <p>Access is denied by default. An explicit <code>Allow</code> anywhere grants it, and an explicit <code>Deny</code> anywhere overrides every allow. That ordering is absolute: no amount of allowing can override a deny.</p>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>Explicit deny always wins</h3>
+  <p>If a permission is not working and the policy clearly grants it, something else is denying it — a permission boundary, a service control policy at the organisation level, a session policy, or another statement in the same document. Looking only at the policy that grants is why these take hours to debug.</p>
+
+  <h3>Some actions ignore Resource</h3>
+  <p>A number of list and describe operations do not act on a specific resource, so they only work with <code>"Resource": "*"</code>. Writing a tightly scoped ARN for them produces a policy that looks correct and denies everything. The service documentation's resource-level permissions table is the authority on which actions support scoping.</p>
+
+  <h3>Bucket and object ARNs are different</h3>
+  <p><code>arn:aws:s3:::my-bucket</code> is the bucket; <code>arn:aws:s3:::my-bucket/*</code> is its contents. <code>ListBucket</code> needs the first, <code>GetObject</code> needs the second, and a policy with only one of them fails in a way that reads like a credentials problem. Most working S3 policies list both.</p>
+
+  <h3>Wildcards expand with the provider</h3>
+  <p><code>s3:*</code> grants permissions that did not exist when the policy was written, including future destructive ones. The same is true of <code>iam:*</code>, which is effectively administrative access — anything that can modify IAM can grant itself everything else. Enumerate the actions you need.</p>
+
+  <h3><code>NotAction</code> and <code>NotResource</code> are rarely what you want</h3>
+  <p>They mean "everything except", which grows silently as the provider adds services. A policy using <code>NotAction</code> with <code>Allow</code> is granting every future API too. Reserve them for deny statements, where the inversion fails safe.</p>
+
+  <h3>Trust policies are the other half</h3>
+  <p>For a role, the permission policy says what it can do and the trust policy says who may assume it. An overly broad trust policy — a wildcard principal, or a missing external ID on a cross-account role — matters more than the permissions, because it decides who gets them.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="tf.html">TF Plan Formatter</a></li><li><a href="secretscanner.html">Secret Scanner</a></li><li><a href="jwt.html">JWT Decoder</a></li></ul></div></section>
 
   <!-- CHMOD CALCULATOR -->

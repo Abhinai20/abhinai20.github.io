@@ -175,6 +175,37 @@ spec:
         <div id="k8s-result" class="result-box result-idle">Paste a manifest and click "Analyze".</div>
       </div>
     </div>
+  <h2>What to check in a manifest</h2>
+  <p>A manifest that applies cleanly can still be wrong in ways that only show up under load, during a rollout, or during an incident. These are the checks worth making every time.</p>
+  <ul>
+    <li>Resource requests and limits are set on every container.</li>
+    <li>Liveness and readiness probes exist and are distinct.</li>
+    <li>The image tag is pinned, not <code>latest</code>.</li>
+    <li>A security context drops privileges and avoids running as root.</li>
+    <li>Selectors and pod labels actually match.</li>
+    <li>More than one replica, with a disruption budget, for anything that matters.</li>
+  </ul>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>Readiness and liveness are not interchangeable</h3>
+  <p>Readiness controls whether traffic is sent to the pod; liveness controls whether the pod is killed. Pointing both at the same endpoint means a dependency outage that makes the app temporarily unready also makes it get restarted, repeatedly, turning a recoverable degradation into a crash loop. Readiness should reflect "can I serve right now", liveness only "am I irrecoverably stuck".</p>
+
+  <h3>A missing startup probe kills slow starters</h3>
+  <p>An application that takes ninety seconds to warm up will be killed by a liveness probe with a thirty-second threshold, forever. A startup probe exists precisely for this: liveness does not begin until startup succeeds. Without one, the usual workaround is a long <code>initialDelaySeconds</code>, which then delays detection of genuine hangs for the whole life of the pod.</p>
+
+  <h3>Selector and labels drift apart silently</h3>
+  <p>A Deployment's <code>selector.matchLabels</code> must match the pod template's labels. If they do not, the Deployment creates pods it does not consider its own and keeps creating more. Worse, a Deployment's selector is immutable after creation, so fixing a mistake means deleting and recreating the object.</p>
+
+  <h3>No limits means the node decides</h3>
+  <p>A container without a memory limit can consume whatever is available and push the node into memory pressure, at which point the kubelet starts evicting pods — frequently other people's. Best-effort pods are evicted first, so an unlimited container can survive while well-behaved neighbours are killed.</p>
+
+  <h3>One replica is not an availability strategy</h3>
+  <p>A single replica means every node drain, every rollout and every eviction is downtime. Adding a PodDisruptionBudget without adding replicas does not help either — it just blocks the drain instead, which turns a maintenance operation into a stuck one.</p>
+
+  <h3><code>terminationGracePeriodSeconds</code> interacts with your shutdown</h3>
+  <p>Kubernetes sends SIGTERM, waits the grace period, then sends SIGKILL. If the app ignores SIGTERM, or runs under a shell that does not forward it, every pod termination takes the full grace period and then dies hard mid-request. Handling SIGTERM and removing the pod from the load balancer before exiting is what makes rollouts invisible to users.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="dockerlint.html">Dockerfile Checker</a></li><li><a href="k8squantity.html">K8s Quantity Converter</a></li><li><a href="resourcequota.html">K8s Resource Quota Calculator</a></li></ul></div></section>
 
   <!-- DOCKERFILE CHECKER -->

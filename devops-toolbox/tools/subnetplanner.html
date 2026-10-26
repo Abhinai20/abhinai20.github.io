@@ -198,6 +198,33 @@
         <div id="subnetplanner-result" class="result-box result-idle tf-output">Enter a CIDR and click "Plan subnets".</div>
       </div>
     </div>
+  <h2>Planning VPC address space</h2>
+  <p>Subnet layout is one of the few cloud decisions that is genuinely hard to change later, so it is worth spending time on before the first resource is created.</p>
+  <p>The usual shape is a VPC CIDR divided per availability zone, and within each zone a public subnet for load balancers and NAT, and a private subnet for compute and databases. Three availability zones is the common baseline, which means at least six subnets.</p>
+
+  <h3>A workable default</h3>
+  <p>A <code>/16</code> VPC split into <code>/20</code> subnets gives sixteen blocks of roughly 4,000 addresses — enough for three zones of public and private subnets with plenty spare for later tiers. Generous sizing costs nothing: unused private address space is free.</p>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>AWS reserves five addresses per subnet</h3>
+  <p>Not two. The network address, the broadcast address, and the first three usable addresses are taken by the VPC router, DNS, and a reserved slot. A <code>/28</code> therefore yields 11 usable addresses rather than 14, which is exactly the size where it hurts.</p>
+
+  <h3>A VPC CIDR cannot be shrunk</h3>
+  <p>You can add secondary CIDR blocks to an AWS VPC, but you cannot resize or remove the primary one, and a subnet's range is fixed for its lifetime. Undersizing means migrating workloads into new subnets later — which touches security groups, route tables and anything with a hardcoded address.</p>
+
+  <h3>Overlapping ranges block peering forever</h3>
+  <p>Two VPCs with overlapping CIDRs cannot be peered, and the same applies to a VPN or Direct Connect back to on-premises. Using <code>10.0.0.0/16</code> because it is the default is how two environments end up unable to talk to each other. Allocate from a registry of ranges across the whole organisation, including the corporate network, before creating anything.</p>
+
+  <h3>Kubernetes needs far more addresses than you expect</h3>
+  <p>With the AWS VPC CNI, every pod takes a real subnet IP, and each node pre-allocates a block of them. A cluster of modest size can exhaust a <code>/24</code> quickly, and IP exhaustion presents as pods stuck in ContainerCreating rather than as a networking error. Size node subnets for pods, not for nodes.</p>
+
+  <h3>One NAT gateway per zone, or none</h3>
+  <p>Routing all private subnets through a single NAT gateway saves money and creates both a single point of failure and cross-zone data charges. One per availability zone is the resilient pattern; be deliberate about which you are choosing rather than inheriting it from a template.</p>
+
+  <h3>Leave gaps between allocations</h3>
+  <p>Allocating contiguously means the next subnet has nowhere to grow. Leaving a block spare after each tier costs nothing in a private range and makes later expansion a change rather than a migration.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="cidr.html">CIDR Calculator</a></li><li><a href="cidroverlap.html">CIDR Overlap Checker</a></li><li><a href="k8sgen.html">K8s Manifest Generator</a></li></ul></div></section>
 
   <!-- CHMOD CALCULATOR -->

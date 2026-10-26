@@ -231,6 +231,35 @@
         <div id="resourcequota-result" class="result-box result-idle">Paste quantities and click "Sum".</div>
       </div>
     </div>
+  <h2>How quotas and limits fit together</h2>
+  <p>Three objects control resource consumption in a namespace, and they do different jobs:</p>
+  <ul>
+    <li><strong>ResourceQuota</strong> caps the namespace in aggregate — total CPU, total memory, and counts of objects such as pods or services.</li>
+    <li><strong>LimitRange</strong> applies per container: default requests and limits for anything that does not specify its own, plus minimum and maximum bounds.</li>
+    <li><strong>Pod requests and limits</strong> are what an individual workload asks for and is held to.</li>
+  </ul>
+  <p>A quota without a LimitRange is the usual misconfiguration, because of how the two interact.</p>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>A CPU or memory quota makes requests mandatory</h3>
+  <p>Once a ResourceQuota sets <code>requests.cpu</code> or <code>limits.memory</code>, every pod created in that namespace must declare the corresponding value — otherwise it is rejected outright. Applying a quota to a namespace full of existing manifests that omit resources will break the next deployment of every one of them. A LimitRange supplying defaults prevents this, which is why the two are normally introduced together.</p>
+
+  <h3>Quota is checked at admission, not continuously</h3>
+  <p>It constrains what can be <em>created</em>, based on declared requests and limits. It does not measure actual usage, so a namespace well within quota can still exhaust a node if its pods consistently use more than they requested. Quota is a budgeting tool for cluster capacity planning, not a runtime guard.</p>
+
+  <h3>Lowering a quota does not evict anything</h3>
+  <p>Existing pods above the new figure keep running; the quota only blocks new creations. So a namespace can sit over quota indefinitely, and the symptom appears later as a failed rollout rather than at the moment the limit was changed.</p>
+
+  <h3>Object count quotas cause confusing failures</h3>
+  <p>Limits on <code>pods</code> or <code>count/deployments</code> surface as admission errors from controllers rather than from the user — a Deployment that simply never reaches its replica count, with the real reason buried in the ReplicaSet's events. When replicas are stuck, check namespace quota before debugging the scheduler.</p>
+
+  <h3>Terminating pods still count</h3>
+  <p>Pods in Terminating state continue to consume quota until they are fully gone, so a rolling update in a tight namespace can deadlock: the new pod cannot be created because the old one has not finished shutting down. Leaving headroom of at least one pod's worth of resources, or using <code>maxSurge: 0</code>, avoids it.</p>
+
+  <h3>Quota is per namespace, scheduling is per node</h3>
+  <p>Staying inside quota says nothing about whether any single node has room for a given pod. A namespace with generous quota can still have pods stuck Pending because no node has a contiguous block of the requested size, which is a bin-packing problem rather than a quota one.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="k8slint.html">K8s Manifest Analyzer</a></li><li><a href="dockerlint.html">Dockerfile Checker</a></li><li><a href="k8squantity.html">K8s Quantity Converter</a></li></ul></div></section>
   <!-- REST ENDPOINT MOCK GENERATOR -->
 

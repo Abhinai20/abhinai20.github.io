@@ -204,6 +204,35 @@
         <div id="k8sgen-result" class="result-box result-idle tf-output">Fill in the fields and click "Generate".</div>
       </div>
     </div>
+  <h2>The objects a service needs</h2>
+  <p>Running something on Kubernetes usually means three objects working together, each with a distinct job:</p>
+  <ul>
+    <li><strong>Deployment</strong> — declares the pod template and how many replicas, and manages rollouts.</li>
+    <li><strong>Service</strong> — gives those pods a stable name and virtual IP, selecting them by label.</li>
+    <li><strong>Ingress</strong> — routes external HTTP traffic to a Service by host and path.</li>
+  </ul>
+  <p>ConfigMaps and Secrets supply configuration, mounted as files or injected as environment variables.</p>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3>Labels are the wiring, and they must match exactly</h3>
+  <p>A Service finds pods through <code>spec.selector</code> matching the pod template's labels — not the Deployment's own labels, which is the distinction people miss. One typo and the Service has no endpoints, presenting as connection refused rather than as a configuration error. <code>kubectl get endpoints &lt;service&gt;</code> showing none is the fastest confirmation.</p>
+
+  <h3><code>targetPort</code> and <code>port</code> are different things</h3>
+  <p><code>port</code> is what the Service listens on; <code>targetPort</code> is the container's port. Setting them to the same value out of habit works until they differ, and then traffic goes nowhere. Naming the container port and referring to it by name in the Service is more robust than repeating a number in two places.</p>
+
+  <h3>ConfigMap changes do not restart pods</h3>
+  <p>Updating a ConfigMap does not roll the Deployment. Values mounted as volumes update in place after a delay, but anything read at startup — and every environment variable — keeps the old value until the pod restarts. The common fix is to put a hash of the config in a pod annotation so that changing it naturally triggers a rollout.</p>
+
+  <h3>Secrets are base64, not encryption</h3>
+  <p>A Secret is encoded, not encrypted, and anyone who can read the object can read its contents. Committing one to git publishes the credential as surely as committing the plaintext would. Encryption at rest must be enabled on the cluster, and access controlled through RBAC, before a Secret is meaningfully secret.</p>
+
+  <h3>Namespace is easy to forget</h3>
+  <p>A manifest without an explicit namespace lands wherever the current context points, which is how objects end up in <code>default</code> and then cannot find each other. Cross-namespace DNS needs the fully qualified form, <code>service.namespace.svc.cluster.local</code> — the short name only resolves within the same namespace.</p>
+
+  <h3>Generated manifests need review, not just application</h3>
+  <p>A generator gives you a correct skeleton, not a production-ready object. Resource requests, probes, security context, replica count and disruption budgets all depend on what the workload actually does, and none can be inferred from an image name. Treat generated YAML as a first draft.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul><li><a href="k8slint.html">K8s Manifest Analyzer</a></li><li><a href="k8squantity.html">K8s Quantity Converter</a></li><li><a href="resourcequota.html">K8s Resource Quota Calculator</a></li></ul></div></section>
 
   <!-- CHMOD CALCULATOR -->

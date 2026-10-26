@@ -169,6 +169,38 @@
       <span class="legend-item"><span class="swatch swatch-change"></span> update in-place</span>
       <span class="legend-item"><span class="swatch swatch-replace"></span> replace (destroy + create)</span>
     </div>
+  <h2>Reading a Terraform plan</h2>
+  <p>Every line in a plan is prefixed with a symbol saying what will happen. Reading them correctly is the difference between a routine apply and an outage.</p>
+  <ul>
+    <li><code>+</code> — create.</li>
+    <li><code>-</code> — destroy.</li>
+    <li><code>~</code> — update in place, no downtime.</li>
+    <li><code>-/+</code> — <strong>destroy and recreate</strong>. The resource is replaced.</li>
+    <li><code>+/-</code> — create the replacement first, then destroy the old one (<code>create_before_destroy</code>).</li>
+    <li><code>&lt;=</code> — a data source being read.</li>
+  </ul>
+  <p>The summary line at the end is the thing to read out loud before approving: "3 to add, 1 to change, 2 to destroy".</p>
+
+  <h2>Gotchas worth knowing</h2>
+
+  <h3><code>-/+</code> is the one to stop on</h3>
+  <p>Replacement means the existing resource is destroyed. For a database, a stateful volume or anything holding data, that is data loss unless you have explicitly planned for it. Terraform names the attribute that forced it — "forces replacement" appears next to the field — so check whether the change is worth the replacement before approving.</p>
+
+  <h3>A plan is a snapshot, not a promise</h3>
+  <p>It is computed against state and reality at that moment. If anything changes between plan and apply — another engineer applying, a console edit, an autoscaler — the apply can do something the plan did not show. Saving the plan to a file and applying <em>that</em> file is what makes the two match, and is why CI pipelines do it.</p>
+
+  <h3>Drift is invisible until the next plan</h3>
+  <p>Manual changes made in the console do not notify anyone; they surface as unexpected diffs weeks later, often in an unrelated change. The plan showing something you did not write is a signal that someone changed it by hand, not that Terraform is confused.</p>
+
+  <h3>State is the source of truth, and it holds secrets</h3>
+  <p>Terraform decides what to do by comparing configuration against state, not against reality — so a resource deleted from state still exists in the cloud and will be recreated. State files also store resource attributes in plain text, including generated passwords and keys, which is why remote state needs encryption and tight access control.</p>
+
+  <h3>Locking prevents a corrupted state, so do not force it</h3>
+  <p>Concurrent applies against the same state can corrupt it. The backend takes a lock to prevent that; <code>-lock=false</code> and force-unlock exist for genuinely stuck locks, not for impatience. Unlocking while another apply is live is how a state file becomes unusable.</p>
+
+  <h3><code>(known after apply)</code> hides the real diff</h3>
+  <p>Values that depend on resources not yet created display as unknown, which can mask a change downstream. A plan full of unknowns on a large change is worth applying in smaller pieces, with <code>-target</code> if necessary, so each step produces a plan you can actually read.</p>
+
   <div class="related-tools"><h2>Related tools</h2><ul></ul></div></section>
 
   <!-- CRON EXPLAINER -->
